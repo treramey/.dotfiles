@@ -1,17 +1,17 @@
-source ~/zsh-snap/znap.zsh
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
+export LANG="en_US.UTF-8"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-#ZSH_THEME="spaceship"
+#ZSH_THEME="robbyrussell"
 eval "$(starship init zsh)"
-
+eval "$(zoxide init zsh)"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -73,10 +73,10 @@ eval "$(starship init zsh)"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git history emoji zsh-autosuggestions zsh-syntax-highlighting fast-syntax-highlighting)
-source $ZSH/oh-my-zsh.sh
+plugins=(git  zsh-autosuggestions zsh-syntax-highlighting)
 
-eval `dircolors ~/.dircolors`
+source $ZSH/oh-my-zsh.sh
+eval "$(fnm env --use-on-cd)"
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -93,7 +93,9 @@ eval `dircolors ~/.dircolors`
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
-
+export GOPATH=$HOME/go
+export GOROOT="$(brew --prefix golang)/libexec"
+export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
@@ -102,22 +104,22 @@ eval `dircolors ~/.dircolors`
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias open="explorer.exe"
-alias nvim="~/nvim-linux64/bin/nvim"
-alias gofun="tmux attach-session -t gofun"
 
-export BROWSER=wslview
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# fnm
-export PATH="/home/treramey/.local/share/fnm:$PATH"
-eval "`fnm env`"
+# bun completions
+[ -s "/Users/trevor/.bun/_bun" ] && source "/Users/trevor/.bun/_bun"
 
-#golang
-export GOROOT="/usr/local/go"
-export GOPATH="$HOME/go"
-export PATH="$GOPATH/bin:$GOROOT/bin:$PATH"
-
-#export winhost=$(cat /etc/resolv.conf | grep nameserver | awk '{ print $2 }')
-#if [ ! -n "$(grep -P "[[:space:]]winhost" /etc/hosts)" ]; then
-#        printf "%s\t%s\n" "$winhost" "winhost" | sudo tee -a "/etc/hosts"
-#fi
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+export PATH="/usr/local/opt/unzip/bin:$PATH"
+export PATH="/usr/local/opt/sqlite/bin:$PATH"
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
+fi
+export PATH=/usr/local/anaconda3/bin:$PATH
+export PATH=/opt/homebrew/anaconda3/bin:$PATH
