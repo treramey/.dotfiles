@@ -1,0 +1,42 @@
+tap "daipeihust/tap"
+tap "homebrew/bundle"
+tap "homebrew/cask", "https://mirrors.ustc.edu.cn/homebrew-cask.git"
+tap "homebrew/core", "https://mirrors.ustc.edu.cn/homebrew-core.git"
+tap "homebrew/services"
+tap "neovim/neovim"
+# Cross-platform make
+brew "cmake"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# Simple terminal UI for git commands
+brew "lazygit"
+# Platform built on V8 to build network applications
+brew "node", link: false
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.10"
+# Ambitious Vim-fork focused on extensibility and agility
+brew "neovim"
+# Framework for managing multi-language pre-commit hooks
+brew "pre-commit"
+# Python version management
+brew "pyenv"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# Cross-shell prompt for astronauts
+brew "starship"
+# Terminal multiplexer
+brew "tmux"
+# Display directories as trees (with optional color/HTML output)
+brew "tree"
+# Internet file retriever
+brew "wget"
+# GPU-based terminal emulator
+cask "kitty"
+# Collaboration platform for API development
+cask "postman"
+# App to build and share containerized applications and microservices
+cask "docker"
+# Web browser
+cask "google-chrome"
