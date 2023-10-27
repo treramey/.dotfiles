@@ -1,3 +1,13 @@
 [submodule "astronvim_config"]
 	path = astronvim_config
 	url = https://github.com/treramey/astronvim_config.git
+[submodule "dotbot"]
+	path = dotbot
+	url = https://github.com/anishathalye/dotbot
+	ignore = dirty
+[submodule ".config/zsh/plugins/zsh-completions"]
+	path = .config/zsh/plugins/zsh-completions
+	url = https://github.com/zsh-users/zsh-completions
+[submodule ".config/zsh/plugins/zsh-syntax-highlighting"]
+	path = .config/zsh/plugins/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git

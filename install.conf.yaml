@@ -1,0 +1,30 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- create:
+    - ~/.config
+    - ~/workspace/
+
+- clean: ['~']
+
+- link:
+    ~/.zshenv: .config/zsh/.zshenv
+    ~/.tmux.conf: .config/tmux/tmux.conf
+    ~/.config/zsh: .config/zsh
+    ~/.config/nvim: .config/nvim
+    ~/.config/tmux: .config/tmux
+    ~/.config/starship.toml: .config/starship.toml
+    ~/.config/kitty:
+      force: true
+      path: .config/kitty
+    ~/.config/lazygit/config.yml:
+      force: true
+      path: .config/lazygit/config.yml
+    ~/.config/karabiner:
+      force: true
+      path: .config/karabiner
+
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
