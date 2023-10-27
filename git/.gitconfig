@@ -1,0 +1,19 @@
+[user]
+  name = "Trevor Ramey"
+  email = "example@example.com"
+[init]
+  defaultBranch = main
+[commit]
+  template = ~/.gitmessage
+[alias]
+  new = checkout -b
+[color]
+  ui = auto
+  status = auto
+  diff = auto
+  branch = auto
+  showBranch = auto
+  interactive = auto
+[format]
+  pretty = format:%C(yellow)%h %Cblue%>(15)%ad %Cgreen%<(15)%aN%Cred%d %Creset%s
+

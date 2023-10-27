@@ -1,0 +1,4 @@
+[user]
+  email = "myles@email.com"
+
+# vim:fileencoding=utf-8:ft=gitconfig
