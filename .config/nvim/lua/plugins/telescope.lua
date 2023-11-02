@@ -1,10 +1,5 @@
 return {
 	{
-		"nvim-telescope/telescope-fzf-native.nvim",
-		build = "make",
-		cond = vim.fn.executable("make") == 1,
-	},
-	{
 		"nvim-telescope/telescope.nvim",
 		branch = "0.1.x",
 		dependencies = {
@@ -32,6 +27,9 @@ return {
 						"node_modules",
 						"yarn.lock",
 						".git",
+						".sl",
+						"_build",
+						".next",
 					},
 					hidden = true,
 				},
