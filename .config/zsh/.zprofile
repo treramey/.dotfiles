@@ -12,5 +12,5 @@
 # +-------------------+
 export WORKON_HOME="$HOME/.virtualenvs"
 export PROJECT_HOME="$PYPROJECT"
-export VIRTUALENVWRAPPER_PYTHON="/usr/local/bin/python3"
-source /usr/local/bin/virtualenvwrapper.sh
+# export VIRTUALENVWRAPPER_PYTHON="/usr/local/bin/python3"
+# source /usr/local/bin/virtualenvwrapper.sh
