@@ -57,7 +57,24 @@ ZSH_HIGHLIGHT_STYLES[path]='fg=#cba6f7'
 
 source $ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
+# +-----------------+
+# | autosuggestions |
+# +-----------------+
+source $ZDOTDIR/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+
 # +----------+
 # | starship |
 # +----------+
 eval "$(starship init zsh)"
+
+# +--------+
+# | zoxide |
+# +--------+
+eval "$(zoxide init zsh)"
+
+# +-----+
+# | fnm |
+# +-----+
+eval "$(fnm env --use-on-cd)"
+

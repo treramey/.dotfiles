@@ -46,6 +46,7 @@ export PATH="$PATH:$GOBIN"
 # MacOS brew
 #
 # export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+export PATH=/opt/homebrew/bin:$PATH
 
 #
 # Workspace

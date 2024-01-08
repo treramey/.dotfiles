@@ -1,0 +1,9 @@
+# Ignore tmux plugins
+.config/tmux/plugins
+
+# Ignore DS_Store files
+.DS_Store
+
+# zsh history
+.zsh_history
+.zcompdump*
