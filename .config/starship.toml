@@ -55,7 +55,7 @@ symbol = " "
 format = 'via [$symbol]($style)'
 
 [package]
-symbol = " "
+symbol = " "
 
 [perl]
 symbol = " "
