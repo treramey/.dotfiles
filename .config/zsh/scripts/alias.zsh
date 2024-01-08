@@ -10,6 +10,7 @@ alias la='ls -lAFh'
 alias lr='ls -tRFh'
 alias lt='ls -ltFh'
 alias ll='ls -l'
+alias open="explorer.exe"
 
 # grep
 alias grep='grep --color=auto'
@@ -28,6 +29,8 @@ alias mo="~/.local/share/nvim-macos/bin/nvim"
 alias t='tmux'
 alias tm='tmux'
 alias tx='tmux'
+alias work="tmux attach-session -t work || tmux new-session -s work"
+alias kill-tmux="tmux kill-session -t"
 
 # directory
 alias -g ...='../..'
