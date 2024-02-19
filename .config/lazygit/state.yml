@@ -1,9 +1,11 @@
 lastupdatecheck: 0
 recentrepos:
-- /Users/treramey/.config/nvim
-- /Users/treramey/workspace/pyproject/ops-server
-- /Users/treramey/workspace/pyproject/devops
-- /Users/treramey/workspace/pyproject/hyper-board
+- /Users/TRamey/.dotfiles
+- /Users/TRamey/dev/PayNow
+- /Users/TRamey/dev/fnol_interface
+- /Users/TRamey/.config/nvim
+- /Users/TRamey/dev/Evergreen
 startuppopupversion: 5
 customcommandshistory: []
 hidecommandlog: false
+ignorewhitespaceindiffview: false
