@@ -33,6 +33,46 @@
     "command": "workbench.action.terminal.kill",
     "when": "terminalFocus"
   },
+  {
+    "key": "j",
+    "command": "list.focusDown",
+    "when": "explorerViewletVisible && filesExplorerFocus && !explorerResourceIsRoot && !explorerResourceReadonly && !inputFocus"
+  },
+  {
+    "key": "k",
+    "command": "list.focusUp",
+    "when": "explorerViewletVisible && filesExplorerFocus && !explorerResourceIsRoot && !explorerResourceReadonly && !inputFocus"
+  },
+  {
+    "key": "ctrl+j",
+    "command": "selectNextSuggestion",
+    "when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
+  },
+  {
+    "key": "ctrl+k",
+    "command": "selectPrevSuggestion",
+    "when": "editorTextFocus && suggestWidgetMultipleSuggestions && suggestWidgetVisible"
+  },
+  {
+    "key": "ctrl+j",
+    "command": "workbench.action.quickOpenNavigateNext",
+    "when": "inQuickOpen"
+  },
+  {
+    "key": "ctrl+k",
+    "command": "workbench.action.quickOpenNavigatePrevious",
+    "when": "inQuickOpen"
+  },
+  {
+    "key": "ctrl+j",
+    "command": "workbench.action.navigateDown",
+    "when": "!terminalFocus && !suggestWidgetVisible && !inQuickOpen"
+  },
+  {
+    "key": "ctrl+k",
+    "command": "workbench.action.navigateUp",
+    "when": "!terminalFocus && !suggestWidgetVisible && !inQuickOpen"
+  },
   // FILE TREE
   {
     "command": "workbench.action.toggleSidebarVisibility",
@@ -60,16 +100,6 @@
     "when": "inEditorsPicker || inQuickOpen"
   },
   {
-    "key": "ctrl+j",
-    "command": "workbench.action.navigateDown",
-    "when": "!terminalFocus"
-  },
-  {
-    "key": "ctrl+k",
-    "command": "workbench.action.navigateUp",
-    "when": "!terminalFocus"
-  },
-  {
     "key": "ctrl+h",
     "command": "workbench.action.navigateLeft"
   },
@@ -95,7 +125,7 @@
   {
     "key": "shift+n",
     "command": "workbench.action.newWindow",
-    "when": "!explorerViewletFocus"
+    "when": "!explorerViewletFocus && vim.mode != 'Insert'"
   },
   {
     "command": "deleteFile",
@@ -110,5 +140,5 @@
   {
     "key": "ctrl+z",
     "command": "workbench.action.toggleZenMode"
-  }
+  },
 ]

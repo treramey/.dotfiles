@@ -71,7 +71,7 @@
       "activityBar.background": "#24273a",
       "statusBar.background": "#24273a",
       "editorGroupHeader.tabsBackground": "#24273a",
-      "tab.inactiveBackground": "#24273a"
+      "tab.inactiveBackground": "#24273a",
     }
   },
   // Toggle excluded files
@@ -132,10 +132,14 @@
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,
   "window.zoomLevel": 0.75,
-  "editor.rulers": [120],
+  "editor.rulers": [
+    120
+  ],
   //project manager
   "projectManager.sortList": "Recent",
-  "projectManager.git.baseFolders": ["$home/dev"],
+  "projectManager.git.baseFolders": [
+    "$home/dev"
+  ],
   "extensions.experimental.affinity": {
     "vscodevim.vim": 1
   },
@@ -149,175 +153,384 @@
   "vim.leader": "<Space>",
   "vim.insertModeKeyBindings": [
     {
-      "before": ["j", "j"],
-      "after": ["<Esc>"]
-    }
+      "before": [
+        "j",
+        "j"
+      ],
+      "after": [
+        "<Esc>"
+      ]
+    },
   ],
   "vim.normalModeKeyBindingsNonRecursive": [
     // DEBUG
     {
-      "before": ["<leader>", "d", "d"],
-      "commands": ["workbench.action.debug.start"]
+      "before": [
+        "<leader>",
+        "d",
+        "d"
+      ],
+      "commands": [
+        "workbench.action.debug.start"
+      ]
     },
     {
-      "before": ["<leader>", "d", "S"],
-      "commands": ["workbench.action.debug.stop"]
+      "before": [
+        "<leader>",
+        "d",
+        "S"
+      ],
+      "commands": [
+        "workbench.action.debug.stop"
+      ]
     },
     {
-      "before": ["<leader>", "d", "c"],
-      "commands": ["workbench.action.debug.continue"]
+      "before": [
+        "<leader>",
+        "d",
+        "c"
+      ],
+      "commands": [
+        "workbench.action.debug.continue"
+      ]
     },
     {
-      "before": ["<leader>", "d", "p"],
-      "commands": ["workbench.action.debug.pause"]
+      "before": [
+        "<leader>",
+        "d",
+        "p"
+      ],
+      "commands": [
+        "workbench.action.debug.pause"
+      ]
     },
     {
-      "before": ["<leader>", "d", "r"],
-      "commands": ["workbench.action.debug.run"]
+      "before": [
+        "<leader>",
+        "d",
+        "r"
+      ],
+      "commands": [
+        "workbench.action.debug.run"
+      ]
     },
     {
-      "before": ["<leader>", "d", "R"],
-      "commands": ["workbench.action.debug.restart"]
+      "before": [
+        "<leader>",
+        "d",
+        "R"
+      ],
+      "commands": [
+        "workbench.action.debug.restart"
+      ]
     },
     {
-      "before": ["<leader>", "d", "i"],
-      "commands": ["workbench.action.debug.stepInto"]
+      "before": [
+        "<leader>",
+        "d",
+        "i"
+      ],
+      "commands": [
+        "workbench.action.debug.stepInto"
+      ]
     },
     {
-      "before": ["<leader>", "d", "s"],
-      "commands": ["workbench.action.debug.stepOver"]
+      "before": [
+        "<leader>",
+        "d",
+        "s"
+      ],
+      "commands": [
+        "workbench.action.debug.stepOver"
+      ]
     },
     {
-      "before": ["<leader>", "d", "o"],
-      "commands": ["workbench.action.debug.stepOut"]
+      "before": [
+        "<leader>",
+        "d",
+        "o"
+      ],
+      "commands": [
+        "workbench.action.debug.stepOut"
+      ]
     },
     {
-      "before": ["<leader>", "d", "b"],
-      "commands": ["editor.debug.action.toggleBreakpoint"]
+      "before": [
+        "<leader>",
+        "d",
+        "b"
+      ],
+      "commands": [
+        "editor.debug.action.toggleBreakpoint"
+      ]
     },
     {
-      "before": ["<leader>", "d", "B"],
-      "commands": ["editor.debug.action.toggleInlineBreakpoint"]
+      "before": [
+        "<leader>",
+        "d",
+        "B"
+      ],
+      "commands": [
+        "editor.debug.action.toggleInlineBreakpoint"
+      ]
     },
     {
-      "before": ["<leader>", "d", "j"],
-      "commands": ["debug.jumpToCursor"]
+      "before": [
+        "<leader>",
+        "d",
+        "j"
+      ],
+      "commands": [
+        "debug.jumpToCursor"
+      ]
     },
     {
-      "before": ["<leader>", "d", "v"],
-      "commands": ["workbench.debug.action.toggleRepl"]
+      "before": [
+        "<leader>",
+        "d",
+        "v"
+      ],
+      "commands": [
+        "workbench.debug.action.toggleRepl"
+      ]
     },
     {
-      "before": ["<leader>", "d", "w"],
-      "commands": ["workbench.debug.action.focusWatchView"]
+      "before": [
+        "<leader>",
+        "d",
+        "w"
+      ],
+      "commands": [
+        "workbench.debug.action.focusWatchView"
+      ]
     },
     {
-      "before": ["<leader>", "d", "W"],
-      "commands": ["editor.debug.action.selectionToWatch"]
+      "before": [
+        "<leader>",
+        "d",
+        "W"
+      ],
+      "commands": [
+        "editor.debug.action.selectionToWatch"
+      ]
     },
     // NAVIGATION
     {
-      "before": ["<C-[>"],
-      "commands": [":bprevious"]
+      "before": [
+        "<C-[>"
+      ],
+      "commands": [
+        ":bprevious"
+      ]
     },
     {
-      "before": ["<C-]>"],
-      "commands": [":bnext"]
+      "before": [
+        "<C-]>"
+      ],
+      "commands": [
+        ":bnext"
+      ]
     },
     {
-      "before": ["leader", "r"],
-      "commands": ["editor.action.rename"]
+      "before": [
+        "leader",
+        "r"
+      ],
+      "commands": [
+        "editor.action.rename"
+      ]
     },
     // splits
     {
-      "before": ["leader", "v"],
-      "commands": [":vsplit"]
+      "before": [
+        "leader",
+        "v"
+      ],
+      "commands": [
+        ":vsplit"
+      ]
     },
     {
-      "before": ["leader", "s"],
-      "commands": [":split"]
+      "before": [
+        "leader",
+        "s"
+      ],
+      "commands": [
+        ":split"
+      ]
     },
     // NICE TO HAVE
     {
-      "before": ["U"],
-      "after": ["<C-r>"]
+      "before": [
+        "U"
+      ],
+      "after": [
+        "<C-r>"
+      ]
     },
     {
-      "after": ["^"],
-      "before": ["H"]
+      "after": [
+        "^"
+      ],
+      "before": [
+        "H"
+      ]
     },
     {
-      "after": ["$"],
-      "before": ["L"]
+      "after": [
+        "$"
+      ],
+      "before": [
+        "L"
+      ]
     },
     {
-      "before": ["leader", "d"],
-      "commands": ["editor.action.showHover"]
+      "before": [
+        "leader",
+        "d"
+      ],
+      "commands": [
+        "editor.action.showHover"
+      ]
     },
     {
-      "before": ["leader", "w"],
-      "commands": [":w!"]
+      "before": [
+        "leader",
+        "w"
+      ],
+      "commands": [
+        ":w!"
+      ]
     },
     {
-      "before": ["leader", "q"],
-      "commands": [":q!"]
+      "before": [
+        "leader",
+        "q"
+      ],
+      "commands": [
+        ":q!"
+      ]
     },
     {
-      "before": ["leader", "x"],
-      "commands": [":x!"]
+      "before": [
+        "leader",
+        "x"
+      ],
+      "commands": [
+        ":x!"
+      ]
     },
     {
-      "before": ["[", "d"],
-      "commands": ["editor.action.marker.prev"]
+      "before": [
+        "[",
+        "d"
+      ],
+      "commands": [
+        "editor.action.marker.prev"
+      ]
     },
     {
-      "before": ["]", "d"],
-      "commands": ["editor.action.marker.next"]
+      "before": [
+        "]",
+        "d"
+      ],
+      "commands": [
+        "editor.action.marker.next"
+      ]
     },
     {
-      "before": ["<leader>", "c", "a"],
-      "commands": ["editor.action.quickFix"]
+      "before": [
+        "<leader>",
+        "c",
+        "a"
+      ],
+      "commands": [
+        "editor.action.quickFix"
+      ]
     },
     {
-      "before": ["leader", "s", "f"],
-      "commands": ["workbench.action.quickOpen"]
+      "before": [
+        "leader",
+        "s",
+        "f"
+      ],
+      "commands": [
+        "workbench.action.quickOpen"
+      ]
     },
     {
-      "before": ["<leader>", "s", "g"],
-      "commands": ["find-it-faster.findWithinFiles"]
+      "before": [
+        "<leader>",
+        "s",
+        "g"
+      ],
+      "commands": [
+        "find-it-faster.findWithinFiles"
+      ]
     },
     {
-      "before": ["leader", "f"],
-      "commands": ["editor.action.formatDocument"]
+      "before": [
+        "leader",
+        "f"
+      ],
+      "commands": [
+        "editor.action.formatDocument"
+      ]
     },
     {
-      "before": ["g", "h"],
-      "commands": ["editor.action.showDefinitionPreviewHover"]
+      "before": [
+        "g",
+        "h"
+      ],
+      "commands": [
+        "editor.action.showDefinitionPreviewHover"
+      ]
     }
   ],
   "vim.visualModeKeyBindings": [
     // Stay in visual mode while indenting
     {
-      "before": ["<"],
-      "commands": ["editor.action.outdentLines"]
+      "before": [
+        "<"
+      ],
+      "commands": [
+        "editor.action.outdentLines"
+      ]
     },
     {
-      "before": [">"],
-      "commands": ["editor.action.indentLines"]
+      "before": [
+        ">"
+      ],
+      "commands": [
+        "editor.action.indentLines"
+      ]
     },
     // Move selected lines while staying in visual mode
     {
-      "before": ["J"],
-      "commands": ["editor.action.moveLinesDownAction"]
+      "before": [
+        "J"
+      ],
+      "commands": [
+        "editor.action.moveLinesDownAction"
+      ]
     },
     {
-      "before": ["K"],
-      "commands": ["editor.action.moveLinesUpAction"]
+      "before": [
+        "K"
+      ],
+      "commands": [
+        "editor.action.moveLinesUpAction"
+      ]
     },
     // toggle comment selection
     {
-      "before": ["leader", "c"],
-      "commands": ["editor.action.commentLine"]
+      "before": [
+        "leader",
+        "c"
+      ],
+      "commands": [
+        "editor.action.commentLine"
+      ]
     }
   ],
   "cSpell.userWords": [],
@@ -329,7 +542,10 @@
       "scope": "user"
     }
   },
-  "cSpell.ignoreWords": ["neovim", "whichkey"],
+  "cSpell.ignoreWords": [
+    "neovim",
+    "whichkey"
+  ],
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
@@ -415,5 +631,8 @@
   ],
   "cflint.jarPath": "/Users/TRamey/dev/CFLint-1.5.0-all.jar",
   "workbench.colorTheme": "Catppuccin Macchiato",
-  "window.commandCenter": false
+  "window.commandCenter": false,
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
 }
