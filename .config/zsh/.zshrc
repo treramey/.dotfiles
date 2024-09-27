@@ -8,6 +8,7 @@ fpath=($ZDOTDIR/plugins $fpath)
 setopt auto_pushd           # Push the old directory onto the stack on cd.
 setopt pushd_ignore_dups    # Do not store duplicates in the stack.
 setopt pushd_silent         # Do not print the directory stack after pushd or popd.
+setopt auto_cd
 
 # setopt correct              # Spelling correction
 setopt cdable_vars          # Change directory to a path stored in a variable.
@@ -40,6 +41,7 @@ source $ZDOTDIR/scripts/alias.zsh
 # +------------+
 source $ZDOTDIR/scripts/completion.zsh
 
+
 # +---------------------+
 # | SYNTAX HIGHLIGHTING |
 # +---------------------+
@@ -61,6 +63,11 @@ source $ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # | autosuggestions |
 # +-----------------+
 source $ZDOTDIR/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# +----------+
+# | worktree |
+# +----------+
+source $ZDOTDIR/plugins/zsh-git-worktrees/zsh-git-worktrees.zsh
 
 
 # +----------+
@@ -91,3 +98,18 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
++vi-worktree-fix() {
+    hook_com[base-name]=${$(git worktree list --porcelain)[2]:t}
+}
+
+zstyle ':vcs_info:git+set-message:*' hooks worktree-fix
+
+# Add .NET Core SDK tools
+export PATH="$PATH:$HOME/.dotnet/tools"
+
+export PATH="/usr/local/opt/krb5/bin:$PATH"
+export PATH="/usr/local/opt/krb5/sbin:$PATH"
+export LDFLAGS="-L/usr/local/opt/krb5/lib"
+export CPPFLAGS="-I/usr/local/opt/krb5/include"
+

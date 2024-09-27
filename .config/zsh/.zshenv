@@ -61,7 +61,12 @@ export PYPROJECT="$WORKSPACE/pyproject"
 export GOPROJECT="$WORKSPACE/goproject"
 export FRONTENDPROJECT="$WORKSPACE/frontend"
 
+
 #
 # MISC
 #
 export DEBUGPY_LOG_DIR="$HOME/.cache/debugpy"
+. "$HOME/.cargo/env"
+
+# powershell
+export PATH="$PATH:/usr/local/microsoft/powershell/7"

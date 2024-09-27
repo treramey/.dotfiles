@@ -62,8 +62,31 @@ alias gsl='git stash list'
 alias gsp='git stash pop'
 alias gsa='git stash apply'
 
-alias gl='git log'
-alias glo='git log --oneline --graph'
+alias gl="git log --graph --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' HEAD --since='2 months ago' --merges"
+alias glo="git log --graph --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all --since='2 months ago' --merges --remotes=origin"
+
+# rider
+function rider() {
+    # Use provided directory or current directory if none provided
+    local dir="${1:-.}"
+    
+    # Find the single Rider application
+    local rider_app=$(find /Applications -maxdepth 1 -name "Rider*.app" | head -n 1)
+    if [ -z "$rider_app" ]; then
+        echo "No Rider installation found."
+        return 1
+    fi
+
+    # Find the single .sln file in the specified directory
+    local sln_file=$(find "$dir" -name "*.sln" | head -n 1)
+    if [ -z "$sln_file" ]; then
+        echo "No .sln file found in the specified directory or its subdirectories."
+        return 1
+    fi
+
+    # Open the .sln file with Rider
+    open -na "$rider_app" --args "$sln_file"
+}
 
 # docker
 alias dk='docker'

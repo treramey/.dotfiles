@@ -17,3 +17,6 @@
 [submodule ".config/nvim"]
 	path = .config/nvim
 	url = https://github.com/treramey/nvim
+[submodule ".config/zsh/plugins/zsh-git-worktrees"]
+	path = .config/zsh/plugins/zsh-git-worktrees
+	url = https://github.com/egyptianbman/zsh-git-worktrees
