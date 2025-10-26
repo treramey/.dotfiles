@@ -1,0 +1,8 @@
+[tools]
+bun = "latest"
+"cargo:eza" = "latest"
+dotnet = "latest"
+node = "latest"
+powershell = "latest"
+python = "latest"
+rust = "latest"
