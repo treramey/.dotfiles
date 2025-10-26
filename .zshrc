@@ -122,7 +122,9 @@ zle -N fs
 bindkey "^t" fs
 
 # bun completions
-[ -s "/Users/adriankarlen/.bun/_bun" ] && source "/Users/adriankarlen/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-export PATH=$PATH:/Users/adriankarlen/.spicetify
+export PATH=$PATH:$HOME/.spicetify
 eval "$(/Users/tmr/.local/bin/mise activate zsh)"
+
+export PATH=$PATH:/Users/tmr/.spicetify
