@@ -5,6 +5,8 @@ if vim.fn.isdirectory(mise_shims) == 1 then
   vim.env.PATH = mise_shims .. ":" .. vim.env.PATH
 end
 
+vim.g.python3_host_prog = vim.fn.expand("~/.local/share/mise/shims/python3")
+
 -- Add dotnet global tools to PATH
 -- Required for easy-dotnet.nvim RPC server (dotnet easydotnet command)
 local dotnet_tools = vim.fn.expand("~/.dotnet/tools")

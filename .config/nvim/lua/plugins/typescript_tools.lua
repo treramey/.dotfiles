@@ -10,7 +10,7 @@ return {
           require("treramey.keymaps").map_lsp_keybinds(buffer_number)
         end,
         settings = {
-          tsserver_path = "~/.bun/bin/tsgo",
+          tsserver_path = vim.fn.stdpath("data") .. "/mason/bin/tsgo",
           -- Performance: separate diagnostic server for large projects
           separate_diagnostic_server = true,
           -- When to publish diagnostics

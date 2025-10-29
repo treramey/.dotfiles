@@ -9,150 +9,150 @@ local function has_git_conflict_markers()
 end
 
 return {
-  {
-    "seblyng/roslyn.nvim",
-    dependencies = {
-      "williamboman/mason.nvim",
-      "j-hui/fidget.nvim",
-      {
-        "tris203/rzls.nvim",
-        config = true,
-      },
-    },
-    enabled = function()
-      return vim.fn.executable("dotnet") == 1 and not has_git_conflict_markers()
-    end,
-    ft = { "cs", "razor" },
-    config = function()
-      require("roslyn").setup({
-        broad_search = true,
-        silent = true,
-      })
-
-      local rzls_path = vim.fn.expand("$MASON/packages/rzls/libexec")
-      local roslyn_dll = vim.fn.expand("$MASON/packages/roslyn-unstable/libexec/Microsoft.CodeAnalysis.LanguageServer.dll")
-
-      local cmd = {
-        "dotnet",
-        roslyn_dll,
-        "--stdio",
-        "--logLevel=Information",
-        "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path()),
-        "--razorSourceGenerator=" .. vim.fs.joinpath(rzls_path, "Microsoft.CodeAnalysis.Razor.Compiler.dll"),
-        "--razorDesignTimePath=" .. vim.fs.joinpath(rzls_path, "Targets", "Microsoft.NET.Sdk.Razor.DesignTime.targets"),
-        "--extension",
-        vim.fs.joinpath(rzls_path, "RazorExtension", "Microsoft.VisualStudioCode.RazorExtension.dll"),
-      }
-
-      vim.lsp.config("roslyn", {
-        cmd = cmd,
-        handlers = require("rzls.roslyn_handlers"),
-        settings = {
-          ["csharp|inlay_hints"] = {
-            csharp_enable_inlay_hints_for_implicit_object_creation = true,
-            csharp_enable_inlay_hints_for_implicit_variable_types = true,
-
-            csharp_enable_inlay_hints_for_lambda_parameter_types = true,
-            csharp_enable_inlay_hints_for_types = true,
-            dotnet_enable_inlay_hints_for_indexer_parameters = true,
-            dotnet_enable_inlay_hints_for_literal_parameters = true,
-            dotnet_enable_inlay_hints_for_object_creation_parameters = true,
-            dotnet_enable_inlay_hints_for_other_parameters = true,
-            dotnet_enable_inlay_hints_for_parameters = true,
-            dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
-            dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
-            dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
-          },
-          ["csharp|code_lens"] = {
-            dotnet_enable_references_code_lens = true,
-          },
-        },
-      })
-
-      vim.lsp.enable("roslyn")
-
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function(args)
-          require("treramey.keymaps").map_lsp_keybinds(args.buf)
-        end,
-      })
-    end,
-    init = function()
-      local restore_handles = {}
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "RoslynRestoreProgress",
-        callback = function(ev)
-          local token = ev.data.params[1]
-          local handle = restore_handles[token]
-          if handle then
-            handle:report({
-              title = ev.data.params[2].state,
-              message = ev.data.params[2].message,
-            })
-          else
-            restore_handles[token] = require("fidget.progress").handle.create({
-              title = ev.data.params[2].state,
-              message = ev.data.params[2].message,
-              lsp_client = {
-                name = "roslyn",
-              },
-            })
-          end
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "RoslynRestoreResult",
-        callback = function(ev)
-          local handle = restore_handles[ev.data.token]
-          restore_handles[ev.data.token] = nil
-
-          if handle then
-            handle.message = ev.data.err and ev.data.err.message or "Restore completed"
-            handle:finish()
-          end
-        end,
-      })
-
-      local init_handles = {}
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "RoslynOnInit",
-        callback = function(ev)
-          init_handles[ev.data.client_id] = require("fidget.progress").handle.create({
-            title = "Initializing Roslyn",
-            message = ev.data.type == "solution" and string.format("Initializing Roslyn for %s", ev.data.target)
-              or "Initializing Roslyn for project",
-            lsp_client = {
-              name = "roslyn",
-            },
-          })
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "RoslynInitialized",
-        callback = function(ev)
-          local handle = init_handles[ev.data.client_id]
-          init_handles[ev.data.client_id] = nil
-
-          if handle then
-            handle.message = "Roslyn initialized"
-            handle:finish()
-          end
-        end,
-      })
-
-      vim.filetype.add({
-        extension = {
-          razor = "razor",
-          cshtml = "razor",
-        },
-      })
-    end,
-    keys = {
-      { "<leader>nl", "<cmd>Roslyn restart<cr>", desc = "restart roslyn lsp" },
-    },
-  },
+  -- {
+  --   "seblyng/roslyn.nvim",
+  --   dependencies = {
+  --     "williamboman/mason.nvim",
+  --     "j-hui/fidget.nvim",
+  --     {
+  --       "tris204/rzls.nvim",
+  --       config = true,
+  --     },
+  --   },
+  --   enabled = function()
+  --     return vim.fn.executable("dotnet") == 2 and not has_git_conflict_markers()
+  --   end,
+  --   ft = { "cs", "razor" },
+  --   config = function()
+  --     require("roslyn").setup({
+  --       broad_search = true,
+  --       silent = true,
+  --     })
+  --
+  --     local rzls_path = vim.fn.expand("$MASON/packages/rzls/libexec")
+  --     local roslyn_dll = vim.fn.expand("$MASON/packages/roslyn-unstable/libexec/Microsoft.CodeAnalysis.LanguageServer.dll")
+  --
+  --     local cmd = {
+  --       "dotnet",
+  --       roslyn_dll,
+  --       "--stdio",
+  --       "--logLevel=Information",
+  --       "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path()),
+  --       "--razorSourceGenerator=" .. vim.fs.joinpath(rzls_path, "Microsoft.CodeAnalysis.Razor.Compiler.dll"),
+  --       "--razorDesignTimePath=" .. vim.fs.joinpath(rzls_path, "Targets", "Microsoft.NET.Sdk.Razor.DesignTime.targets"),
+  --       "--extension",
+  --       vim.fs.joinpath(rzls_path, "RazorExtension", "Microsoft.VisualStudioCode.RazorExtension.dll"),
+  --     }
+  --
+  --     vim.lsp.config("roslyn", {
+  --       cmd = cmd,
+  --       handlers = require("rzls.roslyn_handlers"),
+  --       settings = {
+  --         ["csharp|inlay_hints"] = {
+  --           csharp_enable_inlay_hints_for_implicit_object_creation = true,
+  --           csharp_enable_inlay_hints_for_implicit_variable_types = true,
+  --
+  --           csharp_enable_inlay_hints_for_lambda_parameter_types = true,
+  --           csharp_enable_inlay_hints_for_types = true,
+  --           dotnet_enable_inlay_hints_for_indexer_parameters = true,
+  --           dotnet_enable_inlay_hints_for_literal_parameters = true,
+  --           dotnet_enable_inlay_hints_for_object_creation_parameters = true,
+  --           dotnet_enable_inlay_hints_for_other_parameters = true,
+  --           dotnet_enable_inlay_hints_for_parameters = true,
+  --           dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
+  --           dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
+  --           dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
+  --         },
+  --         ["csharp|code_lens"] = {
+  --           dotnet_enable_references_code_lens = true,
+  --         },
+  --       },
+  --     })
+  --
+  --     vim.lsp.enable("roslyn")
+  --
+  --     vim.api.nvim_create_autocmd("LspAttach", {
+  --       callback = function(args)
+  --         require("treramey.keymaps").map_lsp_keybinds(args.buf)
+  --       end,
+  --     })
+  --   end,
+  --   init = function()
+  --     local restore_handles = {}
+  --     vim.api.nvim_create_autocmd("User", {
+  --       pattern = "RoslynRestoreProgress",
+  --       callback = function(ev)
+  --         local token = ev.data.params[2]
+  --         local handle = restore_handles[token]
+  --         if handle then
+  --           handle:report({
+  --             title = ev.data.params[3].state,
+  --             message = ev.data.params[3].message,
+  --           })
+  --         else
+  --           restore_handles[token] = require("fidget.progress").handle.create({
+  --             title = ev.data.params[3].state,
+  --             message = ev.data.params[3].message,
+  --             lsp_client = {
+  --               name = "roslyn",
+  --             },
+  --           })
+  --         end
+  --       end,
+  --     })
+  --
+  --     vim.api.nvim_create_autocmd("User", {
+  --       pattern = "RoslynRestoreResult",
+  --       callback = function(ev)
+  --         local handle = restore_handles[ev.data.token]
+  --         restore_handles[ev.data.token] = nil
+  --
+  --         if handle then
+  --           handle.message = ev.data.err and ev.data.err.message or "Restore completed"
+  --           handle:finish()
+  --         end
+  --       end,
+  --     })
+  --
+  --     local init_handles = {}
+  --     vim.api.nvim_create_autocmd("User", {
+  --       pattern = "RoslynOnInit",
+  --       callback = function(ev)
+  --         init_handles[ev.data.client_id] = require("fidget.progress").handle.create({
+  --           title = "Initializing Roslyn",
+  --           message = ev.data.type == "solution" and string.format("Initializing Roslyn for %s", ev.data.target)
+  --             or "Initializing Roslyn for project",
+  --           lsp_client = {
+  --             name = "roslyn",
+  --           },
+  --         })
+  --       end,
+  --     })
+  --
+  --     vim.api.nvim_create_autocmd("User", {
+  --       pattern = "RoslynInitialized",
+  --       callback = function(ev)
+  --         local handle = init_handles[ev.data.client_id]
+  --         init_handles[ev.data.client_id] = nil
+  --
+  --         if handle then
+  --           handle.message = "Roslyn initialized"
+  --           handle:finish()
+  --         end
+  --       end,
+  --     })
+  --
+  --     vim.filetype.add({
+  --       extension = {
+  --         razor = "razor",
+  --         cshtml = "razor",
+  --       },
+  --     })
+  --   end,
+  --   keys = {
+  --     { "<leader>nl", "<cmd>Roslyn restart<cr>", desc = "restart roslyn lsp" },
+  --   },
+  -- },
   {
     "GustavEikaas/easy-dotnet.nvim",
     enabled = function()
@@ -172,7 +172,7 @@ return {
           local terminal_opts = {
             win = {
               position = "bottom",
-              height = 0.20,
+              height = 1.20,
             },
           }
           local commands = {

@@ -18,7 +18,7 @@ return {
       bigfile = { enabled = true },
       bufdelete = { enabled = true },
       dim = { enabled = true },
-      gitbrowse = { enabled = false },
+      gitbrowse = { enabled = true },
       image = {
         doc = {
           inline = false,
@@ -53,9 +53,7 @@ return {
           col = math.floor((vim.o.columns - 60) * 0.5), -- center
         },
       },
-      lazygit = {
-        configure = false,
-      },
+      lazygit = { enabled = false },
       notifier = {
         enabled = true,
         timeout = 3000,
@@ -145,7 +143,6 @@ return {
 			{ "<leader>.",  function() Snacks.scratch() end, desc = "Toggle Scratch Buffer" },
 			{ "<leader>B",  function() Snacks.scratch.select() end, desc = "Select Scratch [B]uffer" },
 			{ "<leader>bd", function() Snacks.bufdelete() end, desc = "[B]uffer [D]elete" },
-			{ "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
 			{ "<leader>gb", function() Snacks.git.blame_line() end, desc = "[G]it [B]lame Line" },
       { "<leader>gf", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
       { "<leader>gl", function() Snacks.picker.git_log_line() end, desc = "Git Log Line" },

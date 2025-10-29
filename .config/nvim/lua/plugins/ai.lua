@@ -2,7 +2,13 @@ return {
   {
     "folke/sidekick.nvim",
     lazy = false,
-    opts = {},
+    opts = {
+      copilot = {
+        lsp = {
+          enable = true,
+        },
+      },
+    },
     keys = {
       {
         "<tab>",

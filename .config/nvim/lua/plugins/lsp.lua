@@ -21,7 +21,6 @@ return {
         bashls = {},
         biome = {},
         cssls = {},
-        copilot = {},
         eslint = {
           autostart = false,
           cmd = { "vscode-eslint-language-server", "--stdio", "--max-old-space-size=12288" },
@@ -33,8 +32,8 @@ return {
           root_markers = { ".git" },
         },
         ["copilot-language-server"] = {
+          autostart = false, -- Let Sidekick manage this
           cmd = { "copilot-language-server", "--stdio" },
-          root_markers = { ".git" },
         },
         html = {},
         jsonls = {},
