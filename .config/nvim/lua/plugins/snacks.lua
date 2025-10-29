@@ -18,7 +18,7 @@ return {
       bigfile = { enabled = true },
       bufdelete = { enabled = true },
       dim = { enabled = true },
-      gitbrowse = { enabled = true },
+      gitbrowse = { enabled = false },
       image = {
         doc = {
           inline = false,
@@ -70,8 +70,8 @@ return {
             preview = false,
             layout = {
               backdrop = false,
-              height = 0.25,
-              width = 0.4,
+              height = 0.35,
+              width = 0.55,
               box = "horizontal",
               {
                 border = "single",

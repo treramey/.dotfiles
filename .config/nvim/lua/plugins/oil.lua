@@ -56,8 +56,8 @@ return {
     end
     return {
       float = {
-        max_width = 0.4,
-        max_height = 0.25,
+        max_width = 0.55,
+        max_height = 0.35,
         border = "single",
       },
       view_options = {
