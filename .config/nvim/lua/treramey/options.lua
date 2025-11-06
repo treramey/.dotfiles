@@ -24,6 +24,8 @@ vim.opt.showmode = false
 -- Hide command line when not in use
 vim.opt.cmdheight = 0
 
+vim.opt.laststatus = 2
+
 -- Hide default recording indicator (we show it in statusline)
 vim.opt.shortmess:append("q")
 

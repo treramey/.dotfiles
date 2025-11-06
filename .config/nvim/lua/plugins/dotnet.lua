@@ -159,8 +159,7 @@ return {
     enabled = function()
       return vim.fn.executable("dotnet") == 1 and not has_git_conflict_markers()
     end,
-    dependencies = { "nvim-lua/plenary.nvim", "folke/snacks.nvim" },
-    ft = { "cs", "vb", "csproj", "sln", "slnx", "props", "csx", "targets" },
+    dependencies = { "nvim-lua/plenary.nvim", "folke/snacks.nvim", "j-hui/fidget.nvim" },
     cmd = "Dotnet",
     event = "VeryLazy",
     config = function()
@@ -170,31 +169,42 @@ return {
         lsp = {
           enabled = false,
         },
+        notifications = {
+          handler = function(start_event)
+            local handle = require("fidget.progress").handle.create({
+              title = start_event.job.name,
+              message = "Running...",
+              lsp_client = {
+                name = "easy-dotnet",
+              },
+            })
+
+            return function(finished_event)
+              if handle then
+                handle.message = finished_event.result.msg
+                handle:finish()
+              end
+            end
+          end,
+        },
         terminal = function(path, action, args)
           local args_str = args or ""
           local terminal_opts = {
             win = {
               position = "bottom",
-              height = 1.20,
+              height = 0.35,
             },
           }
-          local commands = {
-            run = function()
-              return string.format("dotnet run --project %s %s", path, args_str)
-            end,
-            test = function()
-              return string.format("dotnet test %s %s", path, args_str)
-            end,
-            restore = function()
-              return string.format("dotnet restore %s %s", path, args_str)
-            end,
-            build = function()
-              return string.format("dotnet build %s %s", path, args_str)
-            end,
-            watch = function()
-              return string.format("dotnet watch --project %s %s", path, args_str)
-            end,
-          }
+        -- stylua: ignore start 
+        local commands = {
+          run = function() return string.format("dotnet run --project %s %s", path, args) end,
+          test = function() return string.format("dotnet test %s %s", path, args) end,
+          restore = function() return string.format("dotnet restore %s %s", path, args) end,
+          build = function() return string.format("dotnet build %s %s", path, args) end,
+          watch = function() return string.format("dotnet watch --project %s %s", path, args) end,
+        }
+          -- stylua: ignore end
+          local command = commands[action]()
 
           local cmd = commands[action]()
           Snacks.terminal.toggle(cmd, terminal_opts)

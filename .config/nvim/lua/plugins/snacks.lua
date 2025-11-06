@@ -17,8 +17,7 @@ return {
     opts = {
       bigfile = { enabled = true },
       bufdelete = { enabled = true },
-      dim = { enabled = true },
-      gitbrowse = { enabled = true },
+      git = { enabled = true },
       image = {
         doc = {
           inline = false,
@@ -27,32 +26,20 @@ return {
         },
       },
       indent = {
-        enabled = true,
-        only_scope = true,
-        filter = function(buf)
-          local b = vim.b[buf]
-          local bo = vim.bo[buf]
-          local excluded_filetypes = {
-            markdown = true,
-            text = true,
-          }
-          return vim.g.snacks_indent ~= false
-            and b.snacks_indent ~= false
-            and bo.buftype == ""
-            and not excluded_filetypes[bo.filetype]
-        end,
-      },
-      input = {
-        enabled = true,
-        win = {
-          style = "input",
-          relative = "editor",
-          height = 1,
-          width = 60,
-          row = math.floor(((vim.o.lines - 1) * 0.33)), -- 1/3 down
-          col = math.floor((vim.o.columns - 60) * 0.5), -- center
+        indent = {
+          enabled = false,
+        },
+        animate = {
+          enabled = false,
+        },
+        scope = {
+          treesitter = {
+            enabled = true,
+          },
         },
       },
+      rename = { enabled = true },
+      input = { enabled = true },
       lazygit = { enabled = false },
       notifier = {
         enabled = true,
@@ -69,7 +56,7 @@ return {
             layout = {
               backdrop = false,
               height = 0.35,
-              width = 0.55,
+              width = 0.45,
               box = "horizontal",
               {
                 border = "single",
@@ -111,6 +98,23 @@ return {
       terminal = {},
       toggle = { enabled = true },
       words = { enabled = true },
+      styles = {
+        input = {
+          relative = "cursor",
+          title = "",
+        },
+        snacks_image = {
+          relative = "editor",
+          border = "none",
+          focusable = false,
+          backdrop = false,
+          row = 1,
+          col = -1,
+        },
+        blame_line = {
+          title = "git blame",
+        },
+      },
     },
     init = function()
       vim.api.nvim_create_autocmd("User", {
@@ -146,13 +150,10 @@ return {
 			{ "<leader>gb", function() Snacks.git.blame_line() end, desc = "[G]it [B]lame Line" },
       { "<leader>gf", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
       { "<leader>gl", function() Snacks.picker.git_log_line() end, desc = "Git Log Line" },
-			{ "<leader>og", function() Snacks.gitbrowse() end, desc = "[O]pen [G]it", mode = { "n", "v" } },
 			{ "<leader>dn", function() Snacks.notifier.hide() end, desc = "[D]ismiss All [N]otifications" },
 			{ "<leader>nh", function() Snacks.notifier.show_history() end, desc = "[N]otification [H]istory" },
-			{ "<leader>zz", function() Snacks.toggle.dim():toggle() end, desc = "Toggle [Z]en Mode" },
 			{ "<leader>cl", function() Snacks.toggle.option("cursorline", { name = "Cursor Line" }):toggle() end, desc = "Toggle [C]ursor [L]ine" },
 			{ "<leader>td", function() Snacks.toggle.diagnostics():toggle() end, desc = "[T]oggle [D]iagnostics" },
-      { "<leader>dm", function() Snacks.toggle.dim():toggle() end, desc = "Toggle [D]im [M]ode" }, -- Same as <leader>zz but with different key
 			{ "<leader>zm", function() Snacks.toggle.zen():toggle() end, desc = "Toggle [Z]en [M]ode" },
       { "<leader>_",  function() Snacks.terminal() end, desc = "terminal" },
       { "<leader>ln", function() Snacks.toggle.option("relativenumber", { name = "Relative Number" }):toggle() end, desc = "Toggle Relative [L]ine [N]umbers" },
