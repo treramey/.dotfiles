@@ -6,17 +6,18 @@ return {
     "saghen/blink.compat",
     version = "*",
     lazy = true,
-    opts = {},
+    opts = { impersonate_nvim_cmp = true },
   },
   {
     "saghen/blink.cmp",
     dependencies = {
       "rafamadriz/friendly-snippets",
       "rcarriga/cmp-dap",
+      "xzbdmw/colorful-menu.nvim",
+      "echasnovski/mini.icons",
     },
-    version = "1.*",
-    event = { "InsertEnter", "CmdlineEnter" },
-    ---@type blink.cmp.Config
+    version = "*",
+    event = { "InsertEnter" },
     opts = {
       keymap = {
         preset = "none",
@@ -49,7 +50,16 @@ return {
         menu = {
           border = "rounded",
           draw = {
+            columns = { { "kind_icon" }, { "label", gap = 1 }, { "kind" } },
             components = {
+              label = {
+                text = function(ctx)
+                  return require("colorful-menu").blink_components_text(ctx)
+                end,
+                highlight = function(ctx)
+                  return require("colorful-menu").blink_components_highlight(ctx)
+                end,
+              },
               kind_icon = {
                 text = function(ctx)
                   local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
@@ -85,12 +95,13 @@ return {
           if is_dap_buffer() then
             return { "lsp", "path", "snippets", "buffer", "easy-dotnet", "dadbod", "dap" }
           end
-          return { "lsp", "path", "snippets", "buffer", "easy-dotnet", "dadbod" }
+          return { "lsp", "path", "snippets", "buffer", "easy-dotnet", "dadbod", "cfcomplete" }
         end,
         providers = {
           dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink" },
           snippets = { min_keyword_length = 2 },
           dap = { name = "dap", module = "blink.compat.source" },
+          cfcomplete = { name = "cfcomplete", module = "blink.compat.source" },
           ["easy-dotnet"] = {
             name = "easy-dotnet",
             enabled = true,

@@ -1,4 +1,6 @@
-local filtered_message = { "No information available" }
+local filtered_message = {
+  "No information available",
+}
 
 return {
   {
