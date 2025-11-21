@@ -48,6 +48,8 @@ return {
         SidekickDiffAdd = { fg = "foam", bg = "foam", blend = 25 },
         SidekickDiffDelete = { fg = "love", bg = "love", blend = 25 },
         SidekickDiffContext = { fg = "muted", bg = "none" },
+        RenderMarkdownCode = { bg = "overlay" },
+        RenderMarkdownCodeInline = { fg = "text", bg = "surface" },
       },
     })
     vim.cmd("colorscheme rose-pine")

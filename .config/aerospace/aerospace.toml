@@ -12,10 +12,6 @@ outer.top = 4
 outer.right = 5
 
 [[on-window-detected]]
-if.app-id = 'org.mozilla.firefox'
-run = 'move-node-to-workspace 1'
-
-[[on-window-detected]]
 if.app-id = 'app.zen-browser.zen'
 run = 'move-node-to-workspace 1'
 
@@ -29,31 +25,35 @@ run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.VSCode'
-run = 'move-node-to-workspace 2'
-
-[[on-window-detected]]
-if.app-id = 'dev.zed.Zed'
-run = 'move-node-to-workspace 2'
-
-[[on-window-detected]]
-if.app-id = 'com.jetbrains.datagrip'
 run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
-if.app-id = 'app.legcord.Legcord'
+if.app-id = 'dev.zed.Zed'
+run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'com.jetbrains.rider'
+run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'com.jetbrains.datagrip'
 run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'app.legcord.Legcord'
+run = 'move-node-to-workspace 5'
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.Outlook'
-run = 'move-node-to-workspace 4'
+run = 'move-node-to-workspace 5'
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.teams2'
-run = 'move-node-to-workspace 4'
+run = 'move-node-to-workspace 5'
 
 [[on-window-detected]]
 if.app-id = 'com.spotify.client'
-run = 'move-node-to-workspace 5'
+run = 'move-node-to-workspace 6'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Notes'
@@ -65,3 +65,4 @@ alt-cmd-ctrl-shift-2 = 'workspace 2'
 alt-cmd-ctrl-shift-3 = 'workspace 3'
 alt-cmd-ctrl-shift-4 = 'workspace 4'
 alt-cmd-ctrl-shift-5 = 'workspace 5'
+alt-cmd-ctrl-shift-6 = 'workspace 6'

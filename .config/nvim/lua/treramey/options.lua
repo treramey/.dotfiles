@@ -75,6 +75,9 @@ vim.opt.completeopt = { "menuone", "noselect", "popup" }
 -- Enable persistent undo history
 vim.opt.undofile = true
 
+-- Enable automatic reading of files changed outside of Neovim
+vim.opt.autoread = true
+
 -- Enable 24-bit color
 vim.opt.termguicolors = true
 

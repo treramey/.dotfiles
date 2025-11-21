@@ -3,6 +3,6 @@ return {
   event = "BufRead",
   config = true,
   opts = {
-    disable_diagnostics = true,
+    disable_diagnostics = false,
   },
 }

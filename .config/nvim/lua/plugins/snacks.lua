@@ -99,6 +99,12 @@ return {
       statuscolumn = {},
       terminal = {},
       toggle = { enabled = true },
+      zen = {
+        show = {
+          statusline = true,
+          tabline = true,
+        },
+      },
       words = { enabled = true },
       styles = {
         input = {
