@@ -57,7 +57,7 @@ return {
             preview = false,
             layout = {
               backdrop = false,
-              height = 0.35,
+              height = 0.4,
               width = 0.45,
               box = "horizontal",
               {

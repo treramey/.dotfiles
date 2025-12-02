@@ -12,28 +12,50 @@ return {
     "saghen/blink.cmp",
     dependencies = {
       "rafamadriz/friendly-snippets",
+      "L3MON4D3/LuaSnip",
       "rcarriga/cmp-dap",
       "xzbdmw/colorful-menu.nvim",
       "echasnovski/mini.icons",
     },
-    version = "*",
-    event = { "InsertEnter" },
+    version = "v1.*",
+    event = "VeryLazy",
     opts = {
       keymap = {
         preset = "none",
-        ["<C-k>"] = { "select_prev", "fallback" },
+        ["<C-k>"] = { "select_prev", "show_signature", "hide_signature", "fallback" },
         ["<C-j>"] = { "select_next", "fallback" },
-        ["<C-s>"] = { "show" },
-        ["<Up>"] = { "select_prev", "fallback" },
-        ["<Down>"] = { "select_next", "fallback" },
+        ["<C-Space>"] = { "show", "fallback" },
+        ["<C-c>"] = { "cancel", "fallback" },
+        ["<C-u>"] = { "scroll_documentation_up", "fallback" },
+        ["<C-d>"] = { "scroll_documentation_down", "fallback" },
         ["<CR>"] = { "select_and_accept", "fallback" },
+        -- ["<C-y>"] = {
+        --   "snippet_forward",
+        --   function()
+        --     return require("sidekick").nes_jump_or_apply()
+        --   end,
+        --   function()
+        --     return vim.lsp.inline_completion.get()
+        --   end,
+        --   "fallback",
+        -- },
         ["<Tab>"] = {
-          "snippet_forward",
-          function()
-            return require("sidekick").nes_jump_or_apply()
+          function(cmp)
+            if cmp.snippet_active() then
+              return cmp.snippet_forward()
+            else
+              return cmp.select_next()
+            end
           end,
-          function()
-            return vim.lsp.inline_completion.get()
+          "fallback",
+        },
+        ["<S-Tab>"] = {
+          function(cmp)
+            if cmp.snippet_active() then
+              return cmp.snippet_backward()
+            else
+              return cmp.select_prev()
+            end
           end,
           "fallback",
         },
@@ -42,15 +64,23 @@ return {
         return vim.bo.buftype ~= "prompt" or is_dap_buffer()
       end,
       appearance = {
-        use_nvim_cmp_as_default = true,
+        use_nvim_cmp_as_default = false,
         nerd_font_variant = "mono",
       },
 
       completion = {
+        trigger = {
+          show_on_trigger_character = true,
+        },
         menu = {
           border = "rounded",
+          max_height = 10,
           draw = {
-            columns = { { "kind_icon" }, { "label", gap = 1 }, { "kind" } },
+            columns = {
+              { "kind_icon" },
+              { "label", "label_description", gap = 1 },
+              { "source_name" },
+            },
             components = {
               label = {
                 text = function(ctx)
@@ -80,16 +110,28 @@ return {
               },
             },
           },
+          auto_show = true,
         },
         documentation = {
           auto_show = true,
-          auto_show_delay_ms = 250,
           window = {
             border = "rounded",
           },
         },
+        ghost_text = {
+          enabled = true,
+        },
+        list = {
+          selection = {
+            preselect = true,
+          },
+        },
+        accept = {
+          auto_brackets = {
+            enabled = true,
+          },
+        },
       },
-
       sources = {
         default = function()
           if is_dap_buffer() then
@@ -98,17 +140,45 @@ return {
           return { "lsp", "path", "snippets", "buffer", "easy-dotnet", "dadbod", "cfcomplete" }
         end,
         providers = {
-          dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink" },
-          snippets = { min_keyword_length = 2 },
-          dap = { name = "dap", module = "blink.compat.source" },
-          cfcomplete = { name = "cfcomplete", module = "blink.compat.source" },
+          lsp = {
+            score_offset = 1000, -- Extreme priority to override fuzzy matching
+          },
+          path = {
+            score_offset = 3, -- File paths moderate priority
+          },
+          snippets = {
+            score_offset = -100, -- Much lower priority
+            max_items = 2, -- Limit snippet suggestions
+            min_keyword_length = 3, -- Don't show for single chars
+          },
+          buffer = {
+            score_offset = -150, -- Lowest priority
+            min_keyword_length = 3, -- Only show after 3 chars
+          },
+          dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink", score_offset = 1000 },
+          dap = { name = "dap", module = "blink.compat.source", score_offset = 1000 },
+          cfcomplete = { name = "cfcomplete", module = "blink.compat.source", score_offset = 1000 },
           ["easy-dotnet"] = {
             name = "easy-dotnet",
             enabled = true,
             module = "easy-dotnet.completion.blink",
-            score_offset = 10000,
+            score_offset = 1000,
             async = true,
           },
+        },
+      },
+      snippets = {
+        preset = "luasnip",
+      },
+      signature = {
+        enabled = true,
+        trigger = {
+          show_on_trigger_character = false,
+          show_on_insert_on_trigger_character = false,
+        },
+        window = {
+          border = "rounded",
+          show_documentation = true,
         },
       },
     },

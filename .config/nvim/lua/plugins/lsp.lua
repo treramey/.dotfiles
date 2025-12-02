@@ -31,10 +31,10 @@ return {
           filetypes = { "markdown", "text" },
           root_markers = { ".git" },
         },
-        ["copilot-language-server"] = {
-          autostart = false, -- Let Sidekick manage this
-          cmd = { "copilot-language-server", "--stdio" },
-        },
+        -- ["copilot-language-server"] = {
+        --   autostart = false, -- Let Sidekick manage this
+        --   cmd = { "copilot-language-server", "--stdio" },
+        -- },
         html = {},
         jsonls = {},
         gopls = {
@@ -110,7 +110,16 @@ return {
       })
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend("force", capabilities, require("blink.cmp").get_lsp_capabilities())
+
+      local has_blink, blink = pcall(require, "blink.cmp")
+      if has_blink then
+        capabilities = vim.tbl_deep_extend("force", capabilities, blink.get_lsp_capabilities())
+      else
+        local has_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+        if has_cmp then
+          capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
+        end
+      end
 
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
@@ -157,22 +166,7 @@ return {
 
       mason_lspconfig.setup({})
 
-      vim.lsp.inline_completion.enable()
+      -- vim.lsp.inline_completion.enable()
     end,
   },
-  -- { --ohhh the pain
-  -- 	"hannaeckert/cfmlsp.nvim",
-  -- 	event = { "BufReadPre", "BufNewFile" },
-  -- 	dependencies = {
-  -- 		"neovim/nvim-lspconfig",
-  -- 	},
-  -- 	opts = function()
-  -- 		local map_lsp_keybinds = require("treramey.keymaps").map_lsp_keybinds
-  -- 		return {
-  -- 			on_attach = function(_, bufnr)
-  -- 				map_lsp_keybinds(bufnr)
-  -- 			end,
-  -- 		}
-  -- 	end,
-  -- },
 }

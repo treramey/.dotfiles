@@ -7,6 +7,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 return {
   "stevearc/oil.nvim",
+  dependencies = { "echasnovski/mini.icons" },
   opts = function()
     -- helper function to parse output
     local function parse_output(proc)
@@ -56,9 +57,13 @@ return {
     end
     return {
       float = {
-        max_height = 0.35,
-        max_width = 0.45,
+        max_width = 0.4,
+        max_height = 0.45,
         border = "single",
+      },
+      confirmation = {
+        border = "rounded",
+        max_width = 60,
       },
       view_options = {
         is_hidden_file = function(name, bufnr)
@@ -81,11 +86,8 @@ return {
         ["<tab>"] = "actions.select",
         ["<s-tab>"] = "actions.parent",
         ["q"] = { "actions.close", mode = "n" },
-        -- Change Neovim's global working directory (:pwd) to current oil directory
         ["="] = { "actions.cd", mode = "n" },
-        -- Change working directory for current tab only (:tcd)
         ["-"] = { "actions.cd", opts = { scope = "tab" }, mode = "n" },
-        -- Toggle visibility of trashed/deleted files
         ["g'"] = { "actions.toggle_trash", mode = "n" },
       },
       ssh = {
@@ -97,11 +99,4 @@ return {
       },
     }
   end,
-  dependencies = { { "echasnovski/mini.icons", opts = {} } },
-  lazy = false,
-  keys = {
-      -- stylua: ignore start
-      { "<leader>e", function() require("oil").toggle_float() end, desc = "toggle oil" },
-    -- stylua: ignore end
-  },
 }
