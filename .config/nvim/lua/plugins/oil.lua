@@ -63,7 +63,8 @@ return {
       },
       confirmation = {
         border = "rounded",
-        max_width = 60,
+        max_width = 80,
+        min_width = 40,
       },
       view_options = {
         is_hidden_file = function(name, bufnr)

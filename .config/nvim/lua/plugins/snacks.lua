@@ -167,9 +167,8 @@ return {
       { "<leader>ln", function() Snacks.toggle.option("relativenumber", { name = "Relative Number" }):toggle() end, desc = "Toggle Relative [L]ine [N]umbers" },
       { "<leader>tw", function() Snacks.toggle.option("wrap"):toggle() end, desc = "[T]oggle line [W]rap" },
       -- stylua: ignore end
-
 			{
-				"<leader>tt",
+				"<leader>Tt",
 				function()
 					local tsc = require("treesitter-context")
 					Snacks.toggle({
