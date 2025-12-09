@@ -1,7 +1,7 @@
 return {
-  "https://codeberg.org/oricat/cfcomplete.nvim",
+  dir = "/Users/TRamey/workspace/work/cfcomplete.nvim",
   dependencies = { "saghen/blink.compat" },
-  ft = { "cfm", "cfc" },
+  ft = { "cfml" },
   config = function()
     require("cfcomplete").setup({
       json_path = vim.fn.stdpath("data") .. "/lucee-docs-json",
