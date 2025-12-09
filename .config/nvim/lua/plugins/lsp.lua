@@ -87,6 +87,7 @@ return {
       }
 
       local other_tools = {
+        netcoredbg = {},
         rustywind = {},
         roslyn = {},
       }

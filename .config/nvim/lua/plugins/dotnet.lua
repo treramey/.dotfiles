@@ -120,10 +120,16 @@ return {
     config = function()
       local dotnet = require("easy-dotnet")
 
+      local bin_path = vim.fn.stdpath("data") .. "/lazy/netcoredbg-macOS-arm64.nvim/netcoredbg/netcoredbg"
+
+      if vim.fn.has("win32") == 1 then
+        bin_path = vim.fn.stdpath("data") .. "/mason/packages/netcoredbg/netcoredbg/" .. executable .. ".exe"
+      end
+
       dotnet.setup({
         picker = "snacks",
         debugger = {
-          bin_path = vim.fn.stdpath("data") .. "/lazy/netcoredbg-macOS-arm64.nvim/netcoredbg/netcoredbg",
+          bin_path = bin_path,
           mappings = {
             open_variable_viewer = { lhs = "T", desc = "open variable viewer" },
           },
