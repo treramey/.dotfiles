@@ -1,6 +1,11 @@
+if [ -z "$INTELLIJ_ENVIRONMENT_READER" ]; then
+
 if [[ -f "/opt/homebrew/bin/brew" ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
+
+# tmux LaunchAgent setup
+source "$HOME/.local/scripts/setup-tmux-launchagent"
 
 # zinit setup
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
@@ -126,6 +131,16 @@ bindkey "^t" fs
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 export PATH=$PATH:$HOME/.spicetify
-eval "$(/Users/tmr/.local/bin/mise activate zsh)"
+eval "$($HOME/.local/bin/mise activate zsh)"
+
+export PATH="$PATH:$HOME/.dotnet/tools"
+
+# Source private env vars if exists
+[ -f "$HOME/.zsh_secrets" ] && source "$HOME/.zsh_secrets"
 
 export PATH=$PATH:/Users/tmr/.spicetify
+
+# Added by get-aspire-cli.sh
+export PATH="$HOME/.aspire/bin:$PATH"
+
+fi

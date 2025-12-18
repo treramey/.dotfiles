@@ -34,6 +34,10 @@ return {
       yaml = { "prettier" },
     },
     formatters = {
+      csharpier = {
+        command = "csharpier",
+        args = { "format", "--write-stdout", "--stdin-path", "$FILENAME" },
+      },
       biome = {
         condition = function(_, ctx)
           return vim.fs.find({ "biome.json", "biome.jsonc" }, {

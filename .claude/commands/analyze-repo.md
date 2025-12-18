@@ -1,4 +1,4 @@
-Please perform a comprehensive analysis of this code repository and create detailed documentation written to REPO_ANALYSIS.MD covering the following aspects:
+Please perform a comprehensive analysis of this code repository and create detailed documentation written to REPO_ANALYSIS.MD. Spawn concurrent tasks/sub-agents to research and author each of the following sections:
 
 ## 1. Repository Overview
 
@@ -32,12 +32,11 @@ For each major module or component:
 - Identify its dependencies (both internal and external)
 - Note any design patterns implemented
 
-## 5. Class/Interface Hierarchy
+## 5. Interface/Abstraction Hierarchy
 
 Create Mermaid class diagrams for core abstractions showing:
 
 - Important classes and interfaces
-- Inheritance relationships
 - Key associations and dependencies
 - Critical methods and properties
 
@@ -59,24 +58,6 @@ Create a Mermaid diagram showing:
 - Event flows or message passing
 - Shared resources or data stores
 
-## 8. Database/Storage Schema
-
-If applicable, document:
-
-- Database schema or data models
-- Key relationships between entities
-- Storage patterns and strategies
-- Caching mechanisms
-
-## 9. API Documentation
-
-For any exposed APIs:
-
-- List all endpoints with their methods
-- Document request/response formats
-- Note authentication requirements
-- Include example usage
-
 ## 10. Key Algorithms and Business Logic
 
 Identify and explain:
@@ -86,51 +67,8 @@ Identify and explain:
 - Performance-critical sections
 - Notable design decisions
 
-## 11. Testing Strategy
-
-Document:
-
-- Test structure and organization
-- Types of tests present (unit, integration, e2e)
-- Test coverage areas
-- Testing tools and frameworks used
-
-## 12. Security Considerations
-
-Identify:
-
-- Authentication and authorization mechanisms
-- Data validation and sanitization approaches
-- Security-related configurations
-- Potential security concerns
-
-## 13. Performance and Scalability
-
-Note:
-
-- Performance optimizations implemented
-- Caching strategies
-- Scalability considerations
-- Resource management patterns
-
-## 14. Development Workflow
-
-Document:
-
-- Build and deployment processes
-- Development environment setup
-- Code style and conventions
-- Contribution guidelines
-
-## 15. Technical Debt and Improvement Areas
-
-Identify:
-
-- Areas that could benefit from refactoring
-- Outdated dependencies or patterns
-- Missing documentation or tests
 - Potential architectural improvements
 
-For all diagrams, use Mermaid syntax and ensure they are clear, properly labeled, and include legends where necessary. Provide context and explanations for each diagram to help readers understand the visualizations.
+For all diagrams, use GitHub compatible Mermaid syntax and ensure they are clear, properly labeled, and include legends where necessary. Use a dark theme consisting of black, gray, and whites. Provide context and explanations for each diagram to help readers understand the visualizations.
 
 Please organize the output in a clear, hierarchical structure with appropriate markdown formatting. Use code blocks for file examples and ensure all technical terms are explained for readers who may be new to the codebase.

@@ -46,6 +46,9 @@ Brewfile.lock.json
 # Mise/runtime managers
 .config/mise/.tool-versions.local
 
+# Private secrets
+.zsh_secrets
+
 # Cache directories
 .cache/
 *.log

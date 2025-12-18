@@ -38,6 +38,9 @@ lalt + shift - l : aerospace move right
 lalt + ctrl - n : aerospace resize smart -50
 lalt + ctrl - p : aerospace resize smart +50
 
+# resize postman to 1/3 width
+lalt + shift - p : aerospace resize smart -625
+
 # toggle floating
 lalt + shift - space : aerospace layout floating tiling
 

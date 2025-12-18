@@ -9,11 +9,13 @@ This is a macOS dotfiles repository managed with GNU Stow. The configuration fil
 ## Installation & Setup
 
 **Initial Setup:**
+
 ```bash
 ./install.sh
 ```
 
 This script will:
+
 - Install Homebrew and all packages from `Brewfile`
 - Start services (skhd)
 - Set macOS defaults (window dragging gestures, disable animations)
@@ -21,6 +23,7 @@ This script will:
 - Install required fonts (sketchybar-app-font, sketchybar-app-font-bg)
 
 **Stow Management:**
+
 ```bash
 # Deploy dotfiles (from repo root)
 stow .
@@ -48,6 +51,7 @@ Files matching patterns in `.stow-local-ignore` are excluded from stowing (readm
 ## Common Commands
 
 ### Homebrew
+
 ```bash
 # Install/update packages from Brewfile
 brew bundle --file=./Brewfile
@@ -57,6 +61,7 @@ brew update && brew upgrade
 ```
 
 ### Services
+
 ```bash
 # Restart window manager services
 brew services restart skhd
@@ -67,6 +72,7 @@ sketchybar --reload
 ```
 
 ### Shell
+
 ```bash
 # Reload zsh config
 source ~/.zshrc
@@ -79,6 +85,7 @@ pray     # bun install
 ```
 
 ### Tmux
+
 ```bash
 # Tmux is auto-started on shell launch (except in WezTerm)
 # Keybindings (prefix: C-a)
@@ -90,6 +97,7 @@ C-a r    # reload tmux.conf
 ```
 
 ### Neovim
+
 ```bash
 # Main config entry: .config/nvim/init.lua
 # Uses Lazy.nvim with plugins imported from lua/plugins/
@@ -101,12 +109,14 @@ C-a r    # reload tmux.conf
 ### Window Management (AeroSpace + skhd)
 
 **AeroSpace** (`.config/aerospace/aerospace.toml`):
+
 - Tiling window manager with workspace routing rules
 - Auto-assigns apps to workspaces on detection (browsers→1, terminals/editors→2)
 - Triggers SketchyBar updates on workspace/focus changes
 - Gap configuration: 5px inner, 40px top (for bar), 5px other sides
 
 **skhd** (`.config/skhd/skhdrc`):
+
 - Hotkey daemon using `lalt` (left alt) as modifier
 - Workspace switching: `lalt-[1-5]`
 - Window movement: `lalt-shift-[hjkl]` or `lalt-shift-[1-5]`
@@ -117,6 +127,7 @@ C-a r    # reload tmux.conf
 ### SketchyBar
 
 **Architecture** (`.config/sketchybar/`):
+
 - Entry point: `sketchybarrc` → loads Lua-based config
 - Main init: `init.lua` loads helpers, bar, items
 - **Structure:**
@@ -132,12 +143,14 @@ C-a r    # reload tmux.conf
 ### Neovim Configuration
 
 **Entry Flow:**
+
 1. `init.lua` → sets up lazy.nvim
 2. Loads core configs: `autocmds.lua`, `options.lua`, `mappings.lua`
 3. Custom `statusline.lua` (custom implementation)
 4. Lazy loads plugins from `lua/plugins/` directory
 
 **Key Directories:**
+
 - `lua/plugins/` - plugin specifications (e.g., snacks.lua)
 - `lua/lang/` - language-specific configs
 - `lua/dap-config/` - debugger configurations
@@ -150,6 +163,7 @@ C-a r    # reload tmux.conf
 **Plugin Manager:** zinit (auto-installed to `~/.local/share/zinit/`)
 
 **Plugins loaded:**
+
 - fzf-tab (fuzzy tab completion)
 - fast-syntax-highlighting
 - zsh-completions
@@ -157,6 +171,7 @@ C-a r    # reload tmux.conf
 - OMZ snippets: bun, gh, command-not-found
 
 **Integrations:**
+
 - oh-my-posh prompt (config in `~/.config/ohmyposh/theme.toml`)
 - zoxide (cd command override)
 - fzf (with custom rose-pine theme)
@@ -170,10 +185,12 @@ C-a r    # reload tmux.conf
 **Plugin Manager:** TPM (Tmux Plugin Manager)
 
 **Plugins:**
+
 - `tmux-sensible` - sensible defaults
 - `tokyo-night-tmux` - themed status bar (using rose-pine variant)
 
 **Key Features:**
+
 - Prefix: `C-a` (instead of `C-b`)
 - Base index: 1 (windows and panes)
 - Auto-starts on shell launch (except in WezTerm)
@@ -186,11 +203,13 @@ C-a r    # reload tmux.conf
 ## File Organization Patterns
 
 **Stow Structure:**
+
 - Root-level configs stowed to `$HOME` (e.g., `.zshrc`)
 - `.config/` directory stowed to `$HOME/.config/`
 - Files in `.stow-local-ignore` are never stowed
 
 **Config Modularity:**
+
 - Neovim: modular plugin system in `lua/plugins/` (each file = plugin spec)
 - SketchyBar: modular items in `items/` and `items/widgets/`
 - Shell: single `.zshrc` with inline plugin definitions
@@ -210,7 +229,6 @@ When modifying configurations:
 
 ## Important Notes
 
-- **Hardcoded username:** Some paths reference `/Users/adriankarlen` (from `.zshrc:120,122`) - should use `$HOME`
 - **Services startup:** skhd must be running for keybindings; started via `brew services start skhd`
 - **Font dependencies:** sketchybar requires custom fonts installed by `install.sh`
 - **Runtime managers:** mise is used for version management (activated in `.zshrc:123`)

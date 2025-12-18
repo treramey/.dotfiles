@@ -19,4 +19,3 @@ This command automates the process of creating a pull request with several key f
 - Do not include claude code as a contribution
 
 The command aims to streamline the code contribution process by providing intelligent commit and pull request creation.
-
