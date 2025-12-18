@@ -64,6 +64,9 @@ return {
             },
           },
         },
+        oxlint = {
+          root_markers = { ".oxlintrc.json" },
+        },
         marksman = {},
         pyright = {},
         rust_analyzer = {

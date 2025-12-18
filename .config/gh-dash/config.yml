@@ -89,7 +89,7 @@ theme:
       secondary: "#6e6a86"
       faint: "#403d52"
 pager:
-  diff: ""
+  diff: diffnav
 confirmQuit: false
 showAuthorIcons: true
 smartFilteringAtLaunch: true

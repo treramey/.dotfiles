@@ -1,51 +1,38 @@
 # macOS
 .DS_Store
-.AppleDouble
-.LSOverride
 ._*
 
-# Claude Code local state (keep agents/, commands/, hooks/, CLAUDE.md, settings.json)
-.claude/debug/
-.claude/file-history/
-.claude/history.jsonl
-.claude/projects/
-.claude/session-env/
-.claude/shell-snapshots/
-.claude/statsig/
-.claude/todos/
-
-# Editor temporary files
-.config/nvim/.undodir/
-.config/nvim/lazy-lock.json
+# Editor
+*/**/.undodir
+lazy-lock.json
 *.swp
 *.swo
 *~
-.netrwhist
 
-# Plugin managers (auto-installed)
-.config/tmux/plugins/
+# Plugin managers
+*/**/tmux/plugins/*
 .local/share/zinit/
 .local/share/nvim/
 
-# App-specific (private/generated)
+# App-specific
 .config/gh/
 .config/github-copilot/
-.config/vimpack/
 .config/raycast/
-.config/sesh/spp.toml
-.config/spicetify/CustomApps/
-.config/spicetify/Themes/
-
-# NuGet (keep nuget.config, ignore cache/credentials)
 .config/NuGet/plugins/
-.config/NuGet/NuGet.Config.backup
 
-# Homebrew
-Brewfile.lock.json
-
-# Mise/runtime managers
-.config/mise/.tool-versions.local
-
-# Cache directories
+# Build/cache
 .cache/
+tmp/
+backups/
+__pycache__/
+*.pyc
 *.log
+
+# Private
+.envrc
+.zsh_secrets
+
+# Misc
+.jj
+Brewfile.lock.json
+packages/failed_packages_*.txt

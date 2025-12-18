@@ -61,6 +61,10 @@ return {
         },
       },
       enabled = function()
+        local ft = vim.bo.filetype
+        if ft:match("^snacks_picker") then
+          return false
+        end
         return vim.bo.buftype ~= "prompt" or is_dap_buffer()
       end,
       appearance = {
@@ -142,14 +146,15 @@ return {
         providers = {
           lsp = {
             score_offset = 1000, -- Extreme priority to override fuzzy matching
+            max_items = 10,
           },
           path = {
             score_offset = 3, -- File paths moderate priority
           },
           snippets = {
-            score_offset = -100, -- Much lower priority
-            max_items = 2, -- Limit snippet suggestions
-            min_keyword_length = 3, -- Don't show for single chars
+            score_offset = -3,
+            max_items = 3,
+            min_keyword_length = 3,
           },
           buffer = {
             score_offset = -150, -- Lowest priority

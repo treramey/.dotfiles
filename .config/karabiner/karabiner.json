@@ -25,17 +25,6 @@
                     ]
                   }
                 ],
-                "to_if_alone": [
-                  {
-                    "key_code": "6",
-                    "modifiers": [
-                      "left_command",
-                      "left_control",
-                      "left_option",
-                      "left_shift"
-                    ]
-                  }
-                ],
                 "type": "basic"
               },
               {
@@ -747,6 +736,30 @@
               {
                 "to": [
                   {
+                    "shell_command": "open raycast://extensions/maggie/todo-list/index"
+                  }
+                ],
+                "description": "Open raycast://extensions/maggie/todo-list/index",
+                "type": "basic",
+                "from": {
+                  "key_code": "t",
+                  "modifiers": {
+                    "mandatory": [
+                      "any"
+                    ]
+                  }
+                },
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "hyper_sublayer_o",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "to": [
+                  {
                     "shell_command": "open raycast://extensions/vishaltelangre/google-drive/index"
                   }
                 ],
@@ -1219,10 +1232,10 @@
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Zen.app'"
+                    "shell_command": "open -a 'Google Chrome.app'"
                   }
                 ],
-                "description": "Open -a 'Zen.app'",
+                "description": "Open -a 'Google Chrome.app'",
                 "type": "basic",
                 "from": {
                   "key_code": "b",

@@ -1,7 +1,5 @@
 start-at-login = true
 
-after-startup-command = ['exec-and-forget borders']
-
 [gaps]
 inner.horizontal = 5
 inner.vertical = 5

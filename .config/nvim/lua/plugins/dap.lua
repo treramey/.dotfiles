@@ -11,6 +11,11 @@ return {
         "igorlfs/nvim-dap-view",
         opts = {
           auto_toggle = true,
+          winbar = {
+            controls = {
+              enabled = true,
+            },
+          },
         },
       },
       -- {

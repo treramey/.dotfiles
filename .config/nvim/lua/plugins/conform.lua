@@ -21,19 +21,31 @@ return {
     end,
     formatters_by_ft = {
       cs = { "csharpier" },
-      json = { "biome" },
+      json = { "prettierd" },
       lua = { "stylua" },
-      markdown = { "prettier" },
       python = { "isort", "black" },
-      astro = { "biome", "prettierd", stop_after_first = true },
-      javascript = { "biome", "prettierd", stop_after_first = true },
-      typescript = { "biome", "prettierd", stop_after_first = true },
-      typescriptreact = { "biome", "prettierd", stop_after_first = true },
-      svelte = { "prettierd" },
+      astro = { "oxfmt", "biome", "prettierd", stop_after_first = true },
+      javascript = { "oxfmt", "biome", "prettierd", stop_after_first = true },
+      typescript = { "oxfmt", "biome", "prettierd", stop_after_first = true },
+      typescriptreact = { "oxfmt", "biome", "prettierd", stop_after_first = true },
+      svelte = { "oxfmt", "prettierd", stop_after_first = true },
       xml = { "csharpier" },
-      yaml = { "prettier" },
+      yaml = { "prettierd" },
     },
     formatters = {
+      csharpier = {
+        command = "csharpier",
+        args = { "format", "--write-stdout", "--stdin-path", "$FILENAME" },
+      },
+      oxfmt = {
+        condition = function(_, ctx)
+          return vim.fs.find({ ".oxfmtrc.json", ".oxfmtrc.jsonc" }, {
+            path = ctx.filename,
+            upward = true,
+            stop = vim.uv.os_homedir(),
+          })[1] ~= nil
+        end,
+      },
       biome = {
         condition = function(_, ctx)
           return vim.fs.find({ "biome.json", "biome.jsonc" }, {

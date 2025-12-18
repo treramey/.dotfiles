@@ -1,5 +1,6 @@
 local filtered_message = {
   "No information available",
+  "ColdFusion completion source registered with nvim-cmp",
 }
 
 return {
