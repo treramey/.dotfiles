@@ -4,6 +4,9 @@
 
 - Make minimal, surgical changes
 - **Never compromise type safety**: No `any`, no non-null assertion operator (`!`), no type assertions (`as Type`)
+- **Make illegal states unrepresentable**: Model domain with ADTs/discriminated unions; parse inputs at boundaries into typed structures; if state can't exist, code can't mishandle it
+- **Abstractions**: Consciously constrained, pragmatically parameterised, doggedly documented
+
 
 ## Testing
 
@@ -12,8 +15,12 @@
 
 ## SCM, Git, Pull Requests, Commits
 
+- **ALWAYS check for `.jj/` dir before ANY VCS command** - if present, use jj not git
 - **Never** add Claude to attribution or as a contributor PRs, commits, messages, or PR descriptions
+- **az repos CLI available** for Azure DevOps operations (PRs, issues, etc.)
+- **gh CLI available** for GitHub operations (PRs, issues, etc.)
 
 ## Plans
 
 - At the end of each plan, give me a list of unresolved questions to answer, if any. Make the questions extremely concise. Sacrifice grammar for the sake of concision.
+

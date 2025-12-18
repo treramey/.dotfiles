@@ -1,4 +1,5 @@
 require("treramey.options")
+require("treramey.commands")
 require("treramey.lazy")
 require("treramey.keymaps")
 require("treramey.highlight_yank")
