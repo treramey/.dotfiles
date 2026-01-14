@@ -1,5 +1,8 @@
+import { homedir } from "os";
+import { join } from "path";
+
 export const NotificationPlugin = async ({ $, client }) => {
-  const soundPath = "~/.config/opencode/sounds/pokemon.mp3";
+  const soundPath = join(homedir(), ".config/opencode/sounds/pokemon.mp3");
 
   // Check if a session is a main (non-subagent) session
   const isMainSession = async (sessionID) => {
@@ -23,10 +26,11 @@ export const NotificationPlugin = async ({ $, client }) => {
         }
       }
 
-      // Permission requests bubble up to main agent UI, so always notify
-      if (event.type === "permission.updated") {
+      // Permission prompt created
+      if (event.type === "permission.asked") {
         await $`afplay ${soundPath}`;
       }
     },
   };
 };
+

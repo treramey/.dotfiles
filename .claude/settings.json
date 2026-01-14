@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(.envrc)",
+      "Read(secrets/*)"
+    ],
+    "additionalDirectories": [
+      "/Users/TRamey/.dotfiles/.config/opencode/",
+      "/Users/TRamey/.config/opencode/"
+    ]
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay ~/.config/opencode/sounds/pokemon.mp3 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
