@@ -2,11 +2,12 @@
 set -euo pipefail
 
 # task-loop: Run complete-next-task in loop until PRD complete
-# Usage: task-loop [<feature>] [--tool=opencode|claude] [--max-iterations=N]
-# If <feature> omitted, shows fzf picker with PRD completion status
+# Usage: task-loop [<feature>] [--tool=opencode|claude] [--max-iterations=N] [--all]
+# If <feature> omitted, shows fzf picker (completed PRDs hidden unless --all)
 
 MAX_ITERATIONS=25
 TOOL="opencode"
+SHOW_ALL=false
 
 # Discover PRD state dirs and calc completion status
 # Output: <prd-name> [<passed>/<total>]
@@ -41,7 +42,10 @@ list_prds() {
                 if [[ -n "$prd_name" ]]; then
                     if passed=$(jq '[.tasks[] | select(.passes == true)] | length' "$prd_json" 2>/dev/null) && \
                        total=$(jq '.tasks | length' "$prd_json" 2>/dev/null); then
-                        echo "$prd_name [$passed/$total]"
+                        # Skip completed PRDs unless --all
+                        if [[ "$SHOW_ALL" == "true" ]] || [[ "$passed" -lt "$total" ]]; then
+                            echo "$prd_name [$passed/$total]"
+                        fi
                     else
                         echo "$prd_name [?/?]"
                     fi
@@ -73,6 +77,10 @@ while [[ $# -gt 0 ]]; do
         --tool)
             TOOL="$2"
             shift 2
+            ;;
+        --all)
+            SHOW_ALL=true
+            shift
             ;;
         -*)
             echo "Unknown option: $1" >&2
