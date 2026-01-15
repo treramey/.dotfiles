@@ -1,6 +1,5 @@
 local harpoon = require("harpoon")
 local conform = require("conform")
-local smart_splits = require("smart-splits")
 local twoslash = require("twoslash-queries")
 local snacks = require("snacks")
 local prelude = require("treramey.prelude")
@@ -16,23 +15,6 @@ harpoon:setup({})
 vim.keymap.set("n", "<space>", "<nop>", { desc = "Disable space (leader) in normal mode" })
 
 vim.keymap.set("n", "<C-/>", "<nop>")
-
--- Window and smart-splits navigation
-vim.keymap.set("n", "<C-j>", function()
-  smart_splits.move_cursor_down()
-end, { desc = "Navigate down" })
-
-vim.keymap.set("n", "<C-k>", function()
-  smart_splits.move_cursor_up()
-end, { desc = "Navigate up" })
-
-vim.keymap.set("n", "<C-l>", function()
-  smart_splits.move_cursor_right()
-end, { desc = "Navigate right" })
-
-vim.keymap.set("n", "<C-h>", function()
-  smart_splits.move_cursor_left()
-end, { desc = "Navigate left" })
 
 -- Swap between last two buffers
 vim.keymap.set("n", "<leader>'", "<C-^>", { desc = "Switch to last buffer" })

@@ -2,9 +2,58 @@
 set -euo pipefail
 
 # task-loop: Run complete-next-task in loop until PRD complete
-# Usage: task-loop <feature> [--max-iterations=N]
+# Usage: task-loop [<feature>] [--tool=opencode|claude] [--max-iterations=N]
+# If <feature> omitted, shows fzf picker with PRD completion status
 
 MAX_ITERATIONS=25
+TOOL="opencode"
+
+# Discover PRD state dirs and calc completion status
+# Output: <prd-name> [<passed>/<total>]
+list_prds() {
+    local state_dirs=()
+    
+    # Search home directories
+    [[ -d ~/.opencode/state ]] && state_dirs+=(~/.opencode/state)
+    [[ -d ~/.claude/state ]] && state_dirs+=(~/.claude/state)
+    
+    # Search current repo (walk up to find .opencode/state or .claude/state)
+    local dir="$PWD"
+    while [[ "$dir" != "/" ]]; do
+        [[ -d "$dir/.opencode/state" ]] && state_dirs+=("$dir/.opencode/state")
+        [[ -d "$dir/.claude/state" ]] && state_dirs+=("$dir/.claude/state")
+        [[ -d "$dir/.opencode/state" || -d "$dir/.claude/state" ]] && break
+        dir="$(dirname "$dir")"
+    done
+    
+    # Remove duplicates
+    local unique_dirs=($(printf '%s\n' "${state_dirs[@]}" | sort -u))
+    
+    for state_dir in "${unique_dirs[@]}"; do
+        while IFS= read -r -d '' prd_json; do
+            local prd_name
+            local passed=0
+            local total=0
+            
+            # Extract prdName
+            if prd_name=$(jq -r '.prdName // empty' "$prd_json" 2>/dev/null); then
+                # Count tasks with passes=true vs total
+                if [[ -n "$prd_name" ]]; then
+                    if passed=$(jq '[.tasks[] | select(.passes == true)] | length' "$prd_json" 2>/dev/null) && \
+                       total=$(jq '.tasks | length' "$prd_json" 2>/dev/null); then
+                        echo "$prd_name [$passed/$total]"
+                    else
+                        echo "$prd_name [?/?]"
+                    fi
+                fi
+            else
+                # Malformed JSON - show parent dir name
+                local dir_name=$(basename "$(dirname "$prd_json")")
+                echo "$dir_name [?/?]"
+            fi
+        done < <(find "$state_dir" -name "prd.json" -print0 2>/dev/null)
+    done
+}
 
 # Parse args
 while [[ $# -gt 0 ]]; do
@@ -15,6 +64,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --max-iterations)
             MAX_ITERATIONS="$2"
+            shift 2
+            ;;
+        --tool=*)
+            TOOL="${1#*=}"
+            shift
+            ;;
+        --tool)
+            TOOL="$2"
             shift 2
             ;;
         -*)
@@ -28,10 +85,39 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# If no FEATURE specified, show fzf picker
 if [[ -z "${FEATURE:-}" ]]; then
-    echo "Usage: task-loop <feature> [--max-iterations=N]"
-    exit 1
+    if ! command -v fzf &>/dev/null; then
+        echo "Error: fzf not found. Install fzf or provide <feature> argument." >&2
+        exit 1
+    fi
+    
+    prd_list=$(list_prds)
+    
+    # Launch fzf (user can cancel with ctrl-c/esc)
+    selected=$(echo "$prd_list" | fzf --prompt='Pick a PRD > ' --height=50% --reverse --no-sort) || exit 0
+    
+    # Extract prd name (strip completion status suffix)
+    FEATURE=$(echo "$selected" | sed -E 's/ \[[0-9?]+\/[0-9?]+\]$//')
+    
+    if [[ -z "$FEATURE" ]]; then
+        exit 0
+    fi
 fi
+
+# Build command based on tool
+case "$TOOL" in
+    opencode)
+        CMD=(opencode run --command complete-next-task "$FEATURE")
+        ;;
+    claude)
+        CMD=(claude --dangerously-skip-permissions -p "complete-next-task $FEATURE")
+        ;;
+    *)
+        echo "Unknown tool: $TOOL (use opencode or claude)" >&2
+        exit 1
+        ;;
+esac
 
 COMPLETE_MARKER="<tasks>COMPLETE</tasks>"
 
@@ -43,7 +129,7 @@ for ((i=1; i<=MAX_ITERATIONS; i++)); do
     while IFS= read -r line; do
         printf '%s\n' "$line"
         [[ "$line" == *"$COMPLETE_MARKER"* ]] && found=true
-    done < <(opencode run --command complete-next-task "$FEATURE" 2>&1)
+    done < <("${CMD[@]}" 2>&1)
 
     if $found; then
         echo "PRD complete, exiting."

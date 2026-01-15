@@ -1,0 +1,59 @@
+{
+  "prdName": "task-loop-fzf",
+  "tasks": [
+    {
+      "id": "script-1",
+      "category": "script",
+      "description": "Discover PRD state directories and calculate completion status",
+      "steps": [
+        "Function finds .opencode/state/*/prd.json files",
+        "Function finds .claude/state/*/prd.json files",
+        "For each prd.json, extract prdName",
+        "For each prd.json, count tasks where passes=true vs total",
+        "Output format: <prd-name> [<passed>/<total>]",
+        "Handles missing state dirs gracefully (no error)",
+        "Handles malformed JSON gracefully (shows [?/?])"
+      ],
+      "passes": true
+    },
+    {
+      "id": "script-2",
+      "category": "script",
+      "description": "FZF picker integration for PRD selection",
+      "steps": [
+        "When FEATURE arg omitted, launch fzf with PRD list",
+        "fzf receives PRD names with completion status",
+        "Selected PRD name extracted (strip status suffix)",
+        "fzf cancel (ctrl-c/esc) exits script cleanly with code 0",
+        "Empty PRD list still shows fzf (user exits manually)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "script-3",
+      "category": "script",
+      "description": "Backward compatibility preserved",
+      "steps": [
+        "task-loop <feature> bypasses fzf, works as before",
+        "--tool flag works unchanged",
+        "--max-iterations flag works unchanged",
+        "Default tool is opencode"
+      ],
+      "passes": true
+    }
+  ],
+  "context": {
+    "patterns": [
+      "fzf selection: tmux.conf sesh integration",
+      "jq JSON parsing: complete-next-task workflow"
+    ],
+    "keyFiles": [
+      ".local/scripts/task-loop"
+    ],
+    "nonGoals": [
+      "Creating PRDs from fzf interface",
+      "Filtering by completion status",
+      "Multi-select PRDs"
+    ]
+  }
+}
