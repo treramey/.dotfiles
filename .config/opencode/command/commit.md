@@ -5,8 +5,14 @@ subtask: true
 
 commit and push
 
-make sure it includes the branch name as a prefix like
-LAAIR-XXXX:
+### Commit
+If the remote has IDMI or silvervineinc
+- git: `git add -A && git commit -m 'branch: <description>'`
+
+- jj: `jj describe -m 'feat(<scope>): <description>' && jj bookmark create <prdName>/<task-id> && jj new`
+- git: `git add -A && git commit -m 'feat(<scope>): <description>'`
+
+Bookmark format: `<prdName>/<task-id>` (e.g., `lib-relay-implementation/types-2`)
 
 prefer to explain WHY something was done from an end user perspective instead of
 WHAT was done.
