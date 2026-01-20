@@ -4,19 +4,21 @@ return {
     lazy = false,
     build = ":TSUpdate",
     cmd = { "TSUpdate", "TSInstall" },
+    init = function()
+      local parsers = require("nvim-treesitter.parsers")
+      parsers.cfml = {
+        install_info = {
+          url = "https://github.com/cfmleditor/tree-sitter-cfml",
+          files = { "cfml/src/parser.c", "cfml/src/scanner.c" },
+          location = "cfml",
+          branch = "main",
+          generate_requires_npm = false,
+          requires_generate_from_grammar = false,
+        },
+      }
+    end,
     config = function()
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "TSUpdate",
-        callback = function()
-          require("nvim-treesitter.parsers").cfml = {
-            install_info = {
-              url = "https://github.com/cfmleditor/tree-sitter-cfml",
-              files = { "src/parser.c", "src/scanner.c" },
-              location = "cfml",
-            },
-          }
-        end,
-      })
+      require("nvim-treesitter").setup({})
 
       vim.filetype.add({
         extension = {
@@ -26,31 +28,45 @@ return {
           bxm = "boxlang",
           bx = "boxlang",
           bxs = "boxlang",
+          jsonc = "json",
         },
       })
 
+      local code_ft = {
+        "bash",
+        "c",
+        "css",
+        "cfml",
+        "go",
+        "python",
+        "c_sharp",
+        "html",
+        "javascript",
+        "json",
+        "latex",
+        "lua",
+        "markdown",
+        "markdown_inline",
+        "regex",
+        "rust",
+        "scss",
+        "tsx",
+        "typescript",
+        "typst",
+        "vue",
+        "yaml",
+        "dockerfile",
+        "make",
+        "java",
+        "php",
+        "ruby",
+        "sql",
+        "toml",
+      }
+
       vim.api.nvim_create_autocmd("FileType", {
-        callback = function(args)
-          local skip = {
-            ["snacks_layout_box"] = true,
-            ["snacks_picker_input"] = true,
-            ["snacks_picker_list"] = true,
-            ["snacks_picker_preview"] = true,
-            ["TelescopePrompt"] = true,
-            ["TelescopeResults"] = true,
-            ["TelescopePreview"] = true,
-            ["fzf"] = true,
-            ["dirvish"] = true,
-            ["netrw"] = true,
-            ["help"] = true,
-            ["qf"] = true,
-            ["gitcommit"] = true,
-            ["gitrebase"] = true,
-            ["diff"] = true,
-          }
-          if skip[args.match] then
-            return
-          end
+        pattern = table.concat(code_ft, ","),
+        callback = function()
           vim.treesitter.start()
           vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end,
@@ -61,30 +77,7 @@ return {
         once = true,
         callback = function()
           vim.defer_fn(function()
-            require("nvim-treesitter").install({
-              "bash",
-              "c",
-              "css",
-              "cfml",
-              "go",
-              "python",
-              "c_sharp",
-              "html",
-              "javascript",
-              "json",
-              "latex",
-              "lua",
-              "markdown",
-              "markdown_inline",
-              "regex",
-              "rust",
-              "scss",
-              "tsx",
-              "typescript",
-              "typst",
-              "vue",
-              "yaml",
-            })
+            require("nvim-treesitter").install(code_ft)
           end, 100)
         end,
       })
