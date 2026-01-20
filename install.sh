@@ -22,6 +22,10 @@ defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
 echo "Stowing dotfiles..."
 stow .
 
+# Build bat cache for custom themes
+echo "Building bat cache..."
+bat cache --build
+
 # Fonts
 echo "Installing sketchybar-app-font..."
 curl -L https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v2.0.32/sketchybar-app-font.ttf -o $HOME/Library/Fonts/sketchybar-app-font.ttf

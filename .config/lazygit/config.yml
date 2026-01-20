@@ -1,28 +1,8 @@
-git:
-  overrideGpg: true
-  pagers:
-    - colorArg: always
-      pager: delta --dark --paging=never
-      useConfig: false
 gui:
-  authorColors:
-    "*": magenta
   showNumstatInFilesView: true
   skipRewordInEditorWarning: true
   tabWidth: 2
-  theme:
-    activeBorderColor:
-      - yellow
-      - bold
-    searchingActiveBorderColor:
-      - yellow
-      - bold
-    inactiveBorderColor:
-      - "#6e6a86"
-    selectedLineBgColor:
-      - black
   border: single
-  nerdFontsVersion: "3"
   spinner:
     frames:
       - "⠋"
@@ -36,6 +16,38 @@ gui:
       - "⠇"
       - "⠏"
     rate: 80
-keybinding:
-  files:
-    viewResetOptions: <disabled>
+  theme:
+    activeBorderColor:
+      - "#fab387"
+      - bold
+    inactiveBorderColor:
+      - "#7f849c"
+    searchingActiveBorderColor:
+      - "#f9e2af"
+    optionsTextColor:
+      - "#89b4fa"
+    selectedLineBgColor:
+      - "#313244"
+    inactiveViewSelectedLineBgColor:
+      - bold
+    cherryPickedCommitFgColor:
+      - "#fab387"
+    cherryPickedCommitBgColor:
+      - "#45475a"
+    markedBaseCommitFgColor:
+      - "#fab387"
+    markedBaseCommitBgColor:
+      - "#45475a"
+    unstagedChangesColor:
+      - "#f38ba8"
+    defaultFgColor:
+      - "#bac2de" # '#cdd6f4'
+  authorColors:
+    "*": "#b4befe"
+  nerdFontsVersion: "3"
+  switchTabsWithPanelJumpKeys: true
+git:
+  overrideGpg: true
+  pagers:
+    - colorArg: always
+      pager: delta --dark --paging=never

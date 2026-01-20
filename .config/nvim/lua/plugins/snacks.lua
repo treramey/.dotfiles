@@ -8,14 +8,7 @@ return {
     "folke/snacks.nvim",
     priority = 1000,
     lazy = false,
-    dependencies = {
-      {
-        "lewis6991/gitsigns.nvim",
-        init = function()
-          require("gitsigns").setup()
-        end,
-      },
-    },
+
     ---@type snacks.Config
     opts = {
       bigfile = { enabled = true },
@@ -58,8 +51,8 @@ return {
             preview = false,
             layout = {
               backdrop = false,
-              height = 0.4,
-              width = 0.45,
+              width = 0.35,
+              height = 0.5,
               box = "horizontal",
               {
                 border = "single",
@@ -69,7 +62,7 @@ return {
                 { win = "input", height = 1, border = "bottom" },
                 { win = "list", border = "none" },
               },
-              { win = "preview", title = "{preview}", title_pos = "left", border = "single" },
+              { win = "preview", title = "{preview}", title_pos = "left", border = "solid" },
             },
           },
         },
@@ -97,8 +90,13 @@ return {
           },
         },
       },
-      statuscolumn = {},
-      terminal = {},
+      statuscolumn = { enabled = false }, -- disabled due to neovim 0.11.x buf_signcols_count_range bug
+      terminal = {
+        win = {
+          size = { width = 0.8, height = 0.8 },
+          border = "solid",
+        },
+      },
       toggle = { enabled = true },
       zen = {
         show = {

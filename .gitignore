@@ -52,3 +52,6 @@ Brewfile.lock.json
 # Cache directories
 .cache/
 *.log
+
+# opensrc - source code for packages
+opensrc/

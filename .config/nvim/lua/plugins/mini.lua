@@ -4,7 +4,7 @@ return {
     lazy = true,
     opts = {},
     config = function()
-      require("nvim-treesitter.configs").setup({
+      require("ts_context_commentstring").setup({
         enable_autocmd = false,
       })
     end,
@@ -51,7 +51,8 @@ return {
             end
 
             -- Fall back to ts_context_commentstring or default commentstring
-            return require("ts_context_commentstring").calculate_commentstring() or vim.bo.commentstring
+            local cs = require("ts_context_commentstring").calculate_commentstring()
+            return cs or vim.bo.commentstring or "<!-- %s -->"
           end,
           pad_comment_parts = true,
         },

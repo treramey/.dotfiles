@@ -134,7 +134,13 @@ return {
       local bin_path = vim.fn.stdpath("data") .. "/lazy/netcoredbg-macOS-arm64.nvim/netcoredbg/netcoredbg"
 
       if vim.fn.has("win32") == 1 then
-        bin_path = vim.fn.stdpath("data") .. "/mason/packages/netcoredbg/netcoredbg/" .. executable .. ".exe"
+        bin_path = vim.fn.stdpath("data") .. "/mason/packages/netcoredbg/netcoredbg.exe"
+      elseif not (vim.fn.has("macunix") == 1 and vim.fn.has("arm64") == 1) then
+        bin_path = vim.fn.stdpath("data") .. "/mason/packages/netcoredbg/netcoredbg"
+      end
+
+      if vim.fn.executable(bin_path) ~= 1 then
+        vim.notify("[easy-dotnet] Debugger binary not found: " .. bin_path, vim.log.levels.WARN)
       end
 
       local parsers = require("easy-dotnet.parsers")
@@ -150,7 +156,10 @@ return {
           mappings = { open_variable_viewer = { lhs = "T", desc = "open variable viewer" } },
           apply_value_converters = true,
         },
-        lsp = { enabled = false },
+        lsp = {
+          enabled = false,
+          roslynator_enabled = false,
+        },
         notifications = {
           handler = function(start_event)
             local handle = require("fidget.progress").handle.create({
@@ -194,10 +203,12 @@ return {
         if #files == 0 then
           vim.notify("No launchSettings.json found", vim.log.levels.WARN)
         elseif #files == 1 then
-          vim.cmd("edit " .. files[1])
+          vim.cmd("edit " .. vim.fn.fnameescape(files[1]))
         else
           vim.ui.select(files, { prompt = "Select launchSettings.json" }, function(choice)
-            if choice then vim.cmd("edit " .. choice) end
+            if choice then
+              vim.cmd("edit " .. vim.fn.fnameescape(choice))
+            end
           end)
         end
       end, { desc = "Open launchSettings.json" })

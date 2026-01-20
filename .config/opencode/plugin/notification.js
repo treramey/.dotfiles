@@ -16,21 +16,30 @@ export const NotificationPlugin = async ({ $, client }) => {
     }
   };
 
-  return {
-    event: async ({ event }) => {
-      // Only notify for main session events, not background subagents
-      if (event.type === "session.idle") {
-        const sessionID = event.properties.sessionID;
-        if (await isMainSession(sessionID)) {
-          await $`afplay ${soundPath}`;
-        }
-      }
-
-      // Permission prompt created
-      if (event.type === "permission.asked") {
+  const playNotificationSound = async () => {
+    try {
+      if (process.platform === "darwin") {
         await $`afplay ${soundPath}`;
+      } else {
+        await $`mpv --really-quiet --no-video -- ${soundPath}`.nothrow();
       }
-    },
+    } catch {}
   };
-};
 
+    return {
+      event: async ({ event }) => {
+        // Only notify for main session events, not background subagents
+        if (event.type === "session.idle") {
+          const sessionID = event.properties.sessionID;
+          if (await isMainSession(sessionID)) {
+            await playNotificationSound();
+          }
+        }
+
+        // Permission prompt created
+        if (event.type === "permission.asked") {
+          await playNotificationSound();
+        }
+      },
+    };
+};

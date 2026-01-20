@@ -25,3 +25,22 @@ _darcs
 \.editorconfig
 \.DS_Store
 Brewfile
+install\.sh
+CLAUDE\.md
+\.claude
+
+# Omarchy-managed configs (avoid conflicts)
+\.config/ghostty
+\.config/hypr
+\.config/waybar
+\.config/walker
+\.config/mako
+\.zshrc
+
+
+# Images (not configs)
+\.config/arctic-sunset\.png
+\.config/clouds\.jpg
+\.config/fetch\.sh
+
+

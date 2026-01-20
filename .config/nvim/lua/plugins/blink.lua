@@ -3,12 +3,6 @@ local function is_dap_buffer()
 end
 return {
   {
-    "saghen/blink.compat",
-    version = "*",
-    lazy = true,
-    opts = { impersonate_nvim_cmp = true },
-  },
-  {
     "saghen/blink.cmp",
     dependencies = {
       "rafamadriz/friendly-snippets",
@@ -16,6 +10,7 @@ return {
       "rcarriga/cmp-dap",
       "xzbdmw/colorful-menu.nvim",
       "echasnovski/mini.icons",
+      { "saghen/blink.compat", version = "*", opts = { impersonate_nvim_cmp = true } },
     },
     version = "v1.*",
     event = "VeryLazy",

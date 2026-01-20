@@ -31,6 +31,12 @@ return {
         EasyDotnetTestRunnerSolution = { fg = "pine" },
         EasyDotnetTestRunnerTest = { fg = "iris" },
 
+        OilGitAdded = { fg = "foam" },
+        OilGitModified = { fg = "rose" },
+        OilGitRenamed = { fg = "pine" },
+        OilGitUntracked = { fg = "subtle" },
+        OilGitIgnored = { fg = "muted" },
+
         RenderMarkdownCode = { bg = "overlay" },
         RenderMarkdownCodeInline = { fg = "text", bg = "surface" },
 

@@ -7,26 +7,6 @@ vim.api.nvim_create_autocmd("FileType", {
 
 return {
   {
-    "MeanderingProgrammer/render-markdown.nvim",
-    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-mini/mini.icons" },
-    opts = {
-      file_types = { "markdown", "copilot-chat", "codecompanion" },
-      code = {
-        sign = true,
-        width = "full",
-        right_pad = 1,
-      },
-      heading = {
-        sign = false,
-        icons = { " " },
-        position = "inline",
-      },
-      pipe_table = { alignment_indicator = "┅" },
-      completions = { lsp = { enabled = true } },
-    },
-    ft = { "markdown", "copilot-chat", "codecompanion" },
-  },
-  {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     build = function()
@@ -39,5 +19,26 @@ return {
     config = function()
       vim.cmd([[do FileType]])
     end,
+  },
+  {
+    "OXY2DEV/markview.nvim",
+    lazy = false,
+    opts = function()
+      local presets = require("markview.presets")
+      return {
+        markdown = {
+          heading = presets.headings.marker,
+          horizonatal_rules = presets.horizontal_rules.dashed,
+        },
+        preview = {
+          icon_provider = "mini",
+        },
+      }
+    end,
+    keys = {
+      -- stylua: ignore start
+      { "<leader>tm", "<cmd>Markview toggle<cr>", desc = "toggle markview" },
+      -- stylua: ignore end
+    },
   },
 }

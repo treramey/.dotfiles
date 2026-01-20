@@ -15,11 +15,7 @@
       "/Users/TRamey/.config/opencode/*": "allow"
     }
   },
-  "enabled_providers": [
-    "anthropic",
-    "cloudflare-ai-gateway"
-  ],
-  "theme": "rosepine",
+  "theme": "system",
   "keybinds": {
     "leader": "ctrl+o",
     "messages_half_page_up": "ctrl+u",
@@ -47,6 +43,28 @@
       "type": "remote",
       "url": "https://mcp.grep.app",
       "enabled": true
+    },
+    "opensrc": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "opensrc-mcp"
+      ],
+      "enabled": true
+    },
+    "cloudflare": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@cloudflare/mcp-server-cloudflare"
+      ],
+      "environment": {
+        "CLOUDFLARE_API_TOKEN": "{env:CLOUDFLARE_API_TOKEN}",
+        "CLOUDFLARE_ACCOUNT_ID": "{env:CLOUDFLARE_ACCOUNT_ID}"
+      },
+      "enabled": false
     }
   }
 }
