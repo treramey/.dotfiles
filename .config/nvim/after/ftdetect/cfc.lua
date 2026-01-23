@@ -1,7 +1,8 @@
 vim.filetype.add({
   extension = {
-    cfm = "cfml",
-    cfc = "cfml",
-    inc = "cfml",
+    cfm = "cf",
+    cfc = "cf",
+    cfs = "cf",
+    inc = "cf",
   },
 })

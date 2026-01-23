@@ -3,40 +3,22 @@ return {
     "nvim-treesitter/nvim-treesitter",
     lazy = false,
     build = ":TSUpdate",
-    cmd = { "TSUpdate", "TSInstall" },
-    init = function()
-      local parsers = require("nvim-treesitter.parsers")
-      parsers.cfml = {
-        install_info = {
-          url = "https://github.com/cfmleditor/tree-sitter-cfml",
-          files = { "cfml/src/parser.c", "cfml/src/scanner.c" },
-          location = "cfml",
-          branch = "main",
-          generate_requires_npm = false,
-          requires_generate_from_grammar = false,
-        },
-      }
-    end,
+    cmd = { "TSUpdate" },
     config = function()
-      require("nvim-treesitter").setup({})
+      require("nvim-treesitter").setup({
+        install_dir = vim.fn.stdpath("data") .. "/site",
+      })
 
       vim.filetype.add({
         extension = {
-          cfm = "cfml",
-          cfc = "cfml",
-          cfs = "cfml",
-          bxm = "boxlang",
-          bx = "boxlang",
-          bxs = "boxlang",
           jsonc = "json",
         },
       })
 
-      local code_ft = {
+      local lang = {
         "bash",
         "c",
         "css",
-        "cfml",
         "go",
         "python",
         "c_sharp",
@@ -62,13 +44,15 @@ return {
         "ruby",
         "sql",
         "toml",
+        "razor",
       }
 
       vim.api.nvim_create_autocmd("FileType", {
-        pattern = table.concat(code_ft, ","),
+        pattern = table.concat(lang, ","),
         callback = function()
-          vim.treesitter.start()
-          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          if pcall(vim.treesitter.start) then
+            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
         end,
       })
 
@@ -77,7 +61,7 @@ return {
         once = true,
         callback = function()
           vim.defer_fn(function()
-            require("nvim-treesitter").install(code_ft)
+            require("nvim-treesitter").install(lang)
           end, 100)
         end,
       })

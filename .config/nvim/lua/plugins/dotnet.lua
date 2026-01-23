@@ -201,7 +201,7 @@ return {
       vim.api.nvim_create_user_command("DotnetLaunchSettings", function()
         local files = vim.fs.find("launchSettings.json", { type = "file", limit = math.huge })
         if #files == 0 then
-          vim.notify("No launchSettings.json found", vim.log.levels.WARN)
+          vim.notify("[easy-dotnet] No launchSettings.json found", vim.log.levels.WARN)
         elseif #files == 1 then
           vim.cmd("edit " .. vim.fn.fnameescape(files[1]))
         else
