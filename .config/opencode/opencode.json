@@ -15,6 +15,10 @@
       "/Users/TRamey/.config/opencode/*": "allow"
     }
   },
+  "enabled_providers": [
+    "minimax",
+    "cloudflare-ai-gateway"
+  ],
   "theme": "system",
   "keybinds": {
     "leader": "ctrl+o",

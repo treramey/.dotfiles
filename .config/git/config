@@ -1,0 +1,89 @@
+[user]
+  name = "Trevor Ramey"
+  email = "hello@trevors.email"
+
+[includeIf "gitdir:~/workspace/work/"]
+  path = "~/workspace/work/.gitconfig"
+
+[init]
+  defaultBranch = main
+ 
+[alias]
+  cw = "!sh clone-worktree"
+  wt = worktree
+  wta = worktree add
+  wtr = worktree remove
+  wtp = worktree prune
+
+[core]
+  editor = "nvim"
+  excludesfile ="~/.gitignore"
+  pager = delta
+  autocrlf = input
+
+  # Make `git rebase` safer on macOS.
+  # More info: <http://www.git-tower.com/blog/make-git-rebase-safe-on-osx/>
+  trustctime = false
+
+  # Speed up commands involving untracked files such as `git status`.
+  # https://git-scm.com/docs/git-update-index#_untracked_cache
+  untrackedCache = true
+
+[color]
+    ui = true
+
+[format]
+  pretty = format:%C(yellow)%h %Cblue%>(15)%ad %Cgreen%<(15)%aN%Cred%d %Creset%s
+
+[alias]
+  br = "branch"
+  co = "checkout"
+
+  # View the current working tree status using the short format.
+  s = status -s
+
+  # Show the user email for the current repository.
+  whoami = config user.email
+
+[diff]
+  algorithm = "histogram"
+  indentHeuristic = true
+  colorMoved = default
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  side-by-side = false
+  dark = true
+  true-color = always
+  features = catppuccin-macchiato
+
+[delta "catppuccin-macchiato"]
+	blame-palette = "#24273a #1e2030 #181926 #363a4f #494d64"
+	commit-decoration-style = "box ul"
+	dark = true
+	file-decoration-style = "#c6a0f6"
+	file-style = "#c6a0f6"
+	hunk-header-style = "omit"
+	line-numbers = true
+	line-numbers-left-style = "#6e738d"
+	line-numbers-minus-style = "bold #ed8796"
+	line-numbers-plus-style = "bold #a6da95"
+	line-numbers-right-style = "#6e738d"
+	line-numbers-zero-style = "#6e738d"
+	# 25% red 75% base
+	minus-emph-style = "bold syntax #564052"
+	# 10% red 90% base
+	minus-style = "syntax #383143"
+	# 25% green 75% base
+	plus-emph-style = "bold syntax #455552"
+	# 10% green 90% base
+	plus-style = "syntax #313943"
+	map-styles = \
+		bold purple => syntax "#4d4569", \
+		bold blue => syntax "#3e4868", \
+		bold cyan => syntax "#3f5365", \
+		bold yellow => syntax "#585253"
+	# Should match the name of the bat theme
+	syntax-theme = "Catppuccin Macchiato"

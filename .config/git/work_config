@@ -1,0 +1,4 @@
+[user]
+	email = "trevor.ramey@silvervinesoftware.com"
+	name = "Trevor Ramey"
+	signingkey = "~/.ssh/key.pub"
