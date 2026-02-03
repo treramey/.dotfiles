@@ -9,6 +9,21 @@ return {
         install_dir = vim.fn.stdpath("data") .. "/site",
       })
 
+      -- Register CFML parser
+      local parsers = require("nvim-treesitter.parsers")
+      if not parsers.cfml then
+        parsers.cfml = {
+          install_info = {
+            url = "https://github.com/cfmleditor/tree-sitter-cfml",
+            files = { "cfml/src/parser.c", "cfml/src/scanner.c" },
+            location = "cfml",
+            revision = "master",
+          },
+          filetype = "cfml",
+          tier = 3,
+        }
+      end
+
       vim.filetype.add({
         extension = {
           jsonc = "json",
