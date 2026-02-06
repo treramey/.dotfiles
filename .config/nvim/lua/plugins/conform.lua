@@ -37,6 +37,10 @@ return {
       csharpier = {
         command = "csharpier",
         args = { "format", "--write-stdout", "--stdin-path", "$FILENAME" },
+        env = {
+          -- TODO: Remove when projects are updated to .NET 10, use mise latest instead
+          DOTNET_ROOT = vim.fn.expand("~/.local/share/mise/installs/dotnet/10"),
+        },
       },
       biome = {
         condition = function(_, ctx)

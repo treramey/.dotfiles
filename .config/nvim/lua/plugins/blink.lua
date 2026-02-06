@@ -136,7 +136,7 @@ return {
           if is_dap_buffer() then
             return { "lsp", "path", "snippets", "buffer", "easy-dotnet", "dadbod", "dap" }
           end
-          return { "lsp", "path", "snippets", "buffer", "easy-dotnet", "dadbod", "cfcomplete" }
+          return { "lsp", "path", "snippets", "buffer", "easy-dotnet", "dadbod" }
         end,
         providers = {
           lsp = {
@@ -157,7 +157,6 @@ return {
           },
           dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink", score_offset = 1000 },
           dap = { name = "dap", module = "blink.compat.source", score_offset = 1000 },
-          cfcomplete = { name = "cfcomplete", module = "blink.compat.source", score_offset = 1000 },
           ["easy-dotnet"] = {
             name = "easy-dotnet",
             enabled = true,

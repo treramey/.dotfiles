@@ -106,9 +106,8 @@ alias pray="bun install"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# tmux
-if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ] && [ -z "$WEZTERM_EXECUTABLE" ]; then
-  exec tmux
+if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ] && [ "$TERM_PROGRAM" = "ghostty" ]; then
+  exec tmux new-session -A -s "main"
 fi
 
 # scripts
@@ -119,7 +118,6 @@ bindkey -s ^f "tmux-sessionizer\n"
 # shell integrations
 eval "$(zoxide init zsh)"
 eval "$(fzf --zsh)"
-eval "$(zoxide init --cmd cd zsh)"
 
 # gum filter - must be after fzf --zsh to override ^t binding
 function fs() {
