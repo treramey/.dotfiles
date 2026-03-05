@@ -13,6 +13,15 @@
 .claude/shell-snapshots/
 .claude/statsig/
 .claude/todos/
+.claude/.old/
+
+# oh-my-claudecode
+.omc/
+
+# OpenCode
+.opencode/
+.config/opencode/opencode.json.tui-migration.bak
+.config/opencode/tui.json
 
 # Editor temporary files
 .config/nvim/.undodir/
