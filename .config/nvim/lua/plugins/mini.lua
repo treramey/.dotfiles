@@ -62,6 +62,8 @@ return {
   {
     "nvim-mini/mini.diff",
     version = false,
+    event = "VeryLazy",
+    main = "mini.diff",
 
     opts = {
       view = {

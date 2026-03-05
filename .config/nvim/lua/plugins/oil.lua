@@ -57,7 +57,7 @@ return {
     end
     return {
       float = {
-        max_width = 0.35,
+        max_width = 0.45,
         max_height = 0.5,
         border = "single",
       },
@@ -86,7 +86,9 @@ return {
       keymaps = {
         ["<tab>"] = "actions.select",
         ["<s-tab>"] = "actions.parent",
-        ["q"] = { "actions.close", mode = "n" },
+        ["<Esc>"] = { "actions.close", mode = "n" },
+        ["<C-j>"] = { "j", mode = "n" },
+        ["<C-k>"] = { "k", mode = "n" },
         ["="] = { "actions.cd", mode = "n" },
         ["-"] = { "actions.cd", opts = { scope = "tab" }, mode = "n" },
         ["g'"] = { "actions.toggle_trash", mode = "n" },

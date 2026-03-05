@@ -9,5 +9,8 @@ return {
 				save_on_toggle = true,
 			},
 		},
+		config = function(_, opts)
+			require("harpoon"):setup(opts)
+		end,
 	},
 }
