@@ -1,10 +1,12 @@
-_G.tools = _G.tools or {}
+local M = {}
 
-tools.hl_str = function(group, str)
+M.hl_str = function(group, str)
 	return string.format("%%#%s#%s%%*", group, str)
 end
 
-tools.root = function()
+M.root = function()
 	local git_path = vim.fn.finddir(".git", ".;")
 	return vim.fn.fnamemodify(git_path, ":h")
 end
+
+return M

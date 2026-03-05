@@ -1,4 +1,9 @@
 local M = {}
+local tools = setmetatable({}, {
+  __index = function(_, key)
+    return require("treramey.utils")[key]
+  end,
+})
 local state = {
   cache = {
     diagnostics = "",
@@ -82,11 +87,21 @@ local function get_path()
   local path = vim.fn.expand("%:~:.:h")
   local max_width = 30
   if path == "." or path == "" then
-    return ""
+    return _spacer(1)
   elseif #path > max_width then
     path = "…" .. string.sub(path, -max_width + 2)
   end
-  return tools.hl_str("StatuslineFilepath", path .. _spacer(1))
+  return tools.hl_str("Statusline", _spacer(1) .. path .. _spacer(1))
+end
+
+local icon_cache = {}
+local function get_icon(ft)
+  if icon_cache[ft] then
+    return icon_cache[ft].icon, icon_cache[ft].hl
+  end
+  local icon, hl, _ = require("mini.icons").get("filetype", ft)
+  icon_cache[ft] = { icon = icon, hl = hl }
+  return icon, hl
 end
 
 local function get_filename()
@@ -95,7 +110,7 @@ local function get_filename()
   end
   local filename = vim.fn.expand("%:~:t")
   local buf = vim.api.nvim_get_current_buf()
-  local icon, icon_hl, _ = require("mini.icons").get("filetype", vim.bo.filetype)
+  local icon, icon_hl = get_icon(vim.bo.filetype)
   local diagnostic_map = {
     [vim.diagnostic.severity.ERROR] = "DiagnosticError",
     [vim.diagnostic.severity.WARN] = "DiagnosticWarn",
@@ -118,7 +133,7 @@ local function get_modification_status()
   if buf_modified then
     return tools.hl_str("DiagnosticWarn", "●" .. _spacer(2))
   elseif buf_modifiable == false or buf_readonly == true then
-    return tools.hl_str("DiagnosticError", "󰑇" .. _spacer(2))
+    return tools.hl_str("DiagnosticError", _spacer(1) .. "󰑇" .. _spacer(2))
   else
     return _spacer(2) -- No modification status
   end
@@ -144,7 +159,7 @@ local function get_formatter_status()
 
   local formatters = conform.list_formatters(0)
   if #formatters > 0 then
-    return tools.hl_str("Special", " " .. _spacer(1))
+    return tools.hl_str("DiagnosticHint", " " .. _spacer(1))
   else
     return ""
   end
@@ -158,7 +173,7 @@ local function get_copilot_status()
   if not status then
     return ""
   end
-  local hl = status.kind == "Error" and "DiagnosticError" or status.busy and "DiagnosticWarn" or "Define"
+  local hl = status.kind == "Error" and "DiagnosticError" or status.busy and "DiagnosticWarn" or "DiagnosticHint"
   return tools.hl_str(hl, " " .. _spacer(1))
 end
 
@@ -199,7 +214,7 @@ local function get_dotnet_solution()
   end
   solution = solution:gsub("%.[^%.]+$", "")
   local icon, hl, _ = require("mini.icons").get("filetype", "solution")
-  return tools.hl_str(hl, icon .. " ") .. tools.hl_str("StatuslineTextMain", solution .. _spacer(2))
+  return tools.hl_str(hl, icon .. " ") .. tools.hl_str("Statusline", solution .. _spacer(2))
 end
 
 local function get_recording()
@@ -219,7 +234,7 @@ local function get_branch()
   if branch == "" then
     return ""
   end
-  return tools.hl_str("StatuslineTextAccent", " ") .. tools.hl_str("StatuslineTextMain", branch .. _spacer(2))
+  return tools.hl_str("StatuslineTextAccent", " ") .. tools.hl_str("Statusline", branch .. _spacer(2))
 end
 
 local function get_scrollbar()
@@ -235,7 +250,7 @@ local function get_scrollbar()
   local i = math.floor((cur_line - 1) / lines * #sbar_chars) + 1
   local sbar = string.rep(sbar_chars[i], 2)
 
-  return tools.hl_str("DiagnosticError", sbar .. _spacer(1))
+  return tools.hl_str("DiagnosticWarn", sbar .. _spacer(1))
 end
 
 M.setup = function()

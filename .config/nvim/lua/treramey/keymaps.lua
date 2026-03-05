@@ -1,15 +1,8 @@
-local harpoon = require("harpoon")
-local conform = require("conform")
-local twoslash = require("twoslash-queries")
-local snacks = require("snacks")
 local prelude = require("treramey.prelude")
 local copy_line_diagnostics_to_clipboard = prelude.copy_line_diagnostics_to_clipboard
 local open_link = prelude.open_link
 
 local M = {}
-
--- Harpoon setup --
-harpoon:setup({})
 
 -- Normal Mode --
 vim.keymap.set("n", "<space>", "<nop>", { desc = "Disable space (leader) in normal mode" })
@@ -80,14 +73,15 @@ vim.keymap.set("n", "U", "<C-r>", { desc = "Redo last change" })
 vim.keymap.set("n", "<leader>no", "<cmd>noh<cr>", { desc = "Toggle search highlighting" })
 
 vim.keymap.set("n", "<leader>ts", function()
+  local twoslash = require("twoslash-queries")
   if twoslash.config.is_enabled then
     vim.cmd("TwoslashQueriesDisable")
-    snacks.notify.info("Two Slash queries disabled")
+    require("snacks").notify.info("Two Slash queries disabled")
     return
   end
 
   vim.cmd(":TwoslashQueriesEnable")
-  snacks.notify.info("Two Slash queries enabled")
+  require("snacks").notify.info("Two Slash queries enabled")
 end, { desc = "Toggle [T]wo [S]lash queries" })
 
 -- Diagnostics --
@@ -154,7 +148,7 @@ vim.keymap.set("n", "<leader>=", "<C-w>=", { desc = "Equalize split window sizes
 
 -- Format current buffer
 vim.keymap.set("n", "<leader>f", function()
-  conform.format({
+  require("conform").format({
     async = true,
     timeout_ms = 500,
     lsp_format = "fallback",
@@ -172,6 +166,7 @@ vim.keymap.set("n", "<leader>tc", ":TSC<cr>", { desc = "Run TypeScript compile" 
 
 -- Harpoon keybinds (v2 API) --
 vim.keymap.set("n", "<leader>ho", function()
+  local harpoon = require("harpoon")
   harpoon.ui:toggle_quick_menu(harpoon:list(), {
     ui_max_width = 75,
     border = "rounded",
@@ -181,113 +176,88 @@ vim.keymap.set("n", "<leader>ho", function()
 end, { desc = "Toggle Harpoon quick menu" })
 
 vim.keymap.set("n", "<leader>ha", function()
-  harpoon:list():add()
+  require("harpoon"):list():add()
 end, { desc = "Add current file to Harpoon" })
 
 vim.keymap.set("n", "<leader>hr", function()
-  harpoon:list():remove()
+  require("harpoon"):list():remove()
 end, { desc = "Remove current file from Harpoon" })
 
 vim.keymap.set("n", "<leader>hc", function()
-  harpoon:list():clear()
+  require("harpoon"):list():clear()
 end, { desc = "Clear all Harpoon marks" })
 
 vim.keymap.set("n", "<leader>1", function()
-  harpoon:list():select(1)
+  require("harpoon"):list():select(1)
 end, { desc = "Navigate to Harpoon file 1" })
 
 vim.keymap.set("n", "<leader>2", function()
-  harpoon:list():select(2)
+  require("harpoon"):list():select(2)
 end, { desc = "Navigate to Harpoon file 2" })
 
 vim.keymap.set("n", "<leader>3", function()
-  harpoon:list():select(3)
+  require("harpoon"):list():select(3)
 end, { desc = "Navigate to Harpoon file 3" })
 
 vim.keymap.set("n", "<leader>4", function()
-  harpoon:list():select(4)
+  require("harpoon"):list():select(4)
 end, { desc = "Navigate to Harpoon file 4" })
 
 vim.keymap.set("n", "<leader>5", function()
-  harpoon:list():select(5)
+  require("harpoon"):list():select(5)
 end, { desc = "Navigate to Harpoon file 5" })
 
 -- Snacks picker keybinds --
 vim.keymap.set("n", "<leader>?", function()
-  snacks.picker.recent()
+  require("snacks").picker.recent()
 end, { desc = "Find recently opened files" })
 
 vim.keymap.set("n", "<leader>sb", function()
-  snacks.picker.buffers()
+  require("snacks").picker.buffers()
 end, { desc = "Search open buffers" })
 
 vim.keymap.set("n", "<leader>sf", function()
-  -- if vim.g.roslyn_nvim_selected_solution then
-  -- 	local ok, projects = pcall(require("roslyn.sln.api").projects, vim.g.roslyn_nvim_selected_solution)
-  -- 	if ok and projects and #projects > 0 then
-  -- 		local dirs = {}
-  -- 		local seen = {}
-  --
-  -- 		for _, project in ipairs(projects) do
-  -- 			local dir = vim.fs.dirname(project)
-  -- 			if dir and not seen[dir] and vim.fn.isdirectory(dir) == 1 then
-  -- 				dirs[#dirs + 1] = dir
-  -- 				seen[dir] = true
-  -- 			end
-  -- 		end
-  --
-  -- 		if #dirs > 0 then
-  -- 			snacks.picker.files({
-  -- 				dirs = dirs,
-  -- 				hidden = true,
-  -- 			})
-  -- 			return
-  -- 		end
-  -- 	end
-  -- end
-
-  -- Fallback to regular file picker
-  snacks.picker.files({
+  require("snacks").picker.files({
     hidden = true,
   })
-end, { desc = "Find files (solution-aware)" })
+end, { desc = "Find files" })
 
 vim.keymap.set("n", "<leader>sh", function()
-  snacks.picker.help()
+  require("snacks").picker.help()
 end, { desc = "Search help tags" })
 
 vim.keymap.set("n", "<leader>sg", function()
-  snacks.picker.grep()
+  require("snacks").picker.grep()
 end, { desc = "Live grep search" })
 
 vim.keymap.set("v", "<leader>sg", function()
-  snacks.picker.grep_word()
+  require("snacks").picker.grep_word()
 end, { desc = "Grep selection" })
 
 vim.keymap.set("n", "<leader>sw", function()
-  snacks.picker.grep_word()
+  require("snacks").picker.grep_word()
 end, { desc = "Search current word" })
 
 vim.keymap.set("n", "<leader>sc", function()
-  snacks.picker.git_log_file()
+  require("snacks").picker.git_log_file()
 end, { desc = "[S]earch buffer [C]ommits" })
 
 vim.keymap.set("n", "<leader>/", function()
-  snacks.picker.grep_buffers()
+  require("snacks").picker.grep_buffers()
 end, { desc = "Fuzzily search in current buffer" })
 
 -- LSP Symbol search
 vim.keymap.set("n", "<leader>ss", function()
-  snacks.picker.lsp_symbols()
+  require("snacks").picker.lsp_symbols()
 end, { desc = "LSP document symbols" })
 
 vim.keymap.set("n", "<leader>sS", function()
-  snacks.picker.lsp_workspace_symbols()
+  require("snacks").picker.lsp_workspace_symbols()
 end, { desc = "LSP workspace symbols" })
 
 -- TODO Comments
 vim.keymap.set("n", "<leader>st", function()
-  snacks.picker.todo_comments()
+  require("snacks").picker.todo_comments()
 end, { desc = "[S]earch [T]ODOs" })
 
 vim.keymap.set("n", "]t", function()
@@ -302,12 +272,17 @@ end, { desc = "Jump to previous TODO" })
 M.map_lsp_keybinds = function(buffer_number)
   vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "LSP: Rename symbol", buffer = buffer_number })
   vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP: Code action", buffer = buffer_number })
-  vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "LSP: Go to definition", buffer = buffer_number })
+  vim.keymap.set("n", "gd", function()
+    vim.lsp.buf.definition()
+    vim.schedule(function()
+      vim.cmd("normal! zz")
+    end)
+  end, { desc = "LSP: Go to definition", buffer = buffer_number })
   vim.keymap.set("n", "gr", function()
-    snacks.picker.lsp_references()
+    require("snacks").picker.lsp_references()
   end, { desc = "LSP: Go to references", buffer = buffer_number })
   vim.keymap.set("n", "gi", function()
-    snacks.picker.lsp_implementations()
+    require("snacks").picker.lsp_implementations()
   end, { desc = "LSP: Go to implementations", buffer = buffer_number })
 
   local signature_help = function()
@@ -340,16 +315,9 @@ vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selected block u
 
 vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without overwriting register" })
 
--- This keymap indents the selected visual block to the left and reselects it
-vim.keymap.set("x", "<<", function()
-  vim.cmd("normal! <<")
-  vim.cmd("normal! gv")
-end, { desc = "Indent left and reselect visual block" })
-
-vim.keymap.set("x", ">>", function()
-  vim.cmd("normal! >>")
-  vim.cmd("normal! gv")
-end, { desc = "Indent right and reselect visual block" })
+-- Indent and reselect visual block
+vim.keymap.set("x", "<", "<gv", { desc = "Indent left and reselect visual block" })
+vim.keymap.set("x", ">", ">gv", { desc = "Indent right and reselect visual block" })
 
 -- Terminal --
 -- Enter normal mode while in a terminal

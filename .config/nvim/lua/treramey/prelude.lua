@@ -30,8 +30,7 @@ local function copy_line_diagnostics_to_clipboard()
   local diagnostics = diag.get_diagnostic_under_cursor()
 
   if #diagnostics == 0 then
-    print("No diagnostics on the current line.")
-    Snacks.notify.info("No diagnostics on the current line.")
+    require("snacks").notify.info("No diagnostics on the current line.")
     return
   end
 
@@ -44,7 +43,7 @@ local function copy_line_diagnostics_to_clipboard()
 
   -- Copy the result to the system clipboard
   vim.fn.setreg("+", result)
-  Snacks.notify.info("Diagnostics copied to clipboard.")
+  require("snacks").notify.info("Diagnostics copied to clipboard.")
 end
 
 M.copy_line_diagnostics_to_clipboard = copy_line_diagnostics_to_clipboard
@@ -67,7 +66,7 @@ local function open_link()
     end
 
     if col >= md_start and col <= md_end then
-      vim.fn.system("open " .. vim.fn.shellescape(url))
+      vim.ui.open(url)
       return
     end
     start_pos = md_end + 1
@@ -83,14 +82,15 @@ local function open_link()
 
     if col >= url_start and col <= url_end then
       local url = line:sub(url_start, url_end)
-      vim.fn.system("open " .. vim.fn.shellescape(url))
+      vim.ui.open(url)
       return
     end
     start_pos = url_end + 1
   end
 
   -- Fallback to original behavior using cWORD
-  vim.cmd("sil !open <cWORD>")
+  local cword = vim.fn.expand("<cWORD>")
+  vim.ui.open(cword)
 end
 
 M.open_link = open_link

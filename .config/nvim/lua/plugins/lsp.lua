@@ -111,17 +111,11 @@ return {
         ensure_installed = ensure_installed,
       })
 
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-
-      local has_blink, blink = pcall(require, "blink.cmp")
-      if has_blink then
-        capabilities = vim.tbl_deep_extend("force", capabilities, blink.get_lsp_capabilities())
-      else
-        local has_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-        if has_cmp then
-          capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
-        end
-      end
+      local capabilities = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.protocol.make_client_capabilities(),
+        require("blink.cmp").get_lsp_capabilities()
+      )
 
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
@@ -141,21 +135,12 @@ return {
         end,
       })
 
-      -- Setup each LSP server using vim.lsp.config and vim.lsp.enable
       for name, config in pairs(servers) do
-        vim.lsp.config(name, {
-          cmd = config.cmd,
-          capabilities = capabilities,
-          filetypes = config.filetypes,
-          settings = config.settings,
-          root_dir = config.root_dir,
-        })
+        local autostart = config.autostart
+        config.autostart = nil
+        vim.lsp.config(name, vim.tbl_deep_extend("force", config, { capabilities = capabilities }))
 
-        -- Enable the server (with autostart setting if specified)
-        if config.autostart == false then
-          -- Don't auto-enable servers with autostart = false
-          -- Users can manually enable with :lua vim.lsp.enable(name)
-        else
+        if autostart ~= false then
           vim.lsp.enable(name)
         end
       end
@@ -177,7 +162,7 @@ return {
         },
       })
 
-      mason_lspconfig.setup({})
+      mason_lspconfig.setup()
 
       -- vim.lsp.inline_completion.enable()
     end,

@@ -1,6 +1,6 @@
-local Path = require("plenary.path")
-
 vim.api.nvim_create_user_command("CopyFilePathToClipboard", function()
+	local Path = require("plenary.path")
+
 	-- Get the current buffer's file path
 	local file_path = vim.api.nvim_buf_get_name(0)
 

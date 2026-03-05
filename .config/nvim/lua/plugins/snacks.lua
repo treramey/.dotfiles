@@ -35,7 +35,10 @@ return {
         },
       },
       rename = { enabled = true },
-      input = { enabled = true },
+      input = {
+        enabled = true,
+        backdrop = true,
+      },
       lazygit = { enabled = false },
       notifier = {
         enabled = true,
@@ -43,6 +46,7 @@ return {
         style = "fancy",
       },
       picker = {
+        ui_select = true,
         layout = {
           preset = "minimal",
         },
@@ -51,7 +55,7 @@ return {
             preview = false,
             layout = {
               backdrop = false,
-              width = 0.35,
+              width = 0.45,
               height = 0.5,
               box = "horizontal",
               {
@@ -90,7 +94,7 @@ return {
           },
         },
       },
-      statuscolumn = { enabled = false }, -- disabled due to neovim 0.11.x buf_signcols_count_range bug
+      statuscolumn = { enabled = true },
       terminal = {
         win = {
           size = { width = 0.8, height = 0.8 },
