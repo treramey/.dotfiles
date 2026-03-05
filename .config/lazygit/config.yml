@@ -18,36 +18,37 @@ gui:
     rate: 80
   theme:
     activeBorderColor:
-      - "#fab387"
+      - green
       - bold
     inactiveBorderColor:
-      - "#7f849c"
+      - default
     searchingActiveBorderColor:
-      - "#f9e2af"
+      - cyan
+      - bold
     optionsTextColor:
-      - "#89b4fa"
+      - blue
     selectedLineBgColor:
-      - "#313244"
+      - blue
     inactiveViewSelectedLineBgColor:
       - bold
     cherryPickedCommitFgColor:
-      - "#fab387"
+      - blue
     cherryPickedCommitBgColor:
-      - "#45475a"
+      - cyan
     markedBaseCommitFgColor:
-      - "#fab387"
+      - blue
     markedBaseCommitBgColor:
-      - "#45475a"
+      - yellow
     unstagedChangesColor:
-      - "#f38ba8"
+      - red
     defaultFgColor:
-      - "#bac2de" # '#cdd6f4'
+      - default
   authorColors:
-    "*": "#b4befe"
+    "*": blue
   nerdFontsVersion: "3"
   switchTabsWithPanelJumpKeys: true
 git:
   overrideGpg: true
   pagers:
     - colorArg: always
-      pager: delta --dark --paging=never
+      pager: delta --paging=never
