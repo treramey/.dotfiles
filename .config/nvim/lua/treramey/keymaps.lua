@@ -14,7 +14,13 @@ vim.keymap.set("n", "<leader>'", "<C-^>", { desc = "Switch to last buffer" })
 
 -- Save and Quit
 vim.keymap.set("n", "<leader>w", "<cmd>w<cr>", { silent = false, desc = "Save current buffer" })
-vim.keymap.set("n", "<leader>q", "<cmd>q<cr>", { silent = false, desc = "Quit current buffer" })
+vim.keymap.set("n", "<leader>q", function()
+  if vim.wo.diff then
+    vim.cmd("qa")
+  else
+    vim.cmd("q")
+  end
+end, { silent = false, desc = "Quit current buffer (qa in diff mode)" })
 
 -- Map Oil to <leader>e
 vim.keymap.set("n", "<leader>e", function()
