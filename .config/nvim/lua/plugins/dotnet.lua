@@ -1,7 +1,7 @@
-local function has_git_conflict_markers()
-  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-  for _, line in ipairs(lines) do
-    if line:match("^<<<<<<<") or line:match("^=======") or line:match("^>>>>>>>") then
+local function is_git_merging()
+  for _, ref in ipairs({ "MERGE_HEAD", "REBASE_HEAD", "CHERRY_PICK_HEAD" }) do
+    vim.fn.system("git rev-parse --verify " .. ref .. " 2>/dev/null")
+    if vim.v.shell_error == 0 then
       return true
     end
   end
@@ -16,10 +16,14 @@ return {
       "j-hui/fidget.nvim",
     },
     enabled = function()
-      return vim.fn.executable("dotnet") == 1 and not has_git_conflict_markers()
+      return vim.fn.executable("dotnet") == 1
     end,
     ft = { "cs", "razor" },
     config = function()
+      if is_git_merging() then
+        vim.lsp.enable("roslyn", false)
+        return
+      end
       require("roslyn").setup({
         broad_search = true,
         silent = true,
@@ -50,6 +54,11 @@ return {
       })
     end,
     init = function()
+      if is_git_merging() then
+        vim.g.loaded_roslyn_plugin = true
+        return
+      end
+
       -- TODO: Remove when projects are updated to .NET 10, use mise latest instead
       -- local mise_dotnet_root = vim.fn.expand("~/.local/share/mise/installs/dotnet/latest")
       local mise_dotnet_root = vim.fn.expand("~/.local/share/mise/installs/dotnet/10")
@@ -123,12 +132,15 @@ return {
   {
     "GustavEikaas/easy-dotnet.nvim",
     enabled = function()
-      return vim.fn.executable("dotnet") == 1 and not has_git_conflict_markers()
+      return vim.fn.executable("dotnet") == 1
     end,
     dependencies = { "nvim-lua/plenary.nvim", "folke/snacks.nvim", "j-hui/fidget.nvim" },
     cmd = "Dotnet",
     event = "VeryLazy",
     config = function()
+      if is_git_merging() then
+        return
+      end
       local dotnet = require("easy-dotnet")
 
       local bin_path = vim.fn.stdpath("data") .. "/lazy/netcoredbg-macOS-arm64.nvim/netcoredbg/netcoredbg"
