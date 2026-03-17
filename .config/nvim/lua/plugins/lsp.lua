@@ -86,7 +86,7 @@ return {
         prettier = {},
         stylua = {},
         goimports = {},
-        csharpier = {},
+        xmlformatter = {},
       }
 
       local other_tools = {
@@ -111,12 +111,6 @@ return {
         ensure_installed = ensure_installed,
       })
 
-      local capabilities = vim.tbl_deep_extend(
-        "force",
-        vim.lsp.protocol.make_client_capabilities(),
-        require("blink.cmp").get_lsp_capabilities()
-      )
-
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
         callback = function(event)
@@ -138,7 +132,7 @@ return {
       for name, config in pairs(servers) do
         local autostart = config.autostart
         config.autostart = nil
-        vim.lsp.config(name, vim.tbl_deep_extend("force", config, { capabilities = capabilities }))
+        vim.lsp.config(name, config)
 
         if autostart ~= false then
           vim.lsp.enable(name)

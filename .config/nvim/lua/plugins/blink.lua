@@ -166,6 +166,7 @@ return {
           },
         },
       },
+      fuzzy = { implementation = "prefer_rust" },
       snippets = {
         preset = "luasnip",
       },
