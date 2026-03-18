@@ -2,12 +2,12 @@
 
 theme = light:Rose Pine Dawn,dark:Rose Pine
 
-adjust-cell-height = 45%
+adjust-cell-height = 35%
 font-family = MonoLisa Variable
 font-size = 14
 
-background-opacity = 0.97
-background-blur = true
+background-opacity = 0.96
+background-blur = false
 
 confirm-close-surface = false
 

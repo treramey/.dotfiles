@@ -11,9 +11,20 @@ return {
         "igorlfs/nvim-dap-view",
         opts = {
           auto_toggle = true,
+          follow_tab = true,
           winbar = {
+            sections = { "watches", "scopes", "exceptions", "breakpoints", "threads", "console", "repl" },
+            default_section = "scopes",
             controls = {
               enabled = true,
+              buttons = {
+                "play",
+                "step_into",
+                "step_over",
+                "step_out",
+                "step_back",
+                "terminate",
+              },
             },
           },
         },
