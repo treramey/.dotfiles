@@ -19,6 +19,8 @@ return {
         preset = "none",
         ["<C-k>"] = { "select_prev", "show_signature", "hide_signature", "fallback" },
         ["<C-j>"] = { "select_next", "fallback" },
+        ["<Up>"] = { "select_prev", "fallback" },
+        ["<Down>"] = { "select_next", "fallback" },
         ["<C-Space>"] = { "show", "fallback" },
         ["<C-c>"] = { "cancel", "fallback" },
         ["<C-u>"] = { "scroll_documentation_up", "fallback" },

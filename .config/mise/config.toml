@@ -1,11 +1,12 @@
 [settings]
 idiomatic_version_file_enable_tools = ["ruby"]
+experimental = true
 
 [settings.ruby]
 
 [tools]
 bun = "latest"
-dotnet = "latest"
+dotnet = "10"
 go = "latest"
-node = "lts"
+node = "25"
 python = "latest"
