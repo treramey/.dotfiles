@@ -1,13 +1,3 @@
-local function is_git_merging()
-  for _, ref in ipairs({ "MERGE_HEAD", "REBASE_HEAD", "CHERRY_PICK_HEAD" }) do
-    vim.fn.system("git rev-parse --verify " .. ref .. " 2>/dev/null")
-    if vim.v.shell_error == 0 then
-      return true
-    end
-  end
-  return false
-end
-
 return {
   {
     "seblyng/roslyn.nvim",
@@ -18,55 +8,54 @@ return {
     enabled = function()
       return vim.fn.executable("dotnet") == 1
     end,
-    ft = { "cs", "razor" },
-    config = function()
-      if is_git_merging() then
-        vim.lsp.enable("roslyn", false)
-        return
-      end
-      require("roslyn").setup({
-        broad_search = true,
-        silent = true,
-        config = {
-          settings = {
-            ["csharp|inlay_hints"] = {
-              csharp_enable_inlay_hints_for_implicit_object_creation = true,
-              csharp_enable_inlay_hints_for_implicit_variable_types = true,
-              csharp_enable_inlay_hints_for_lambda_parameter_types = true,
-              csharp_enable_inlay_hints_for_types = true,
-              dotnet_enable_inlay_hints_for_indexer_parameters = true,
-              dotnet_enable_inlay_hints_for_literal_parameters = true,
-              dotnet_enable_inlay_hints_for_object_creation_parameters = true,
-              dotnet_enable_inlay_hints_for_other_parameters = true,
-              dotnet_enable_inlay_hints_for_parameters = true,
-              dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
-              dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
-              dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
-            },
-            ["csharp|code_lens"] = {
-              dotnet_enable_references_code_lens = true,
-            },
-          },
-          on_attach = function(_, bufnr)
-            require("treramey.keymaps").map_lsp_keybinds(bufnr)
-          end,
-        },
-      })
-    end,
+    opts = {
+      broad_search = true,
+      silent = true,
+    },
     init = function()
-      if is_git_merging() then
-        vim.g.loaded_roslyn_plugin = true
-        return
-      end
-
-      -- TODO: Remove when projects are updated to .NET 10, use mise latest instead
-      -- local mise_dotnet_root = vim.fn.expand("~/.local/share/mise/installs/dotnet/latest")
-      local mise_dotnet_root = vim.fn.expand("~/.local/share/mise/installs/dotnet/10")
+      -- Roslyn LSP + mise workaround
+      --
+      -- Problem: mise installs each .NET SDK in isolation (~/.local/share/mise/installs/dotnet/<ver>/).
+      -- The Roslyn LS binary (Mason) is compiled for net10.0, so it needs the .NET 10 runtime.
+      -- But projects targeting net9.0 need net9.0 targeting packs (Microsoft.NETCore.App.Ref,
+      -- Microsoft.AspNetCore.App.Ref) which only exist in the .NET 9 SDK install.
+      --
+      -- Additionally, .NET 10 has a muxer bug (dotnet/sdk#51693) where subprocesses resolve
+      -- their SDK root relative to their binary path, ignoring DOTNET_ROOT. Setting
+      -- DOTNET_ROOT_X64 works around this.
+      --
+      -- Fix (3 parts):
+      --   1. DOTNET_ROOT + DOTNET_ROOT_X64 → dotnet/10 so Roslyn can start
+      --   2. Set rollForward: "latestMajor" in project global.json so 10.x SDK resolves 9.x projects
+      --
+      -- See: dotnet/sdk#51693, NixOS/nixpkgs#464575, roslyn.nvim#293
+      local mise_dotnet_root = vim.fn.expand("~/.local/share/mise/dotnet-root")
       vim.lsp.config("roslyn", {
         cmd_env = {
           Configuration = vim.env.Configuration or "Debug",
           DOTNET_ROOT = mise_dotnet_root,
+          DOTNET_ROOT_X64 = mise_dotnet_root,
           PATH = mise_dotnet_root .. ":" .. vim.env.PATH,
+          TMPDIR = vim.env.TMPDIR and vim.fn.resolve(vim.env.TMPDIR) or nil,
+        },
+        settings = {
+          ["csharp|inlay_hints"] = {
+            csharp_enable_inlay_hints_for_implicit_object_creation = true,
+            csharp_enable_inlay_hints_for_implicit_variable_types = true,
+            csharp_enable_inlay_hints_for_lambda_parameter_types = true,
+            csharp_enable_inlay_hints_for_types = true,
+            dotnet_enable_inlay_hints_for_indexer_parameters = true,
+            dotnet_enable_inlay_hints_for_literal_parameters = true,
+            dotnet_enable_inlay_hints_for_object_creation_parameters = true,
+            dotnet_enable_inlay_hints_for_other_parameters = true,
+            dotnet_enable_inlay_hints_for_parameters = true,
+            dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
+            dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
+            dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
+          },
+          ["csharp|code_lens"] = {
+            dotnet_enable_references_code_lens = true,
+          },
         },
       })
 
@@ -125,9 +114,7 @@ return {
         end,
       })
     end,
-    keys = {
-      { "<leader>nl", "<cmd>Roslyn restart<cr>", desc = "restart roslyn lsp" },
-    },
+    lazy = false,
   },
   {
     "GustavEikaas/easy-dotnet.nvim",
@@ -138,9 +125,6 @@ return {
     cmd = "Dotnet",
     event = "VeryLazy",
     config = function()
-      if is_git_merging() then
-        return
-      end
       local dotnet = require("easy-dotnet")
 
       local bin_path = vim.fn.stdpath("data") .. "/lazy/netcoredbg-macOS-arm64.nvim/netcoredbg/netcoredbg"
@@ -227,13 +211,13 @@ return {
     end,
     keys = {
       -- stylua: ignore start
-      { "<leader>nw", function() require("easy-dotnet").watch_default() end, desc = "watch solution" },
-      { "<leader>nb", function() require("easy-dotnet").build_default_quickfix() end, desc = "build default quickfix" },
-      { "<leader>nB", function() require("easy-dotnet").build_default() end, desc = "build default" },
-      { "<leader>nr", function() require("easy-dotnet").restore() end, desc = "restore packages" },
-      { "<leader>nQ", function() require("easy-dotnet").build_quickfix() end, desc = "build quickfix" },
-      { "<leader>nR", function() require("easy-dotnet").run_solution() end, desc = "run solution" },
-      { "<leader>nx", function() require("easy-dotnet").clean() end, desc = "clean solution" },
+      { "<leader>nw", "<cmd>Dotnet watch<cr>", desc = "watch solution" },
+      { "<leader>nb", "<cmd>Dotnet build quickfix<cr>", desc = "build quickfix" },
+      { "<leader>nB", "<cmd>Dotnet build<cr>", desc = "build" },
+      { "<leader>nr", "<cmd>Dotnet restore<cr>", desc = "restore packages" },
+      { "<leader>nQ", "<cmd>Dotnet build solution quickfix<cr>", desc = "build solution quickfix" },
+      { "<leader>nR", "<cmd>Dotnet run solution<cr>", desc = "run solution" },
+      { "<leader>nx", "<cmd>Dotnet clean<cr>", desc = "clean solution" },
       { "<leader>nn", "<cmd>Dotnet<cr>", desc = "open dotnet menu" },
       { "<leader>na", "<cmd>Dotnet new<cr>", desc = "new item" },
       { "<leader>nt", "<cmd>Dotnet testrunner<cr>", desc = "open test runner" },
