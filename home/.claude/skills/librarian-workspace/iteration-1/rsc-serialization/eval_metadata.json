@@ -1,0 +1,11 @@
+{
+  "eval_id": 4,
+  "eval_name": "rsc-serialization",
+  "prompt": "I need to understand how React Server Components handle the serialization boundary. Can you dig into the Next.js and React repos to show me how they serialize props across the server/client boundary? I keep hitting a 'cannot pass function to client component' error and want to understand why.",
+  "assertions": [
+    {"text": "Contains GitHub source links to React or Next.js repo files"},
+    {"text": "Explains what can and cannot cross the server/client serialization boundary"},
+    {"text": "References React Flight protocol or serialization mechanism"},
+    {"text": "Specifically explains why functions cannot be passed to client components"}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "eval_id": 2,
+  "eval_name": "entra-id-migration",
+  "prompt": "We're migrating our auth from IdentityServer to Microsoft Entra ID in our ASP.NET Core API. Use the Librarian to research how to set up Entra ID authentication with JWT bearer tokens, including the middleware configuration and any gotchas with token validation.",
+  "assertions": [
+    {"text": "Contains Microsoft Learn documentation links (learn.microsoft.com)"},
+    {"text": "Shows ASP.NET Core middleware configuration code (AddAuthentication/AddJwtBearer)"},
+    {"text": "Discusses TokenValidationParameters configuration"},
+    {"text": "Lists specific migration gotchas or pitfalls from IdentityServer to Entra ID"}
+  ]
+}
