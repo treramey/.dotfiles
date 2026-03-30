@@ -1,0 +1,446 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Colors
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[0;33m'
+readonly BLUE='\033[0;34m'
+readonly CYAN='\033[0;36m'
+readonly RESET='\033[0m'
+readonly BOLD='\033[1m'
+
+# Metadata
+readonly SCRIPT_NAME="dot"
+readonly VERSION="1.0.0"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly DOTFILES_DIR
+readonly HOME_DIR="${DOTFILES_DIR}/home"
+
+# Progress
+CURRENT_STEP=0
+TOTAL_STEPS=0
+
+# ─── Helpers ─────────────────────────────────────────────────────────────────
+
+print_header()  { echo -e "\n${BOLD}${BLUE}==>${RESET} ${BOLD}$1${RESET}"; }
+print_success() { echo -e "${GREEN}✓${RESET} $1"; }
+print_error()   { echo -e "${RED}✗${RESET} $1" >&2; }
+print_warning() { echo -e "${YELLOW}⚠${RESET} $1"; }
+print_info()    { echo -e "${CYAN}ℹ${RESET} $1"; }
+print_step()    { ((CURRENT_STEP++)); echo -e "\n${BOLD}[${CURRENT_STEP}/${TOTAL_STEPS}]${RESET} $1"; }
+
+command_exists() { command -v "$1" >/dev/null 2>&1; }
+
+confirm() {
+    local prompt="${1:-Continue?}" default="${2:-n}"
+    if [[ "$default" == "y" ]]; then prompt="$prompt [Y/n]: "; else prompt="$prompt [y/N]: "; fi
+    read -r -p "$prompt" response
+    case "$response" in
+        [yY][eE][sS]|[yY]) return 0 ;;
+        [nN][oO]|[nN]) return 1 ;;
+        "") [[ "$default" == "y" ]] && return 0 || return 1 ;;
+        *) return 1 ;;
+    esac
+}
+
+# ─── Tool Registry ───────────────────────────────────────────────────────────
+# Fields (;; delimited):
+#   name ;; check ;; install ;; required ;; skip_var ;; doctor
+TOOL_REGISTRY=(
+    "Homebrew          ;; brew  ;; fn:_install_homebrew   ;; true  ;; -          ;; true"
+    "Brewfile packages ;; -     ;; fn:_install_packages   ;; true  ;; -          ;; false"
+    "Stow dotfiles     ;; -     ;; fn:_stow_dotfiles      ;; true  ;; -          ;; false"
+    "macOS defaults    ;; -     ;; fn:_set_macos_defaults  ;; false ;; -          ;; false"
+    "Start services    ;; -     ;; fn:_start_services      ;; false ;; -          ;; false"
+    "Bat cache         ;; bat   ;; fn:_build_bat_cache     ;; false ;; -          ;; false"
+)
+
+_parse_tool_entry() {
+    local entry="$1"
+    r_name="$(    echo "$entry" | awk -F';;' '{print $1}' | xargs)"
+    r_check="$(   echo "$entry" | awk -F';;' '{print $2}' | xargs)"
+    r_install="$( echo "$entry" | awk -F';;' '{print $3}' | xargs)"
+    r_required="$(echo "$entry" | awk -F';;' '{print $4}' | xargs)"
+    r_skip="$(    echo "$entry" | awk -F';;' '{print $5}' | xargs)"
+    r_doctor="$(  echo "$entry" | awk -F';;' '{print $6}' | xargs)"
+}
+
+run_init_steps() {
+    TOTAL_STEPS=0
+    for entry in "${TOOL_REGISTRY[@]}"; do
+        _parse_tool_entry "$entry"
+        if [[ "$r_skip" != "-" ]] && [[ "${!r_skip:-}" == "true" ]]; then continue; fi
+        ((TOTAL_STEPS++))
+    done
+    CURRENT_STEP=0
+
+    for entry in "${TOOL_REGISTRY[@]}"; do
+        _parse_tool_entry "$entry"
+        if [[ "$r_skip" != "-" ]] && [[ "${!r_skip:-}" == "true" ]]; then continue; fi
+
+        print_step "$r_name"
+
+        if [[ "$r_install" == fn:* ]]; then
+            local fn="${r_install#fn:}"
+            if "$fn"; then
+                true
+            elif [[ "$r_required" == "true" ]]; then
+                return 1
+            else
+                print_warning "$r_name failed (continuing)"
+            fi
+        else
+            if [[ "$r_check" != "-" ]] && command_exists "$r_check"; then
+                print_success "$r_name is already installed"
+            else
+                print_info "Installing $r_name..."
+                if eval "$r_install"; then
+                    print_success "$r_name installed successfully"
+                elif [[ "$r_required" == "true" ]]; then
+                    print_error "Failed to install $r_name"
+                    return 1
+                else
+                    print_warning "Failed to install $r_name (continuing)"
+                fi
+            fi
+        fi
+    done
+}
+
+# ─── Installation Functions ──────────────────────────────────────────────────
+
+_install_homebrew() {
+    if command_exists brew; then
+        print_success "Homebrew is already installed"
+        return 0
+    fi
+
+    print_info "Installing Homebrew..."
+    if NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+        print_success "Homebrew installed"
+        if [[ "$(uname -m)" == "arm64" ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        else
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+        brew analytics off
+    else
+        print_error "Homebrew installation failed"
+        return 1
+    fi
+}
+
+_install_packages() {
+    if [[ ! -f "${DOTFILES_DIR}/Brewfile" ]]; then
+        print_error "Brewfile not found"
+        return 1
+    fi
+
+    print_info "Installing packages from Brewfile..."
+    if brew bundle --file="${DOTFILES_DIR}/Brewfile"; then
+        print_success "All packages installed"
+    else
+        print_warning "Some packages failed, trying individually..."
+        local failed=()
+        local count=0
+
+        while IFS= read -r line; do
+            [[ "$line" =~ ^[[:space:]]*# ]] && continue
+            [[ -z "${line// }" ]] && continue
+
+            if [[ "$line" =~ ^brew[[:space:]]+\"([^\"]+)\" ]]; then
+                local pkg="${BASH_REMATCH[1]}"
+                if brew install "$pkg" 2>/dev/null; then ((++count)); else failed+=("brew:$pkg"); fi
+            elif [[ "$line" =~ ^cask[[:space:]]+\"([^\"]+)\" ]]; then
+                local pkg="${BASH_REMATCH[1]}"
+                if brew install --cask "$pkg" 2>/dev/null; then ((++count)); else failed+=("cask:$pkg"); fi
+            fi
+        done < "${DOTFILES_DIR}/Brewfile"
+
+        if [[ ${#failed[@]} -gt 0 ]]; then
+            print_warning "Failed to install ${#failed[@]} packages:"
+            printf "  - %s\n" "${failed[@]}"
+            printf "%s\n" "${failed[@]}" > "${DOTFILES_DIR}/failed_packages_$(date +%Y%m%d_%H%M%S).txt"
+        fi
+        print_success "Installed $count packages"
+    fi
+}
+
+_stow_dotfiles() {
+    if ! command_exists stow; then
+        print_error "GNU Stow is not installed"
+        return 1
+    fi
+
+    print_info "Stowing files from ${HOME_DIR} to ${HOME}..."
+
+    # Check for conflicts
+    local files_to_backup=()
+    while IFS= read -r -d '' file; do
+        local rel="${file#"${HOME_DIR}"/}"
+        local target="${HOME}/${rel}"
+        if [[ -e "$target" && ! -L "$target" ]]; then
+            files_to_backup+=("$rel")
+        fi
+    done < <(find "${HOME_DIR}" -type f -print0)
+
+    if [[ ${#files_to_backup[@]} -gt 0 ]]; then
+        print_warning "Existing files will be replaced:"
+        printf "  %s\n" "${files_to_backup[@]}"
+
+        if confirm "Create backups?" "y"; then
+            local backup_dir="${DOTFILES_DIR}/backups/$(date +%Y%m%d_%H%M%S)"
+            mkdir -p "$backup_dir"
+            for file in "${files_to_backup[@]}"; do
+                local dst="${backup_dir}/${file}"
+                mkdir -p "$(dirname "$dst")"
+                cp -p "${HOME}/${file}" "$dst"
+            done
+            print_success "Backups created in ${backup_dir}"
+        fi
+    fi
+
+    if stow -R -v -d "${DOTFILES_DIR}" -t "${HOME}" home; then
+        print_success "Dotfiles stowed successfully"
+    else
+        print_error "Failed to stow dotfiles"
+        return 1
+    fi
+}
+
+_set_macos_defaults() {
+    print_info "Setting macOS defaults..."
+    defaults write -g NSWindowShouldDragOnGesture -bool true
+    defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
+    print_success "macOS defaults set"
+}
+
+_start_services() {
+    print_info "Starting services..."
+    if command_exists skhd; then
+        brew services start skhd 2>/dev/null || true
+        print_success "skhd started"
+    else
+        print_warning "skhd not found, skipping"
+    fi
+}
+
+_build_bat_cache() {
+    if ! command_exists bat; then
+        print_warning "bat not installed, skipping cache build"
+        return 0
+    fi
+    print_info "Building bat theme cache..."
+    bat cache --build
+    print_success "Bat cache built"
+}
+
+
+# ─── Commands ────────────────────────────────────────────────────────────────
+
+cmd_init() {
+    print_header "Initializing dotfiles"
+    run_init_steps || return 1
+    print_header "Done!"
+    print_info "Restart your shell or run: source ~/.zshrc"
+}
+
+cmd_update() {
+    print_header "Updating dotfiles"
+
+    # Pull latest
+    print_info "Pulling latest changes..."
+    if [[ -d "${DOTFILES_DIR}/.jj" ]] && command_exists jj; then
+        if jj git fetch -R "$DOTFILES_DIR" && jj -R "$DOTFILES_DIR" rebase -d 'trunk()'; then
+            print_success "Updated via jj"
+        else
+            print_error "Failed to update via jj"
+            return 1
+        fi
+    elif git -C "$DOTFILES_DIR" pull; then
+        print_success "Repository updated"
+    else
+        print_error "Failed to pull"
+        return 1
+    fi
+
+    # Update packages
+    if confirm "Update Homebrew packages?" "y"; then
+        print_info "Updating Homebrew..."
+        brew update && brew upgrade
+        print_success "Packages updated"
+    fi
+
+    # Re-stow
+    if confirm "Re-stow dotfiles?" "y"; then
+        _stow_dotfiles
+    fi
+}
+
+cmd_doctor() {
+    print_header "Running diagnostics"
+    local issues=0
+
+    # Core tools
+    if command_exists brew; then print_success "Homebrew installed"; else print_error "Homebrew not installed"; ((++issues)); fi
+    if command_exists stow; then print_success "GNU Stow installed"; else print_error "GNU Stow not installed"; ((++issues)); fi
+
+    # Shell
+    local zsh_path
+    zsh_path=$(command -v zsh 2>/dev/null || true)
+    if [[ -n "$zsh_path" ]]; then
+        print_success "Zsh installed"
+        if [[ "$SHELL" == "$zsh_path" ]]; then
+            print_success "Zsh is default shell"
+        else
+            print_warning "Zsh is not default shell (current: $SHELL)"
+        fi
+    else
+        print_error "Zsh not installed"
+        ((++issues))
+    fi
+
+    # jj
+    if command_exists jj; then
+        print_success "jj (Jujutsu) installed"
+        if [[ -f "${HOME}/.config/jj/config.toml" ]]; then
+            print_success "jj config found"
+        else
+            print_warning "jj config not found"
+        fi
+    else
+        print_warning "jj not installed"
+    fi
+
+    # Dev tools
+    local tools=("git" "nvim" "tmux" "node" "npm")
+    local missing=()
+    for tool in "${tools[@]}"; do
+        if command_exists "$tool"; then print_success "$tool available"; else missing+=("$tool"); fi
+    done
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        print_warning "Missing tools: ${missing[*]}"
+    fi
+
+    # Broken symlinks
+    local broken=0
+    while IFS= read -r -d '' link; do
+        if [[ ! -e "$link" ]]; then ((++broken)); fi
+    done < <(find "${HOME}" -maxdepth 3 -type l -print0 2>/dev/null)
+    if [[ $broken -eq 0 ]]; then print_success "No broken symlinks"; else print_warning "Found $broken broken symlinks"; fi
+
+    if [[ $issues -eq 0 ]]; then
+        print_header "All critical checks passed!"
+    else
+        print_header "Found $issues critical issues"
+    fi
+}
+
+cmd_stow() {
+    print_header "Stowing dotfiles"
+    _stow_dotfiles
+}
+
+cmd_edit() {
+    local editor="${EDITOR:-nvim}"
+    if command_exists "$editor"; then
+        exec "$editor" "$DOTFILES_DIR"
+    else
+        print_error "Editor '$editor' not found"
+        return 1
+    fi
+}
+
+cmd_link() {
+    print_header "Creating symlink for dot command"
+    local target_dir="/usr/local/bin"
+    local link_path="${target_dir}/dot"
+
+    if [[ ! -w "$target_dir" ]]; then
+        target_dir="${HOME}/.local/bin"
+        link_path="${target_dir}/dot"
+        mkdir -p "$target_dir"
+        print_info "Using ${target_dir}"
+    fi
+
+    [[ -L "$link_path" ]] && rm "$link_path"
+
+    if ln -s "${DOTFILES_DIR}/dot" "$link_path"; then
+        print_success "Created symlink at ${link_path}"
+    else
+        print_error "Failed to create symlink"
+        return 1
+    fi
+}
+
+cmd_unlink() {
+    print_header "Removing dot symlink"
+    local found=false
+    for link_path in "/usr/local/bin/dot" "${HOME}/.local/bin/dot"; do
+        if [[ -L "$link_path" ]]; then
+            rm "$link_path" && print_success "Removed ${link_path}" && found=true
+        fi
+    done
+    [[ "$found" == false ]] && print_warning "No dot symlink found"
+}
+
+cmd_help() {
+    echo -e "${BOLD}${SCRIPT_NAME}${RESET} - Dotfiles management tool (v${VERSION})"
+    echo ""
+    echo -e "${BOLD}USAGE:${RESET}"
+    echo "    ${SCRIPT_NAME} [OPTIONS] COMMAND"
+    echo ""
+    echo -e "${BOLD}COMMANDS:${RESET}"
+    echo "    init            Initialize and install everything"
+    echo "    update          Pull changes, update packages, re-stow"
+    echo "    doctor          Run diagnostics"
+    echo "    stow            Re-create symlinks"
+    echo "    edit            Open dotfiles in \$EDITOR"
+    echo "    link            Install dot command globally"
+    echo "    unlink          Remove global dot command"
+    echo "    help            Show this help"
+    echo ""
+    echo -e "${BOLD}OPTIONS:${RESET}"
+    echo "    --version       Show version"
+    echo "    -h, --help      Show help"
+    echo ""
+    echo -e "${BOLD}CONFIGURATION:${RESET}"
+    echo "    Dotfiles: ${DOTFILES_DIR}"
+    echo "    Home:     ${HOME_DIR}"
+    echo ""
+}
+
+# ─── Main ────────────────────────────────────────────────────────────────────
+
+main() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --version) echo "${SCRIPT_NAME} v${VERSION}"; exit 0 ;;
+            -h|--help) cmd_help; exit 0 ;;
+            *) break ;;
+        esac
+    done
+
+    local cmd="${1:-help}"
+    shift || true
+
+    case "$cmd" in
+        init)    cmd_init "$@" ;;
+        update)  cmd_update "$@" ;;
+        doctor)  cmd_doctor "$@" ;;
+        stow)    cmd_stow "$@" ;;
+        edit)    cmd_edit "$@" ;;
+        link)    cmd_link "$@" ;;
+        unlink)  cmd_unlink "$@" ;;
+        help)    cmd_help ;;
+        *)
+            print_error "Unknown command: $cmd"
+            echo "Run '${SCRIPT_NAME} help' for usage"
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

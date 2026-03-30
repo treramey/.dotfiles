@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# task-loop: Run complete-next-task in loop until PRD complete
+# Usage: task-loop [<feature>] [--tool=opencode|claude] [--max-iterations=N] [--all]
+# If <feature> omitted, shows fzf picker (completed PRDs hidden unless --all)
+
+MAX_ITERATIONS=25
+TOOL="opencode"
+SHOW_ALL=false
+
+# Discover PRD state dirs and calc completion status
+# Output: <prd-name> [<passed>/<total>]
+list_prds() {
+    local state_dirs=()
+
+    # Search home directories
+    [[ -d ~/.opencode/state ]] && state_dirs+=(~/.opencode/state)
+    [[ -d ~/.claude/state ]] && state_dirs+=(~/.claude/state)
+
+    # Search current repo (walk up to find .opencode/state or .claude/state)
+    local dir="$PWD"
+    while [[ "$dir" != "/" ]]; do
+        [[ -d "$dir/.opencode/state" ]] && state_dirs+=("$dir/.opencode/state")
+        [[ -d "$dir/.claude/state" ]] && state_dirs+=("$dir/.claude/state")
+        [[ -d "$dir/.opencode/state" || -d "$dir/.claude/state" ]] && break
+        dir="$(dirname "$dir")"
+    done
+
+    # Remove duplicates
+    local unique_dirs=($(printf '%s\n' "${state_dirs[@]}" | sort -u))
+
+    for state_dir in "${unique_dirs[@]}"; do
+        while IFS= read -r -d '' prd_json; do
+            local prd_name
+            local passed=0
+            local total=0
+
+            # Extract prdName
+            if prd_name=$(jq -r '.prdName // empty' "$prd_json" 2>/dev/null); then
+                # Count tasks with passes=true vs total
+                if [[ -n "$prd_name" ]]; then
+                    if passed=$(jq '[.tasks[] | select(.passes == true)] | length' "$prd_json" 2>/dev/null) && \
+                       total=$(jq '.tasks | length' "$prd_json" 2>/dev/null); then
+                        # Skip completed PRDs unless --all
+                        if [[ "$SHOW_ALL" == "true" ]] || [[ "$passed" -lt "$total" ]]; then
+                            echo "$prd_name [$passed/$total]"
+                        fi
+                    else
+                        echo "$prd_name [?/?]"
+                    fi
+                fi
+            else
+                # Malformed JSON - show parent dir name
+                local dir_name=$(basename "$(dirname "$prd_json")")
+                echo "$dir_name [?/?]"
+            fi
+        done < <(find "$state_dir" -name "prd.json" -print0 2>/dev/null)
+    done
+}
+
+# Parse args
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --max-iterations=*)
+            MAX_ITERATIONS="${1#*=}"
+            shift
+            ;;
+        --max-iterations)
+            MAX_ITERATIONS="$2"
+            shift 2
+            ;;
+        --tool=*)
+            TOOL="${1#*=}"
+            shift
+            ;;
+        --tool)
+            TOOL="$2"
+            shift 2
+            ;;
+        --all)
+            SHOW_ALL=true
+            shift
+            ;;
+        -*)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+        *)
+            FEATURE="$1"
+            shift
+            ;;
+    esac
+done
+
+# If no FEATURE specified, show fzf picker
+if [[ -z "${FEATURE:-}" ]]; then
+    if ! command -v fzf &>/dev/null; then
+        echo "Error: fzf not found. Install fzf or provide <feature> argument." >&2
+        exit 1
+    fi
+
+    prd_list=$(list_prds)
+
+    # Launch fzf (user can cancel with ctrl-c/esc)
+    selected=$(echo "$prd_list" | fzf --prompt='Pick a PRD > ' --height=50% --reverse --no-sort) || exit 0
+
+    # Extract prd name (strip completion status suffix)
+    FEATURE=$(echo "$selected" | sed -E 's/ \[[0-9?]+\/[0-9?]+\]$//')
+
+    if [[ -z "$FEATURE" ]]; then
+        exit 0
+    fi
+fi
+
+# Build command based on tool
+case "$TOOL" in
+    opencode)
+        CMD=(opencode run --command complete-next-task "$FEATURE")
+        ;;
+    claude)
+        CMD=(claude --dangerously-skip-permissions -p "complete-next-task $FEATURE" --output-format stream-json --verbose)
+        ;;
+    *)
+        echo "Unknown tool: $TOOL (use opencode or claude)" >&2
+        exit 1
+        ;;
+esac
+
+COMPLETE_MARKER="<tasks>COMPLETE</tasks>"
+
+for ((i=1; i<=MAX_ITERATIONS; i++)); do
+    echo "=== Iteration $i/$MAX_ITERATIONS ==="
+
+    # Stream output and check for completion marker
+    found=false
+    while IFS= read -r line; do
+        # Extract text content from stream-json (claude) or pass through (opencode)
+        if [[ "$TOOL" == "claude" ]]; then
+            text=$(echo "$line" | jq -r '.message.content[]?.text // .result // empty' 2>/dev/null) || text=""
+            [[ -n "$text" ]] && printf '%s\n' "$text"
+        else
+            printf '%s\n' "$line"
+        fi
+        [[ "$line" == *"$COMPLETE_MARKER"* ]] && found=true
+    done < <("${CMD[@]}" 2>&1)
+
+    if $found; then
+        echo "PRD complete, exiting."
+        exit 0
+    fi
+done
+
+echo "Max iterations ($MAX_ITERATIONS) reached."
+exit 1

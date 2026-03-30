@@ -1,0 +1,15 @@
+[settings]
+idiomatic_version_file_enable_tools = ["dotnet"]
+
+[settings.ruby]
+
+[settings.dotnet]
+isolated = false
+dotnet_root = "/Users/TRamey/.local/share/mise/dotnet-root"
+
+[tools]
+bun = "latest"
+dotnet = ["10", "9", "8"]
+go = "latest"
+node = "25"
+python = "latest"

@@ -1,0 +1,11 @@
+{
+  "eval_id": 5,
+  "eval_name": "azure-servicebus-retry",
+  "prompt": "We're getting intermittent 429 errors from Azure Service Bus in our .NET worker service. Research how the retry policies work — what's the default retry behavior, how do we configure exponential backoff, and are there any known issues with the latest Azure.Messaging.ServiceBus SDK?",
+  "assertions": [
+    {"text": "Contains Microsoft Learn documentation links (learn.microsoft.com)"},
+    {"text": "Describes the default retry policy (count, delay, mode)"},
+    {"text": "Shows ServiceBusRetryOptions or ServiceBusClientOptions configuration code"},
+    {"text": "Addresses 429 throttling behavior and how retries handle it"}
+  ]
+}

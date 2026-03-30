@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -e
+
+# Usage: gwa <branch> [path]
+# Creates git worktree and copies .idea/ for Rider compatibility
+
+branch=$1
+if [[ -z "$branch" ]]; then
+    echo "Usage: gwa <branch> [path]"
+    exit 1
+fi
+
+git_root=$(git rev-parse --git-common-dir | xargs dirname)
+path=${2:-"$git_root/$branch"}
+
+git worktree add "$path" "$branch"
+
+# Find .idea in any existing worktree (prefer main/master)
+idea_source=""
+for candidate in "$git_root/main/.idea" "$git_root/master/.idea"; do
+    if [[ -d "$candidate" ]]; then
+        idea_source="$candidate"
+        break
+    fi
+done
+
+# Fallback: find first .idea in any worktree
+if [[ -z "$idea_source" ]]; then
+    idea_source=$(find "$git_root" -maxdepth 2 -type d -name ".idea" | head -1)
+fi
+
+if [[ -d "$idea_source" ]]; then
+    source_worktree=$(dirname "$idea_source")
+    cp -r "$idea_source" "$path/.idea"
+    find "$path/.idea" -name '*.xml' -exec sed -i '' "s|$source_worktree|$path|g" {} \;
+    echo "Copied and patched .idea/ from $source_worktree"
+else
+    echo "No .idea/ found to copy"
+fi

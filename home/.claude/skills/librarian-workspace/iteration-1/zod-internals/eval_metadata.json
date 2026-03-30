@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "zod-internals",
+  "prompt": "I have a bug in my validation code using Zod — when I call `.transform()` after `.refine()`, the refined value type isn't carrying through. Can you ask the Librarian to look at how Zod chains these methods internally and show me the relevant source?",
+  "assertions": [
+    {"text": "Contains GitHub source links to Zod repo files"},
+    {"text": "References .refine() implementation in source code"},
+    {"text": "References .transform() implementation in source code"},
+    {"text": "Includes code snippets from the actual source"},
+    {"text": "Explains why the type chain breaks between refine and transform"}
+  ]
+}

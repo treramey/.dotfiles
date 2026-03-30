@@ -1,0 +1,78 @@
+{
+  "skill_name": "librarian",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a bug in my validation code using Zod — when I call `.transform()` after `.refine()`, the refined value type isn't carrying through. Can you ask the Librarian to look at how Zod chains these methods internally and show me the relevant source?",
+      "expected_output": "Deep analysis of Zod's method chaining internals with source code links, showing how .refine() and .transform() interact in the type pipeline",
+      "files": [],
+      "assertions": [
+        {"text": "Contains GitHub source links to Zod repo files"},
+        {"text": "References .refine() implementation in source code"},
+        {"text": "References .transform() implementation in source code"},
+        {"text": "Includes code snippets from the actual source"},
+        {"text": "Explains why the type chain breaks between refine and transform"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We're migrating our auth from IdentityServer to Microsoft Entra ID in our ASP.NET Core API. Use the Librarian to research how to set up Entra ID authentication with JWT bearer tokens, including the middleware configuration and any gotchas with token validation.",
+      "expected_output": "Comprehensive Entra ID setup guide with ASP.NET Core middleware config, token validation details, and migration gotchas — sourced from Microsoft Learn docs",
+      "files": [],
+      "assertions": [
+        {"text": "Contains Microsoft Learn documentation links (learn.microsoft.com)"},
+        {"text": "Shows ASP.NET Core middleware configuration code (AddAuthentication/AddJwtBearer)"},
+        {"text": "Discusses TokenValidationParameters configuration"},
+        {"text": "Lists specific migration gotchas or pitfalls from IdentityServer to Entra ID"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Use the Librarian to investigate how Vercel's AI SDK handles streaming responses — specifically how `streamText` works end-to-end. I want to understand the architecture from the public API down to the actual streaming implementation. Compare it with how LangChain.js does streaming if you can.",
+      "expected_output": "Architecture walkthrough of streamText with source code links, mermaid diagrams, and comparison with LangChain.js streaming approach",
+      "files": [],
+      "assertions": [
+        {"text": "Contains GitHub source links to vercel/ai repo files"},
+        {"text": "Traces streamText from public API to internal streaming implementation"},
+        {"text": "Includes a mermaid diagram of the streaming architecture or flow"},
+        {"text": "Includes comparison with LangChain.js streaming approach"}
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I need to understand how React Server Components handle the serialization boundary. Can you dig into the Next.js and React repos to show me how they serialize props across the server/client boundary? I keep hitting a 'cannot pass function to client component' error and want to understand why.",
+      "expected_output": "Source-level explanation of RSC serialization from React/Next.js repos with links, explaining why functions can't cross the boundary",
+      "files": [],
+      "assertions": [
+        {"text": "Contains GitHub source links to React or Next.js repo files"},
+        {"text": "Explains what can and cannot cross the server/client serialization boundary"},
+        {"text": "References React Flight protocol or serialization mechanism"},
+        {"text": "Specifically explains why functions cannot be passed to client components"}
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "We're getting intermittent 429 errors from Azure Service Bus in our .NET worker service. Research how the retry policies work — what's the default retry behavior, how do we configure exponential backoff, and are there any known issues with the latest Azure.Messaging.ServiceBus SDK?",
+      "expected_output": "Detailed retry policy explanation from MS Learn docs and SDK source, with configuration examples and known issues",
+      "files": [],
+      "assertions": [
+        {"text": "Contains Microsoft Learn documentation links (learn.microsoft.com)"},
+        {"text": "Describes the default retry policy (count, delay, mode)"},
+        {"text": "Shows ServiceBusRetryOptions or ServiceBusClientOptions configuration code"},
+        {"text": "Addresses 429 throttling behavior and how retries handle it"}
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I'm trying to decide between Drizzle ORM and Prisma for our new project. Can you research both — look at how they handle migrations, type safety, and query building? I want to see actual source code, not just docs.",
+      "expected_output": "Source code comparison of Drizzle vs Prisma across migrations, type safety, and query building with links to relevant files in both repos",
+      "files": [],
+      "assertions": [
+        {"text": "Contains GitHub source links to both drizzle-team/drizzle-orm and prisma/prisma repos"},
+        {"text": "Compares migration approaches with source-level evidence"},
+        {"text": "Compares type safety mechanisms with source code references"},
+        {"text": "Compares query building implementations from source"}
+      ]
+    }
+  ]
+}

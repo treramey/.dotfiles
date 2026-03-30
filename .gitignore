@@ -1,10 +1,18 @@
 # macOS
 .DS_Store
-.AppleDouble
-.LSOverride
 ._*
 
-# Claude Code local state (keep agents/, commands/, hooks/, CLAUDE.md, settings.json)
+# Editor temporary files
+*/**/.undodir
+lazy-lock.json
+*.swp
+*.swo
+*~
+
+# Plugin managers (auto-installed)
+*/**/tmux/plugins/*
+
+# Claude Code local state
 .claude/debug/
 .claude/file-history/
 .claude/history.jsonl
@@ -20,47 +28,38 @@
 
 # OpenCode
 .opencode/
-.config/opencode/opencode.json.tui-migration.bak
-.config/opencode/tui.json
+home/.config/opencode/node_modules/
 
-# Editor temporary files
-.config/nvim/.undodir/
-.config/nvim/lazy-lock.json
-*.swp
-*.swo
-*~
-.netrwhist
+# Fish
+home/.config/fish/fish_variables
 
-# Plugin managers (auto-installed)
-.config/tmux/plugins/
-.local/share/zinit/
-.local/share/nvim/
+# Python
+__pycache__/
+*.pyc
+
+# jj
+.jj
+home/.config/jj/repos/
 
 # App-specific (private/generated)
-.config/gh/
-.config/github-copilot/
-.config/vimpack/
-.config/raycast/
-.config/sesh/spp.toml
-.config/spicetify/CustomApps/
-.config/spicetify/Themes/
+home/.config/gh/
+home/.config/github-copilot/
 
-# NuGet (keep nuget.config, ignore cache/credentials)
-.config/NuGet/plugins/
-.config/NuGet/NuGet.Config.backup
+# NuGet
+home/.config/NuGet/plugins/
 
 # Homebrew
 Brewfile.lock.json
 
-# Mise/runtime managers
-.config/mise/.tool-versions.local
-
 # Private secrets
 .zsh_secrets
 
-# Cache directories
-.cache/
-*.log
+# Backups (created by dot stow)
+backups/
+failed_packages_*.txt
 
-# opensrc - source code for packages
+# opensrc
 opensrc/
+
+# Example dotfiles (reference only)
+.example/
