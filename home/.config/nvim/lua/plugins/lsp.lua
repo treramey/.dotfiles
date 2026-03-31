@@ -87,6 +87,7 @@ return {
         stylua = {},
         goimports = {},
         xmlformatter = {},
+        sleek = {},
       }
 
       local other_tools = {
