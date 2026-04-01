@@ -31,10 +31,9 @@ return {
           filetypes = { "markdown", "text" },
           root_markers = { ".git" },
         },
-        -- ["copilot-language-server"] = {
-        --   autostart = false, -- Let Sidekick manage this
-        --   cmd = { "copilot-language-server", "--stdio" },
-        -- },
+        ["copilot-language-server"] = {
+          cmd = { "copilot-language-server", "--stdio" },
+        },
         html = {},
         jsonls = {},
         gopls = {
@@ -159,7 +158,10 @@ return {
 
       mason_lspconfig.setup()
 
-      vim.lsp.inline_completion.enable()
+      -- Enable inline completion if available (Neovim 0.11+)
+      if vim.lsp.inline_completion then
+        vim.lsp.inline_completion.enable()
+      end
     end,
   },
 }

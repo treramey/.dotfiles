@@ -38,11 +38,21 @@ return {
         -- },
         ["<Tab>"] = {
           function(cmp)
+            -- 1. Handle snippet jumping first
             if cmp.snippet_active() then
               return cmp.snippet_forward()
-            else
-              return cmp.select_next()
             end
+            -- 2. Try sidekick NES (Next Edit Suggestions)
+            local sidekick_ok, sidekick = pcall(require, "sidekick")
+            if sidekick_ok and sidekick.nes_jump_or_apply() then
+              return true -- consumed by sidekick
+            end
+            -- 3. Try native inline completion
+            if vim.lsp.inline_completion and vim.lsp.inline_completion.get() then
+              return true -- consumed by inline completion
+            end
+            -- 4. Fall back to blink completion
+            return cmp.select_next()
           end,
           "fallback",
         },

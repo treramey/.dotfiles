@@ -1,3 +1,5 @@
+source "$HOME/.local/share/../bin/env.fish"
+
 # Environment variables
 set -gx XDG_CONFIG_HOME "$HOME/.config"
 set -gx EZA_CONFIG_DIR "$HOME/.config/eza"
