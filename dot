@@ -176,34 +176,27 @@ _stow_dotfiles() {
 
     print_info "Stowing files from ${HOME_DIR} to ${HOME}..."
 
-    # Check for conflicts
-    local files_to_backup=()
+    # Remove symlinks created by omarchy overlay (not owned by stow)
     while IFS= read -r -d '' file; do
         local rel="${file#"${HOME_DIR}"/}"
         local target="${HOME}/${rel}"
-        if [[ -e "$target" && ! -L "$target" ]]; then
-            files_to_backup+=("$rel")
+        if [[ -L "$target" ]]; then
+            local link_target
+            link_target="$(readlink "$target")"
+            # If the symlink doesn't point into the stow target (home/), remove it
+            if [[ "$link_target" != *"${DOTFILES_DIR}/home/${rel}" ]]; then
+                rm "$target"
+            fi
         fi
     done < <(find "${HOME_DIR}" -type f -print0)
 
-    if [[ ${#files_to_backup[@]} -gt 0 ]]; then
-        print_warning "Existing files will be replaced:"
-        printf "  %s\n" "${files_to_backup[@]}"
-
-        if confirm "Create backups?" "y"; then
-            local backup_dir="${DOTFILES_DIR}/backups/$(date +%Y%m%d_%H%M%S)"
-            mkdir -p "$backup_dir"
-            for file in "${files_to_backup[@]}"; do
-                local dst="${backup_dir}/${file}"
-                mkdir -p "$(dirname "$dst")"
-                cp -p "${HOME}/${file}" "$dst"
-            done
-            print_success "Backups created in ${backup_dir}"
-        fi
-    fi
-
     if stow -R -v -d "${DOTFILES_DIR}" -t "${HOME}" home; then
         print_success "Dotfiles stowed successfully"
+
+        # Apply omarchy-specific overrides if on omarchy machine
+        if _is_omarchy_machine; then
+            _stow_omarchy_overlay
+        fi
     else
         print_error "Failed to stow dotfiles"
         return 1
@@ -235,6 +228,120 @@ _build_bat_cache() {
     print_info "Building bat theme cache..."
     bat cache --build
     print_success "Bat cache built"
+}
+
+_is_omarchy_machine() {
+    local h="${HOSTNAME:-$(hostname 2>/dev/null || true)}"
+    [[ -f /etc/arch-release ]] || [[ "$h" == *"omarchy"* ]]
+}
+
+_remove_omarchy_ignored() {
+    local ignore_file="${HOME_DIR}/.omarchy-ignore"
+    [[ -f "$ignore_file" ]] || return 0
+
+    print_info "Removing ignored paths for omarchy..."
+    local removed=0
+
+    while IFS= read -r line; do
+        line="${line%$'\r'}"
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
+
+        [[ -z "$line" ]] && continue
+        [[ "$line" == \#* ]] && continue
+
+        local target="${HOME}/${line}"
+        if [[ -L "$target" ]]; then
+            rm "$target"
+            ((++removed))
+        elif [[ -d "$target" ]]; then
+            # Remove all symlinks stow created inside this directory
+            while IFS= read -r -d '' link; do
+                if [[ -L "$link" ]]; then
+                    rm "$link"
+                    ((++removed))
+                fi
+            done < <(find "$target" -type l -print0 2>/dev/null)
+            # Clean up empty directories left behind
+            find "$target" -type d -empty -delete 2>/dev/null || true
+        fi
+    done < "$ignore_file"
+
+    if [[ $removed -gt 0 ]]; then
+        print_success "Removed $removed ignored symlinks"
+    fi
+}
+
+_stow_omarchy_overlay() {
+    # Remove paths that shouldn't exist on omarchy machines
+    _remove_omarchy_ignored
+
+    # Find all .omarchy directories within home/
+    local omarchy_dirs=()
+    while IFS= read -r -d '' dir; do
+        omarchy_dirs+=("$dir")
+    done < <(find "${HOME_DIR}" -type d -name ".omarchy" -print0 2>/dev/null)
+
+    if [[ ${#omarchy_dirs[@]} -eq 0 ]]; then
+        return 0
+    fi
+
+    print_info "Applying omarchy-specific overrides..."
+
+    local backed_up=0
+    local backup_dir=""
+    local overrides_applied=0
+
+    for omarchy_dir in "${omarchy_dirs[@]}"; do
+        # Get the parent directory of .omarchy (e.g., home/.config/nvim from home/.config/nvim/.omarchy)
+        local parent_dir="$(dirname "$omarchy_dir")"
+
+        # Process each file in the .omarchy directory
+        while IFS= read -r -d '' file; do
+            # Get the relative path from the .omarchy dir
+            local omarchy_rel="${file#"${omarchy_dir}"/}"
+            # The target file should be in the parent directory, not in .omarchy
+            local source_file="${parent_dir}/${omarchy_rel}"
+            # The relative path from HOME_DIR for creating the target path
+            local home_rel="${source_file#"${HOME_DIR}"/}"
+            local target="${HOME}/${home_rel}"
+
+            # Only override if there's a matching base file that was stowed
+            if [[ -L "$target" ]]; then
+                # It's a symlink from base stow, remove it
+                rm "$target"
+            elif [[ -e "$target" ]]; then
+                # It's a regular file or directory, backup and remove
+                if [[ "$backed_up" -eq 0 ]]; then
+                    backup_dir="${DOTFILES_DIR}/backups/$(date +%Y%m%d_%H%M%S)_omarchy"
+                    mkdir -p "$backup_dir"
+                    backed_up=1
+                fi
+                local dst="${backup_dir}/${home_rel}"
+                mkdir -p "$(dirname "$dst")"
+                cp -p "$target" "$dst"
+                rm "$target"
+            else
+                # No matching base file exists, skip this override
+                continue
+            fi
+
+            # Create symlink to the override file
+            mkdir -p "$(dirname "$target")"
+            ln -s "$file" "$target"
+            overrides_applied=1
+        done < <(find "$omarchy_dir" -type f -print0)
+    done
+
+    if [[ "$overrides_applied" -eq 1 ]]; then
+        if [[ "$backed_up" -eq 1 ]]; then
+            print_success "Omarchy overrides applied (backups in ${backup_dir})"
+        else
+            print_success "Omarchy overrides applied"
+        fi
+    else
+        print_info "No omarchy overrides matched"
+    fi
 }
 
 

@@ -1,0 +1,11 @@
+[ui]
+theme = "rose-pine"
+
+[ui.input_bar]
+border_type = "rounded"
+
+[ui.results_panel]
+border_type = "rounded"
+
+[ui.preview_panel]
+border_type = "rounded"
