@@ -1,0 +1,14 @@
+[settings]
+idiomatic_version_file_enable_tools = ["dotnet"]
+
+[settings.ruby]
+
+[settings.dotnet]
+isolated = false
+
+[tools]
+bun = "latest"
+dotnet = ["10", "9", "8"]
+go = "latest"
+node = "latest"
+python = "latest"

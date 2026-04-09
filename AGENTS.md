@@ -4,9 +4,9 @@ This file provides detailed guidance for AI agents working with this dotfiles re
 
 ## Repository Overview
 
-macOS dotfiles managed with GNU Stow. Configuration files in `.config/` are symlinked to `$HOME/.config/`.
+Arch Linux dotfiles managed with chezmoi. Configuration files in `dot_config/` are templated/copied to `$HOME/.config/`.
 
-**Core Stack:** Zsh + Neovim + Tmux + Git + AeroSpace
+**Core Stack:** Zsh + Neovim + Tmux + Git + Hyprland
 
 ## Shell Setup (Zsh)
 
@@ -92,19 +92,12 @@ C-a -    # Split vertical (retains path)
 C-a hjkl # Vim-style pane navigation
 ```
 
-## Window Management (AeroSpace + skhd)
+## Window Management (Hyprland)
 
-**AeroSpace** (`.config/aerospace/aerospace.toml`):
-- Tiling window manager with workspace routing rules
-- Auto-assigns apps to workspaces on detection
-- Gap configuration: 5px inner gaps
-
-**skhd** (`.config/skhd/skhdrc`):
-- Hotkey daemon using `lalt` (left alt) as modifier
-- Workspace switching: `lalt-[1-5]`
-- Window movement: `lalt-shift-[hjkl]` or `lalt-shift-[1-5]`
-- Window focus: `lalt-[hjkl]` (vim-style)
-- Resize: `lalt-ctrl-[np]`
+**Hyprland** (`.config/hypr/`):
+- Tiling Wayland compositor with workspace routing rules
+- Auto-assigns apps to workspaces via window rules
+- Configurable gaps, borders, and animations
 
 ## Terminal (Ghostty)
 
@@ -124,10 +117,11 @@ C-a hjkl # Vim-style pane navigation
 
 ## File Organization Patterns
 
-**Stow Structure:**
-- Root-level configs stowed to `$HOME` (e.g., `.zshrc`)
-- `.config/` directory stowed to `$HOME/.config/`
-- Files in `.stow-local-ignore` are never stowed
+**Chezmoi Structure:**
+- `.chezmoiroot` points to `home/` as the source directory
+- `dot_` prefix maps to `.` in target (e.g., `dot_config/` → `$HOME/.config/`)
+- Templates use `.tmpl` suffix for machine-specific config
+- `.chezmoiignore` controls which files are skipped during apply
 
 **Config Modularity:**
 - Neovim: modular plugin system in `lua/plugins/` (each file = plugin spec)
@@ -139,11 +133,11 @@ C-a hjkl # Vim-style pane navigation
 When modifying configurations:
 
 1. **Edit files in this repo** (`.dotfiles/`)
-2. **Re-stow if needed:** `stow -R .` (only for new files/structure changes)
+2. **Apply changes:** `chezmoi apply` (or `chezmoi apply ~/.config/specific/path`)
 3. **Reload specific service:**
    - Zsh: `source ~/.zshrc`
    - Tmux: `C-a r`
-   - AeroSpace: `aerospace reload-config`
+   - Hyprland: config auto-reloads on save
    - Neovim: restart or `:Lazy reload <plugin>`
 
 ## Theme Consistency
@@ -159,10 +153,9 @@ Rose Pine theme applied throughout:
 
 ## Important Notes
 
-- **Services startup:** skhd must be running for keybindings; started via `brew services start skhd`
 - **Runtime managers:** mise is used for version management (activated in `.zshrc`)
 - **Tmux auto-start:** tmux launches automatically unless in WezTerm or already in tmux/screen
-- **Package management:** Brewfile at repo root, install with `brew bundle`
+- **Package management:** pacman / yay (Arch Linux)
 
 ## Scripts
 
