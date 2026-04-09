@@ -13,14 +13,15 @@ readonly BOLD='\033[1m'
 
 # Metadata
 readonly SCRIPT_NAME="dot"
-readonly VERSION="1.0.0"
+readonly VERSION="3.0.0"
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly DOTFILES_DIR
-readonly HOME_DIR="${DOTFILES_DIR}/home"
 
-# Progress
-CURRENT_STEP=0
-TOTAL_STEPS=0
+# Platform detection
+OS="$(uname -s)"
+readonly OS
+is_macos() { [[ "$OS" == "Darwin" ]]; }
+is_arch() { [[ "$OS" == "Linux" ]] && [[ -f /etc/arch-release ]]; }
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -29,7 +30,6 @@ print_success() { echo -e "${GREEN}✓${RESET} $1"; }
 print_error()   { echo -e "${RED}✗${RESET} $1" >&2; }
 print_warning() { echo -e "${YELLOW}⚠${RESET} $1"; }
 print_info()    { echo -e "${CYAN}ℹ${RESET} $1"; }
-print_step()    { ((CURRENT_STEP++)); echo -e "\n${BOLD}[${CURRENT_STEP}/${TOTAL_STEPS}]${RESET} $1"; }
 
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
@@ -45,71 +45,21 @@ confirm() {
     esac
 }
 
-# ─── Tool Registry ───────────────────────────────────────────────────────────
-# Fields (;; delimited):
-#   name ;; check ;; install ;; required ;; skip_var ;; doctor
-TOOL_REGISTRY=(
-    "Homebrew          ;; brew  ;; fn:_install_homebrew   ;; true  ;; -          ;; true"
-    "Brewfile packages ;; -     ;; fn:_install_packages   ;; true  ;; -          ;; false"
-    "Stow dotfiles     ;; -     ;; fn:_stow_dotfiles      ;; true  ;; -          ;; false"
-    "macOS defaults    ;; -     ;; fn:_set_macos_defaults  ;; false ;; -          ;; false"
-    "Start services    ;; -     ;; fn:_start_services      ;; false ;; -          ;; false"
-    "Bat cache         ;; bat   ;; fn:_build_bat_cache     ;; false ;; -          ;; false"
-)
+# ─── Chezmoi ─────────────────────────────────────────────────────────────────
 
-_parse_tool_entry() {
-    local entry="$1"
-    r_name="$(    echo "$entry" | awk -F';;' '{print $1}' | xargs)"
-    r_check="$(   echo "$entry" | awk -F';;' '{print $2}' | xargs)"
-    r_install="$( echo "$entry" | awk -F';;' '{print $3}' | xargs)"
-    r_required="$(echo "$entry" | awk -F';;' '{print $4}' | xargs)"
-    r_skip="$(    echo "$entry" | awk -F';;' '{print $5}' | xargs)"
-    r_doctor="$(  echo "$entry" | awk -F';;' '{print $6}' | xargs)"
+_ensure_chezmoi() {
+    if command_exists chezmoi; then return 0; fi
+
+    print_info "Installing chezmoi..."
+    sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "${HOME}/.local/bin" || {
+        print_error "Failed to install chezmoi"
+        return 1
+    }
+    export PATH="${HOME}/.local/bin:${PATH}"
+    print_success "chezmoi installed"
 }
 
-run_init_steps() {
-    TOTAL_STEPS=0
-    for entry in "${TOOL_REGISTRY[@]}"; do
-        _parse_tool_entry "$entry"
-        if [[ "$r_skip" != "-" ]] && [[ "${!r_skip:-}" == "true" ]]; then continue; fi
-        ((TOTAL_STEPS++))
-    done
-    CURRENT_STEP=0
-
-    for entry in "${TOOL_REGISTRY[@]}"; do
-        _parse_tool_entry "$entry"
-        if [[ "$r_skip" != "-" ]] && [[ "${!r_skip:-}" == "true" ]]; then continue; fi
-
-        print_step "$r_name"
-
-        if [[ "$r_install" == fn:* ]]; then
-            local fn="${r_install#fn:}"
-            if "$fn"; then
-                true
-            elif [[ "$r_required" == "true" ]]; then
-                return 1
-            else
-                print_warning "$r_name failed (continuing)"
-            fi
-        else
-            if [[ "$r_check" != "-" ]] && command_exists "$r_check"; then
-                print_success "$r_name is already installed"
-            else
-                print_info "Installing $r_name..."
-                if eval "$r_install"; then
-                    print_success "$r_name installed successfully"
-                elif [[ "$r_required" == "true" ]]; then
-                    print_error "Failed to install $r_name"
-                    return 1
-                else
-                    print_warning "Failed to install $r_name (continuing)"
-                fi
-            fi
-        fi
-    done
-}
-
-# ─── Installation Functions ──────────────────────────────────────────────────
+# ─── macOS-specific ──────────────────────────────────────────────────────────
 
 _install_homebrew() {
     if command_exists brew; then
@@ -168,41 +118,6 @@ _install_packages() {
     fi
 }
 
-_stow_dotfiles() {
-    if ! command_exists stow; then
-        print_error "GNU Stow is not installed"
-        return 1
-    fi
-
-    print_info "Stowing files from ${HOME_DIR} to ${HOME}..."
-
-    # Remove symlinks created by omarchy overlay (not owned by stow)
-    while IFS= read -r -d '' file; do
-        local rel="${file#"${HOME_DIR}"/}"
-        local target="${HOME}/${rel}"
-        if [[ -L "$target" ]]; then
-            local link_target
-            link_target="$(readlink "$target")"
-            # If the symlink doesn't point into the stow target (home/), remove it
-            if [[ "$link_target" != *"${DOTFILES_DIR}/home/${rel}" ]]; then
-                rm "$target"
-            fi
-        fi
-    done < <(find "${HOME_DIR}" -type f -print0)
-
-    if stow -R -v -d "${DOTFILES_DIR}" -t "${HOME}" home; then
-        print_success "Dotfiles stowed successfully"
-
-        # Apply omarchy-specific overrides if on omarchy machine
-        if _is_omarchy_machine; then
-            _stow_omarchy_overlay
-        fi
-    else
-        print_error "Failed to stow dotfiles"
-        return 1
-    fi
-}
-
 _set_macos_defaults() {
     print_info "Setting macOS defaults..."
     defaults write -g NSWindowShouldDragOnGesture -bool true
@@ -230,128 +145,71 @@ _build_bat_cache() {
     print_success "Bat cache built"
 }
 
-_is_omarchy_machine() {
-    local h="${HOSTNAME:-$(hostname 2>/dev/null || true)}"
-    [[ -f /etc/arch-release ]] || [[ "$h" == *"omarchy"* ]]
-}
-
-_remove_omarchy_ignored() {
-    local ignore_file="${HOME_DIR}/.omarchy-ignore"
-    [[ -f "$ignore_file" ]] || return 0
-
-    print_info "Removing ignored paths for omarchy..."
-    local removed=0
-
-    while IFS= read -r line; do
-        line="${line%$'\r'}"
-        line="${line#"${line%%[![:space:]]*}"}"
-        line="${line%"${line##*[![:space:]]}"}"
-
-        [[ -z "$line" ]] && continue
-        [[ "$line" == \#* ]] && continue
-
-        local target="${HOME}/${line}"
-        if [[ -L "$target" ]]; then
-            rm "$target"
-            ((++removed))
-        elif [[ -d "$target" ]]; then
-            # Remove all symlinks stow created inside this directory
-            while IFS= read -r -d '' link; do
-                if [[ -L "$link" ]]; then
-                    rm "$link"
-                    ((++removed))
-                fi
-            done < <(find "$target" -type l -print0 2>/dev/null)
-            # Clean up empty directories left behind
-            find "$target" -type d -empty -delete 2>/dev/null || true
-        fi
-    done < "$ignore_file"
-
-    if [[ $removed -gt 0 ]]; then
-        print_success "Removed $removed ignored symlinks"
-    fi
-}
-
-_stow_omarchy_overlay() {
-    # Remove paths that shouldn't exist on omarchy machines
-    _remove_omarchy_ignored
-
-    # Find all .omarchy directories within home/
-    local omarchy_dirs=()
-    while IFS= read -r -d '' dir; do
-        omarchy_dirs+=("$dir")
-    done < <(find "${HOME_DIR}" -type d -name ".omarchy" -print0 2>/dev/null)
-
-    if [[ ${#omarchy_dirs[@]} -eq 0 ]]; then
-        return 0
-    fi
-
-    print_info "Applying omarchy-specific overrides..."
-
-    local backed_up=0
-    local backup_dir=""
-    local overrides_applied=0
-
-    for omarchy_dir in "${omarchy_dirs[@]}"; do
-        # Get the parent directory of .omarchy (e.g., home/.config/nvim from home/.config/nvim/.omarchy)
-        local parent_dir="$(dirname "$omarchy_dir")"
-
-        # Process each file in the .omarchy directory
-        while IFS= read -r -d '' file; do
-            # Get the relative path from the .omarchy dir
-            local omarchy_rel="${file#"${omarchy_dir}"/}"
-            # The target file should be in the parent directory, not in .omarchy
-            local source_file="${parent_dir}/${omarchy_rel}"
-            # The relative path from HOME_DIR for creating the target path
-            local home_rel="${source_file#"${HOME_DIR}"/}"
-            local target="${HOME}/${home_rel}"
-
-            # Only override if there's a matching base file that was stowed
-            if [[ -L "$target" ]]; then
-                # It's a symlink from base stow, remove it
-                rm "$target"
-            elif [[ -e "$target" ]]; then
-                # It's a regular file or directory, backup and remove
-                if [[ "$backed_up" -eq 0 ]]; then
-                    backup_dir="${DOTFILES_DIR}/backups/$(date +%Y%m%d_%H%M%S)_omarchy"
-                    mkdir -p "$backup_dir"
-                    backed_up=1
-                fi
-                local dst="${backup_dir}/${home_rel}"
-                mkdir -p "$(dirname "$dst")"
-                cp -p "$target" "$dst"
-                rm "$target"
-            else
-                # No matching base file exists, skip this override
-                continue
-            fi
-
-            # Create symlink to the override file
-            mkdir -p "$(dirname "$target")"
-            ln -s "$file" "$target"
-            overrides_applied=1
-        done < <(find "$omarchy_dir" -type f -print0)
-    done
-
-    if [[ "$overrides_applied" -eq 1 ]]; then
-        if [[ "$backed_up" -eq 1 ]]; then
-            print_success "Omarchy overrides applied (backups in ${backup_dir})"
-        else
-            print_success "Omarchy overrides applied"
-        fi
-    else
-        print_info "No omarchy overrides matched"
-    fi
-}
-
-
 # ─── Commands ────────────────────────────────────────────────────────────────
 
 cmd_init() {
     print_header "Initializing dotfiles"
-    run_init_steps || return 1
+
+    # Install chezmoi
+    _ensure_chezmoi || return 1
+
+    # macOS: Homebrew + packages
+    if is_macos; then
+        print_header "Setting up macOS"
+        _install_homebrew || return 1
+        _install_packages || return 1
+    fi
+
+    # Arch: install watchman if missing
+    if is_arch && ! command_exists watchman; then
+        print_info "Installing watchman..."
+        if command_exists yay; then
+            yay -S --noconfirm watchman-bin && print_success "watchman installed" || print_warning "Failed to install watchman (continuing)"
+        else
+            print_warning "yay not found, skipping watchman install"
+        fi
+    fi
+
+    # Apply dotfiles
+    print_header "Applying dotfiles"
+    print_info "Applying dotfiles with chezmoi..."
+    if chezmoi apply --source "${DOTFILES_DIR}"; then
+        print_success "Dotfiles applied successfully"
+    else
+        print_error "Failed to apply dotfiles"
+        return 1
+    fi
+
+    # macOS post-setup
+    if is_macos; then
+        if confirm "Set macOS defaults?" "y"; then
+            _set_macos_defaults
+        fi
+        _start_services
+    fi
+
+    _build_bat_cache
+
     print_header "Done!"
-    print_info "Restart your shell or run: source ~/.zshrc"
+    print_info "Restart your shell or run: exec fish"
+}
+
+cmd_apply() {
+    print_header "Applying dotfiles"
+
+    _ensure_chezmoi || return 1
+
+    # Clear cached state so chezmoi re-evaluates all files,
+    # ensuring externally modified targets (e.g. fisher) get overwritten
+    chezmoi state delete-bucket --bucket=entryState 2>/dev/null || true
+
+    print_info "Applying dotfiles with chezmoi..."
+    if chezmoi apply --force --source "${DOTFILES_DIR}" "$@"; then
+        print_success "Dotfiles applied successfully"
+    else
+        print_error "Failed to apply dotfiles"
+        return 1
+    fi
 }
 
 cmd_update() {
@@ -373,26 +231,65 @@ cmd_update() {
         return 1
     fi
 
-    # Update packages
-    if confirm "Update Homebrew packages?" "y"; then
-        print_info "Updating Homebrew..."
-        brew update && brew upgrade
-        print_success "Packages updated"
+    # macOS: update Homebrew packages
+    if is_macos; then
+        if confirm "Update Homebrew packages?" "y"; then
+            print_info "Updating Homebrew..."
+            brew update && brew upgrade
+            print_success "Packages updated"
+        fi
     fi
 
-    # Re-stow
-    if confirm "Re-stow dotfiles?" "y"; then
-        _stow_dotfiles
+    # Re-apply
+    if confirm "Re-apply dotfiles?" "y"; then
+        cmd_apply
     fi
+}
+
+cmd_diff() {
+    _ensure_chezmoi || return 1
+    chezmoi diff --source "${DOTFILES_DIR}" "$@"
+}
+
+cmd_add() {
+    _ensure_chezmoi || return 1
+    chezmoi add --source "${DOTFILES_DIR}" "$@"
+}
+
+cmd_cd() {
+    _ensure_chezmoi || return 1
+    chezmoi cd --source "${DOTFILES_DIR}"
+}
+
+cmd_managed() {
+    _ensure_chezmoi || return 1
+    chezmoi managed --source "${DOTFILES_DIR}" "$@"
+}
+
+cmd_status() {
+    _ensure_chezmoi || return 1
+    chezmoi status --source "${DOTFILES_DIR}" "$@"
 }
 
 cmd_doctor() {
     print_header "Running diagnostics"
     local issues=0
 
-    # Core tools
-    if command_exists brew; then print_success "Homebrew installed"; else print_error "Homebrew not installed"; ((++issues)); fi
-    if command_exists stow; then print_success "GNU Stow installed"; else print_error "GNU Stow not installed"; ((++issues)); fi
+    # chezmoi
+    if command_exists chezmoi; then
+        print_success "chezmoi installed ($(chezmoi --version 2>/dev/null | head -1))"
+    else
+        print_error "chezmoi not installed"
+        ((++issues))
+    fi
+
+    # Platform-specific
+    if is_macos; then
+        if command_exists brew; then print_success "Homebrew installed"; else print_error "Homebrew not installed"; ((++issues)); fi
+    elif is_arch; then
+        if command_exists pacman; then print_success "pacman available"; else print_error "pacman not found"; ((++issues)); fi
+        if command_exists yay; then print_success "yay available"; else print_warning "yay not installed"; fi
+    fi
 
     # Shell
     local zsh_path
@@ -409,20 +306,8 @@ cmd_doctor() {
         ((++issues))
     fi
 
-    # jj
-    if command_exists jj; then
-        print_success "jj (Jujutsu) installed"
-        if [[ -f "${HOME}/.config/jj/config.toml" ]]; then
-            print_success "jj config found"
-        else
-            print_warning "jj config not found"
-        fi
-    else
-        print_warning "jj not installed"
-    fi
-
     # Dev tools
-    local tools=("git" "nvim" "tmux" "node" "npm")
+    local tools=("git" "nvim" "tmux" "node")
     local missing=()
     for tool in "${tools[@]}"; do
         if command_exists "$tool"; then print_success "$tool available"; else missing+=("$tool"); fi
@@ -431,12 +316,18 @@ cmd_doctor() {
         print_warning "Missing tools: ${missing[*]}"
     fi
 
-    # Broken symlinks
-    local broken=0
-    while IFS= read -r -d '' link; do
-        if [[ ! -e "$link" ]]; then ((++broken)); fi
-    done < <(find "${HOME}" -maxdepth 3 -type l -print0 2>/dev/null)
-    if [[ $broken -eq 0 ]]; then print_success "No broken symlinks"; else print_warning "Found $broken broken symlinks"; fi
+    # jj
+    if command_exists jj; then
+        print_success "jj (Jujutsu) installed"
+    else
+        print_warning "jj not installed"
+    fi
+
+    # chezmoi doctor
+    if command_exists chezmoi; then
+        print_header "chezmoi doctor"
+        chezmoi doctor || true
+    fi
 
     if [[ $issues -eq 0 ]]; then
         print_header "All critical checks passed!"
@@ -445,34 +336,29 @@ cmd_doctor() {
     fi
 }
 
-cmd_stow() {
-    print_header "Stowing dotfiles"
-    _stow_dotfiles
-}
-
 cmd_edit() {
-    local editor="${EDITOR:-nvim}"
-    if command_exists "$editor"; then
-        exec "$editor" "$DOTFILES_DIR"
+    if [[ $# -gt 0 ]]; then
+        _ensure_chezmoi || return 1
+        chezmoi edit --source "${DOTFILES_DIR}" "$@"
     else
-        print_error "Editor '$editor' not found"
-        return 1
+        local editor="${EDITOR:-nvim}"
+        if command_exists "$editor"; then
+            exec "$editor" "$DOTFILES_DIR"
+        else
+            print_error "Editor '$editor' not found"
+            return 1
+        fi
     fi
 }
 
 cmd_link() {
     print_header "Creating symlink for dot command"
-    local target_dir="/usr/local/bin"
+    local target_dir="${HOME}/.local/bin"
     local link_path="${target_dir}/dot"
 
-    if [[ ! -w "$target_dir" ]]; then
-        target_dir="${HOME}/.local/bin"
-        link_path="${target_dir}/dot"
-        mkdir -p "$target_dir"
-        print_info "Using ${target_dir}"
-    fi
+    mkdir -p "$target_dir"
 
-    [[ -L "$link_path" ]] && rm "$link_path"
+    if [[ -L "$link_path" ]]; then rm "$link_path" || true; fi
 
     if ln -s "${DOTFILES_DIR}/dot" "$link_path"; then
         print_success "Created symlink at ${link_path}"
@@ -493,18 +379,74 @@ cmd_unlink() {
     [[ "$found" == false ]] && print_warning "No dot symlink found"
 }
 
+cmd_watch() {
+    _ensure_chezmoi || return 1
+
+    if ! command_exists watchman; then
+        print_error "watchman is not installed"
+        if is_macos; then
+            print_info "Install with: brew install watchman"
+        elif is_arch; then
+            print_info "Install with: yay -S watchman-bin"
+        fi
+        return 1
+    fi
+
+    local source_path
+    source_path="$(chezmoi source-path --source "${DOTFILES_DIR}")"
+
+    case "${1:-start}" in
+        start)
+            print_header "Starting file watcher"
+            watchman watch "${source_path}"
+            watchman trigger-del "${source_path}" chezmoi-apply 2>/dev/null || true
+            watchman -j <<EOT
+["trigger", "${source_path}", {
+  "name": "chezmoi-apply",
+  "command": ["chezmoi", "apply", "--force", "--source", "${DOTFILES_DIR}"]
+}]
+EOT
+            print_success "Watching ${source_path} for changes"
+            print_info "Changes will auto-apply. Run 'dot watch stop' to disable."
+            ;;
+        stop)
+            print_header "Stopping file watcher"
+            watchman watch-del "${source_path}" 2>/dev/null || true
+            print_success "Watcher stopped"
+            ;;
+        status)
+            if watchman watch-list 2>/dev/null | grep -q "${source_path}"; then
+                print_success "Watcher is active on ${source_path}"
+            else
+                print_warning "Watcher is not running"
+            fi
+            ;;
+        *)
+            print_error "Unknown watch subcommand: $1"
+            echo "Usage: dot watch [start|stop|status]"
+            return 1
+            ;;
+    esac
+}
+
 cmd_help() {
     echo -e "${BOLD}${SCRIPT_NAME}${RESET} - Dotfiles management tool (v${VERSION})"
     echo ""
     echo -e "${BOLD}USAGE:${RESET}"
-    echo "    ${SCRIPT_NAME} [OPTIONS] COMMAND"
+    echo "    ${SCRIPT_NAME} [OPTIONS] COMMAND [ARGS]"
     echo ""
     echo -e "${BOLD}COMMANDS:${RESET}"
     echo "    init            Initialize and install everything"
-    echo "    update          Pull changes, update packages, re-stow"
+    echo "    apply [path]    Apply dotfiles with chezmoi"
+    echo "    update          Pull changes, update packages, re-apply"
+    echo "    diff            Preview pending changes"
+    echo "    status          Show what's out of sync"
+    echo "    add <file>      Add a file to the source state"
+    echo "    edit [target]   Edit a target file, or open dotfiles dir"
+    echo "    managed         List all managed files"
+    echo "    cd              Open a shell in the source directory"
+    echo "    watch [cmd]     Auto-apply on changes (start|stop|status)"
     echo "    doctor          Run diagnostics"
-    echo "    stow            Re-create symlinks"
-    echo "    edit            Open dotfiles in \$EDITOR"
     echo "    link            Install dot command globally"
     echo "    unlink          Remove global dot command"
     echo "    help            Show this help"
@@ -515,7 +457,7 @@ cmd_help() {
     echo ""
     echo -e "${BOLD}CONFIGURATION:${RESET}"
     echo "    Dotfiles: ${DOTFILES_DIR}"
-    echo "    Home:     ${HOME_DIR}"
+    echo "    Platform: $(is_macos && echo "macOS" || (is_arch && echo "Arch Linux" || echo "Linux"))"
     echo ""
 }
 
@@ -535,10 +477,16 @@ main() {
 
     case "$cmd" in
         init)    cmd_init "$@" ;;
+        apply)   cmd_apply "$@" ;;
         update)  cmd_update "$@" ;;
-        doctor)  cmd_doctor "$@" ;;
-        stow)    cmd_stow "$@" ;;
+        diff)    cmd_diff "$@" ;;
+        status)  cmd_status "$@" ;;
+        add)     cmd_add "$@" ;;
         edit)    cmd_edit "$@" ;;
+        managed) cmd_managed "$@" ;;
+        cd)      cmd_cd "$@" ;;
+        watch)   cmd_watch "$@" ;;
+        doctor)  cmd_doctor "$@" ;;
         link)    cmd_link "$@" ;;
         unlink)  cmd_unlink "$@" ;;
         help)    cmd_help ;;

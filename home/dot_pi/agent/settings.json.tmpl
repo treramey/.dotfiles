@@ -1,0 +1,19 @@
+{{- if .is_arch -}}
+{
+  "lastChangelogVersion": "0.65.0",
+  "defaultProvider": "fireworks",
+  "defaultModel": "accounts/fireworks/models/kimi-k2p5",
+  "theme": "rose-pine",
+  "packages": [
+    "npm:@plannotator/pi-extension"
+  ]
+}
+{{- else -}}
+{
+  "lastChangelogVersion": "0.65.0",
+  "theme": "rose-pine",
+  "packages": [
+    "npm:@plannotator/pi-extension"
+  ]
+}
+{{- end -}}

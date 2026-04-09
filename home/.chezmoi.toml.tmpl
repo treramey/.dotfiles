@@ -1,0 +1,11 @@
+{{- $is_arch := false -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{-   if stat "/etc/arch-release" -}}
+{{-     $is_arch = true -}}
+{{-   end -}}
+{{- end -}}
+
+sourceDir = "~/.dotfiles"
+
+[data]
+  is_arch = {{ $is_arch }}

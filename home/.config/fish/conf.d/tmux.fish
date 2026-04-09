@@ -1,1 +1,0 @@
-/home/tmr/.dotfiles/home/.config/fish/conf.d/.omarchy/tmux.fish

@@ -1,1 +1,0 @@
-/home/tmr/.dotfiles/.omarchy/.config/fish/config.fish
