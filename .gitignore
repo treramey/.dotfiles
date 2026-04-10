@@ -1,45 +1,16 @@
-# Editor temporary files
 */**/.undodir
 lazy-lock.json
-*.swp
-*.swo
-*~
-
-# Plugin managers (auto-installed)
+home/.config/fish/fish_variables
+home/.config/fish/conf.d/secrets.fish
+home/.config/fish/conf.d/vault-funcs.fish
+home/.config/opencode/amp_stuff/
+.envrc
 */**/tmux/plugins/*
+backups/
+packages/failed_packages_*.txt
+tmp/
+.DS_STORE
 
-# Claude Code local state
-.claude/debug/
-.claude/file-history/
-.claude/history.jsonl
-.claude/projects/
-.claude/session-env/
-.claude/shell-snapshots/
-.claude/statsig/
-.claude/todos/
-.claude/.old/
-
-# oh-my-claudecode
-.omc/
-
-# OpenCode
-.opencode/
-home/dot_config/opencode/node_modules/
-home/dot_config/opencode/*.bak
-
-# Pi runtime / secrets / machine-local state
-.pi/settings.json
-.pi/agent/auth.json
-.pi/agent/mcp-cache.json
-.pi/agent/sessions/
-.pi/agent/.cache/
-home/dot_pi/agent/auth.json
-home/dot_pi/agent/mcp-cache.json
-home/dot_pi/agent/sessions/
-home/dot_pi/agent/.cache/
-
-# Fish
-home/dot_config/fish/fish_variables
 
 # Python
 __pycache__/
@@ -47,28 +18,31 @@ __pycache__/
 
 # jj
 .jj
-home/dot_config/jj/repos/
 
-# App-specific (private/generated)
-home/dot_config/gh/
-home/dot_config/github-copilot/
+# opencode
+home/.config/opencode/node_modules/
+.opencode/plans/
 
-# NuGet
-home/dot_config/NuGet/plugins/
+# jj per-repo configs
+home/.config/jj/repos/
 
-# Neovim
-home/dot_config/nvim/.undodir/
+# pi agent runtime/state (keep settings + customization resources tracked)
+home/.pi/agent/*
+home/.pi/todos/*
+.pi/todos/*
 
-# Private secrets
-.zsh_secrets
+# pi extensions node_modules
+home/.pi/agent/extensions/**/node_modules/
 
-# Backups
-backups/
-failed_packages_*.txt
 
-# opensrc
-opensrc/
-
-# Example dotfiles (reference only)
-.example/
-home/dot_local/share/
+!home/.pi/agent/tsconfig.json
+!home/.pi/agent/package.json
+!home/.pi/agent/cloak.json
+!home/.pi/agent/themes/
+!home/.pi/agent/themes/*.json
+!home/.pi/agent/extensions/
+!home/.pi/agent/extensions/**
+!home/.pi/agent/mcp.json
+!home/.pi/agent/APPEND_SYSTEM.md
+!home/.pi/agent/skills/
+!home/.pi/agent/skills/**

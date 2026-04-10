@@ -172,6 +172,13 @@ cmd_init() {
 
     # Apply dotfiles
     print_header "Applying dotfiles"
+    print_info "Initializing chezmoi config..."
+    if chezmoi init --source "${DOTFILES_DIR}" --apply=false; then
+        print_success "chezmoi config initialized"
+    else
+        print_error "Failed to initialize chezmoi config"
+        return 1
+    fi
     print_info "Applying dotfiles with chezmoi..."
     if chezmoi apply --source "${DOTFILES_DIR}"; then
         print_success "Dotfiles applied successfully"
@@ -198,6 +205,9 @@ cmd_apply() {
     print_header "Applying dotfiles"
 
     _ensure_chezmoi || return 1
+
+    # Regenerate config from template so data variables (e.g. is_arch) are available
+    chezmoi init --source "${DOTFILES_DIR}" --apply=false || return 1
 
     # Clear cached state so chezmoi re-evaluates all files,
     # ensuring externally modified targets (e.g. fisher) get overwritten
@@ -351,34 +361,6 @@ cmd_edit() {
     fi
 }
 
-cmd_link() {
-    print_header "Creating symlink for dot command"
-    local target_dir="${HOME}/.local/bin"
-    local link_path="${target_dir}/dot"
-
-    mkdir -p "$target_dir"
-
-    if [[ -L "$link_path" ]]; then rm "$link_path" || true; fi
-
-    if ln -s "${DOTFILES_DIR}/dot" "$link_path"; then
-        print_success "Created symlink at ${link_path}"
-    else
-        print_error "Failed to create symlink"
-        return 1
-    fi
-}
-
-cmd_unlink() {
-    print_header "Removing dot symlink"
-    local found=false
-    for link_path in "/usr/local/bin/dot" "${HOME}/.local/bin/dot"; do
-        if [[ -L "$link_path" ]]; then
-            rm "$link_path" && print_success "Removed ${link_path}" && found=true
-        fi
-    done
-    [[ "$found" == false ]] && print_warning "No dot symlink found"
-}
-
 cmd_watch() {
     _ensure_chezmoi || return 1
 
@@ -447,8 +429,6 @@ cmd_help() {
     echo "    cd              Open a shell in the source directory"
     echo "    watch [cmd]     Auto-apply on changes (start|stop|status)"
     echo "    doctor          Run diagnostics"
-    echo "    link            Install dot command globally"
-    echo "    unlink          Remove global dot command"
     echo "    help            Show this help"
     echo ""
     echo -e "${BOLD}OPTIONS:${RESET}"
@@ -487,8 +467,6 @@ main() {
         cd)      cmd_cd "$@" ;;
         watch)   cmd_watch "$@" ;;
         doctor)  cmd_doctor "$@" ;;
-        link)    cmd_link "$@" ;;
-        unlink)  cmd_unlink "$@" ;;
         help)    cmd_help ;;
         *)
             print_error "Unknown command: $cmd"
