@@ -35,13 +35,14 @@ bind r command-prompt -I "#W" "rename-window -- '%%'"
 bind c new-window -c "#{pane_current_path}"
 bind k kill-window
 
-bind g new-window -c "#{pane_current_path}" -n "🌳 Lazygit" lazygit
+bind g display-popup -d '#{pane_current_path}' -w85% -h85% -E lazygit
 
 #sesh
-bind-key "f" display-popup -E -w 40% -h 40% "sesh connect \"$(
- sesh list -i | gum filter --limit 1 --no-sort --fuzzy --no-strip-ansi --placeholder 'Pick a sesh' --height 50 --prompt=' '
-)\""
-bind -N "last-session (via sesh) " L run-shell "sesh last"
+bind -N "last-session (via sesh) " l run-shell "sesh last"
+
+# Use television for TMUX sessions
+bind-key -n C-f display-popup -E -w 45% -h 45% -d '#{pane_current_path}' -T 'Sesh' tv tmux-sesh
+bind-key -n C-w display-popup -E -w 45% -h 45% -d '#{pane_current_path}' -T 'Sesh' tv wt-search
 
 # Pane navigation: vim → send keys, multiple panes → navigate, single pane → pass through
 is_vim="ps -o state= -o comm= -t '#{pane_tty}' | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'"
@@ -116,7 +117,10 @@ setw -g clock-mode-colour blue
 if "test ! -d ~/.tmux/plugins/tpm" \
    "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/tpm'"
 run -b '~/.tmux/plugins/tpm/tpm'
+
+# End of omarchy config
 {{- else -}}
+
 # vim: set ft=tmux
 set -g default-terminal 'tmux-256color'
 set -as terminal-overrides ',*256col*:RGB'
@@ -126,6 +130,7 @@ set -as terminal-overrides ',*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{25
 # Enable extended keys (CSI u encoding) for proper modifier key support
 # Allows Shift+Enter, Ctrl+Shift+<key>, etc. to work correctly in apps
 set -s extended-keys on
+set -g extended-keys-format csi-u
 set -as terminal-features 'xterm*:extkeys'
 
 set -s escape-time 0
@@ -151,8 +156,11 @@ bind x kill-pane # skip "kill-pane 1? (y/n)" prompt
 bind X kill-session
 
 #sesh
-bind-key "f" display-popup -E -w 80% -h 70% -d '#{pane_current_path}' -T ' Sesh ' tv sesh
-bind -N "last-session (via sesh) " L run-shell "sesh last"
+bind -N "last-session (via sesh) " l run-shell "sesh last"
+
+# Use television for TMUX sessions
+bind-key -n C-f display-popup -E -w 45% -h 45% -d '#{pane_current_path}' -T 'Sesh' tv tmux-sesh
+bind-key -n C-w display-popup -E -w 45% -h 45% -d '#{pane_current_path}' -T 'Sesh' tv wt-search
 
 # vim-like pane switching
 bind -r ^ last-window
@@ -166,13 +174,10 @@ bind h split-window -v -c "#{pane_current_path}"
 bind v split-window -h -c "#{pane_current_path}"
 
 # tools
-bind g new-window -c "#{pane_current_path}" -n "🌳 Lazygit" lazygit
+bind g display-popup -d '#{pane_current_path}' -w85% -h85% -E lazygit
 bind G popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S 'fg=#c4a7e7' gh dash
 bind u new-window -c "~/workspace/work/Sv.Packages/master/" \
   "zsh -c 'source ~/.zshrc; pwsh -File ./GenerateInternalPackageVersions.ps1; echo; echo \"Press Enter to close\"; read -r answer'"
-
-bind n new-window -c "#{pane_current_path}" npm run dev
-bind z new-window -c "#{pane_current_path}" "zsh -c 'source ~/.zshrc; dotnet watch --project Api; exec $SHELL'"
 
 set -g @plugin "tmux-plugins/tpm"
 set -g @plugin "tmux-plugins/tmux-sensible"
@@ -191,8 +196,10 @@ set -g @tokyo-night-tmux_show_path 1
 set -g @tokyo-night-tmux_path_format relative
 set -g @tokyo-night-tmux_window_id_style dsquare
 set -g @tokyo-night-tmux_show_git 0
+
 # Auto-install TPM if missing
 if "test ! -d ~/.tmux/plugins/tpm" \
    "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/tpm'"
 run -b '~/.tmux/plugins/tpm/tpm'
+
 {{- end -}}
