@@ -46,6 +46,10 @@ gui:
     "*": "#b4befe"
   nerdFontsVersion: "3"
   switchTabsWithPanelJumpKeys: true
+os:
+  edit: "~/.local/scripts/tmux-nvim-open {{filename}}"
+  editAtLineAndWait: "~/.local/scripts/tmux-nvim-open {{filename}}:{{line}}"
+  editInTerminal: false
 git:
   overrideGpg: true
   pagers:
