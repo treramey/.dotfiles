@@ -35,7 +35,6 @@ bind r command-prompt -I "#W" "rename-window -- '%%'"
 bind c new-window -c "#{pane_current_path}"
 bind k kill-window
 
-bind g display-popup -d '#{pane_current_path}' -w85% -h85% -E lazygit
 
 #sesh
 bind -N "last-session (via sesh) " l run-shell "sesh last"
@@ -174,7 +173,7 @@ bind h split-window -v -c "#{pane_current_path}"
 bind v split-window -h -c "#{pane_current_path}"
 
 # tools
-bind g display-popup -d '#{pane_current_path}' -w85% -h85% -E lazygit
+bind g popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S 'fg=#c4a7e7' lazygit
 bind G popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S 'fg=#c4a7e7' gh dash
 bind u new-window -c "~/workspace/work/Sv.Packages/master/" \
   "zsh -c 'source ~/.zshrc; pwsh -File ./GenerateInternalPackageVersions.ps1; echo; echo \"Press Enter to close\"; read -r answer'"

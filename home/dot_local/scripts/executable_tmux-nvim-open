@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+shopt -s globstar
+
+get_tmux_option() {
+	local option="$1"
+	local default_value="$2"
+	local option_value=$(tmux show-option -gqv "$option")
+	if [ -z "$option_value" ]; then
+		echo "$default_value"
+	else
+		echo "$option_value"
+	fi
+}
+
+OPEN_STRATEGY="$(get_tmux_option "$open_strategy" ":e")"
+MENU_STYLE="$(get_tmux_option "$menu_style")"
+MENU_SELECTED_STYLE="$(get_tmux_option "$menu_selected_style")"
+PRIORITIZE_WINDOW=true
+
+if [ -n "$MENU_STYLE" ]; then
+	tmux_menu_s="-s $MENU_STYLE"
+fi
+if [ -n "$MENU_SELECTED_STYLE" ]; then
+	tmux_menu_H="-H $MENU_SELECTED_STYLE"
+fi
+
+# Check pipe from stdin or parameter
+FPATH=${STDIN:-$1}
+if [ "$1" ]; then
+	FPATH=$1
+elif read -r -t 2 STDIN; then
+	FPATH=$STDIN
+else
+	echo "No file provided for opening" && exit 1
+fi
+FPATH=$(echo "$FPATH" | awk '{$1=$1};1') # trimming whitespace
+
+# Parse line:col
+readarray -td: a < <(printf %s "$FPATH")
+[ "${a[0]}" ] || { echo "You must supply a filename. Found ${a[0]}" && exit 1; }
+FILE=$(realpath "${a[0]}")
+[ "$FILE" ] || { echo "Couldn't open file ${a[0]}" && exit 1; }
+LINE=${a[1]:-1}
+COLUMN=${a[2]:-1}
+
+# Get all nvim listening sockets (default location)
+readarray -t LISTEN_SOCKS < <(find "${XDG_RUNTIME_DIR:-${TMPDIR}nvim.${USER}}" -name 'nvim.*.0' 2>/dev/null)
+
+CURRENT_WINDOW_INDEX=$(tmux display-message -p '#{window_index}')
+CURRENT_SESSION_NAME=$(tmux display-message -p '#{session_name}')
+
+# When lazygit is bound to a tmux popup, `#{pane_id}` resolves to the pane
+# *behind* the popup, so plain kill-pane would destroy unrelated state.
+# Walk the process tree to detect lazygit as an ancestor; cleanup uses
+# `display-popup -C`, which dismisses the popup regardless of what it overlays.
+FROM_LAZYGIT=false
+cur=$$
+while [ "$cur" -gt 1 ]; do
+	read -r cmd parent < <(ps -o comm=,ppid= -p "$cur" 2>/dev/null) || break
+	[ -n "$cmd" ] || break
+	if [ "${cmd##*/}" = "lazygit" ]; then
+		FROM_LAZYGIT=true
+		break
+	fi
+	cur=$parent
+done
+
+MENU_ARGS=()
+LAST_REMOTE_OPEN=
+CANDIDATE_COUNT=0
+for sock in "${LISTEN_SOCKS[@]}"; do
+	# extract pid from socket path
+	server_pid=$(echo "$sock" | awk -F'.' '{print $(NF-1)}')
+	[ -n "$server_pid" ] || continue
+
+	# process id of server's parent, which is the nvim client
+	client_pid=$(ps -o ppid= -p "$server_pid" | tr -d ' ')
+	[ -n "$client_pid" ] || continue
+
+	# process id of tmux pane that contains the nvim client
+	pane_pid=$(ps -o ppid= -p "$client_pid" | tr -d ' ')
+	[ -n "$pane_pid" ] || continue
+
+	# tmux ids for the nvim client pane
+	read -r window_index window_name pane_index session_name < <(tmux list-panes -a -f "#{==:#{pane_pid},$pane_pid}" -F "#{window_index} #{window_name} #{pane_index} #{session_name}")
+
+	[ -n "$session_name" ] || continue
+	[ "$CURRENT_SESSION_NAME" = "$session_name" ] || continue
+
+	c1="nvim --server $sock --remote-send \"<C-\\\\><C-n>$OPEN_STRATEGY $FILE<cr>\""
+	c2="nvim --server $sock --remote-send \"<C-\\\\><C-n>:call cursor($LINE, $COLUMN)<cr>\""
+	c3="tmux selectw -t $session_name:$window_index && tmux selectp -t $session_name:$window_index.$pane_index"
+	remote_open="$c1 && $c2 && $c3"
+	if [ "$FROM_LAZYGIT" = true ]; then
+		remote_open="$remote_open && tmux display-popup -C"
+	fi
+
+	# prefer same-window nvim when prioritizing
+	if [ "$window_index" = "$CURRENT_WINDOW_INDEX" ] && [ "$PRIORITIZE_WINDOW" = true ]; then
+		eval "$remote_open"
+		exit 0
+	fi
+
+	CANDIDATE_COUNT=$((CANDIDATE_COUNT + 1))
+	LAST_REMOTE_OPEN="$remote_open"
+	MENU_ARGS+=("[$session_name $window_index $window_name]: pane $pane_index" "$CANDIDATE_COUNT" "run '$remote_open'")
+done
+
+if [ "$CANDIDATE_COUNT" -eq 1 ]; then
+	eval "$LAST_REMOTE_OPEN"
+	exit 0
+elif [[ ${MENU_ARGS[0]} ]]; then
+	# shellcheck disable=SC2086
+	tmux display-menu $tmux_menu_s $tmux_menu_H -T "tmux-open-nvim: $FILE" "${MENU_ARGS[@]}"
+else
+	# No nvim in current session — target the pane behind the popup (or the
+	# current pane if we're not in one).
+	read -r target_pane target_cmd < <(tmux display-message -p '#{pane_id} #{pane_current_command}')
+	case "$target_cmd" in
+		fish|bash|zsh|sh|dash)
+			tmux send-keys -t "$target_pane" "nvim -c \"call cursor($LINE, $COLUMN)\" '$FILE'" C-m
+			;;
+		*)
+			tmux split-window -t "$target_pane" -h "nvim -c 'call cursor($LINE, $COLUMN)' '$FILE'"
+			;;
+	esac
+	if [ "$FROM_LAZYGIT" = true ]; then
+		tmux display-popup -C
+	fi
+fi
