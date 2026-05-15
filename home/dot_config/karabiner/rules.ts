@@ -1,6 +1,6 @@
 import fs from "fs";
 import { KarabinerRules } from "./types";
-import { createHyperSubLayers, app, open, rectangle, shell } from "./utils";
+import { createHyperSubLayers, app, open } from "./utils";
 
 const defualtBrowser = "Google Chrome";
 
@@ -402,7 +402,6 @@ const rules: KarabinerRules[] = [
       l: open("raycast://extensions/raycast/file-search/search-files"),
       t: open("raycast://extensions/maggie/todo-list/index"),
       semicolon: open("raycast://extensions/vishaltelangre/google-drive/index"),
-      // quote: open("raycast://extensions/mathieudutour/wolfram-alpha/index"),
       y: open(
         "raycast://extensions/tonka3000/youtube/search-videos?arguments=%7B%22query%22%3A%22%22%7D",
       ),
@@ -421,7 +420,6 @@ const rules: KarabinerRules[] = [
     a: app("Claude"),
     i: app("Microsoft Teams"),
     d: app("DevOps"),
-    c: app("Cursor"),
     g: app("DataGrip"),
     m: app("Spotify"),
     j: app("Jira"),
