@@ -8,76 +8,6 @@
       "complex_modifications": {
         "rules": [
           {
-            "description": "Hyper Key (⌃⌥⇧⌘)",
-            "manipulators": [
-              {
-                "description": "right_command -> Hyper Key",
-                "from": {
-                  "key_code": "right_command"
-                },
-                "to": [
-                  {
-                    "key_code": "left_shift",
-                    "modifiers": [
-                      "left_command",
-                      "left_control",
-                      "left_option"
-                    ]
-                  }
-                ],
-                "type": "basic"
-              },
-              {
-                "description": "Avoid starting sysdiagnose with the built-in macOS shortcut cmd+shift+option+ctrl+,",
-                "from": {
-                  "key_code": "comma",
-                  "modifiers": {
-                    "mandatory": [
-                      "command",
-                      "shift",
-                      "option",
-                      "control"
-                    ]
-                  }
-                },
-                "to": [],
-                "type": "basic"
-              },
-              {
-                "description": "Avoid starting sysdiagnose with the built-in macOS shortcut cmd+shift+option+ctrl+.",
-                "from": {
-                  "key_code": "period",
-                  "modifiers": {
-                    "mandatory": [
-                      "command",
-                      "shift",
-                      "option",
-                      "control"
-                    ]
-                  }
-                },
-                "to": [],
-                "type": "basic"
-              },
-              {
-                "description": "Avoid starting sysdiagnose with the built-in macOS shortcut cmd+shift+option+ctrl+/",
-                "from": {
-                  "key_code": "slash",
-                  "modifiers": {
-                    "mandatory": [
-                      "command",
-                      "shift",
-                      "option",
-                      "control"
-                    ]
-                  }
-                },
-                "to": [],
-                "type": "basic"
-              }
-            ]
-          },
-          {
             "description": "Tab + number: F1 ~ F12",
             "manipulators": [
               {
@@ -556,18 +486,15 @@
             ]
           },
           {
-            "description": "Hyper Key sublayer \"o\"",
+            "description": "Left Option sublayer \"o\"",
             "manipulators": [
               {
-                "description": "Toggle Hyper sublayer o",
+                "description": "Toggle Left Option sublayer o",
                 "type": "basic",
                 "from": {
                   "key_code": "o",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
                       "left_option"
                     ]
                   }
@@ -659,7 +586,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/lardissone/raindrop-io/search"
+                    "shell_command": "open 'raycast://extensions/lardissone/raindrop-io/search'"
                   }
                 ],
                 "description": "Open raycast://extensions/lardissone/raindrop-io/search",
@@ -683,7 +610,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/mblode/google-search/index"
+                    "shell_command": "open 'raycast://extensions/mblode/google-search/index'"
                   }
                 ],
                 "description": "Open raycast://extensions/mblode/google-search/index",
@@ -707,7 +634,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/raycast/file-search/search-files"
+                    "shell_command": "open 'raycast://extensions/raycast/file-search/search-files'"
                   }
                 ],
                 "description": "Open raycast://extensions/raycast/file-search/search-files",
@@ -731,7 +658,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/maggie/todo-list/index"
+                    "shell_command": "open 'raycast://extensions/maggie/todo-list/index'"
                   }
                 ],
                 "description": "Open raycast://extensions/maggie/todo-list/index",
@@ -755,7 +682,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/vishaltelangre/google-drive/index"
+                    "shell_command": "open 'raycast://extensions/vishaltelangre/google-drive/index'"
                   }
                 ],
                 "description": "Open raycast://extensions/vishaltelangre/google-drive/index",
@@ -779,7 +706,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/tonka3000/youtube/search-videos?arguments=%7B%22query%22%3A%22%22%7D"
+                    "shell_command": "open 'raycast://extensions/tonka3000/youtube/search-videos?arguments=%7B%22query%22%3A%22%22%7D'"
                   }
                 ],
                 "description": "Open raycast://extensions/tonka3000/youtube/search-videos?arguments=%7B%22query%22%3A%22%22%7D",
@@ -803,7 +730,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/raycast/apple-reminders/create-reminder"
+                    "shell_command": "open 'raycast://extensions/raycast/apple-reminders/create-reminder'"
                   }
                 ],
                 "description": "Open raycast://extensions/raycast/apple-reminders/create-reminder",
@@ -827,7 +754,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open https://google.com/search?q=&tbm=isch"
+                    "shell_command": "open 'https://google.com/search?q=&tbm=isch'"
                   }
                 ],
                 "description": "Open https://google.com/search?q=&tbm=isch",
@@ -851,7 +778,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/raycast/github/search-repositories"
+                    "shell_command": "open 'raycast://extensions/raycast/github/search-repositories'"
                   }
                 ],
                 "description": "Open raycast://extensions/raycast/github/search-repositories",
@@ -875,7 +802,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/nhojb/brew/search"
+                    "shell_command": "open 'raycast://extensions/nhojb/brew/search'"
                   }
                 ],
                 "description": "Open raycast://extensions/nhojb/brew/search",
@@ -899,7 +826,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/mattisssa/spotify-player/search"
+                    "shell_command": "open 'raycast://extensions/mattisssa/spotify-player/search'"
                   }
                 ],
                 "description": "Open raycast://extensions/mattisssa/spotify-player/search",
@@ -923,7 +850,7 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/raycast/emoji-symbols/search-emoji-symbols"
+                    "shell_command": "open 'raycast://extensions/raycast/emoji-symbols/search-emoji-symbols'"
                   }
                 ],
                 "description": "Open raycast://extensions/raycast/emoji-symbols/search-emoji-symbols",
@@ -947,24 +874,22 @@
             ]
           },
           {
-            "description": "Hyper Key + r",
+            "description": "Left Option + Shift + r",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Rider.app'"
+                    "shell_command": "/usr/bin/nohup '/Applications/Rider.app/Contents/MacOS/rider' >/dev/null 2>&1 &"
                   }
                 ],
-                "description": "Open -a 'Rider.app'",
+                "description": "Launch /Applications/Rider.app/Contents/MacOS/rider",
                 "type": "basic",
                 "from": {
                   "key_code": "r",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -972,24 +897,22 @@
             ]
           },
           {
-            "description": "Hyper Key + e",
+            "description": "Left Option + Shift + e",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Microsoft Outlook.app'"
+                    "shell_command": "open '/Applications/Microsoft Outlook.app'"
                   }
                 ],
-                "description": "Open -a 'Microsoft Outlook.app'",
+                "description": "Open /Applications/Microsoft Outlook.app",
                 "type": "basic",
                 "from": {
                   "key_code": "e",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -997,24 +920,22 @@
             ]
           },
           {
-            "description": "Hyper Key + a",
+            "description": "Left Option + Shift + a",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Claude.app'"
+                    "shell_command": "open '/Applications/Claude.app'"
                   }
                 ],
-                "description": "Open -a 'Claude.app'",
+                "description": "Open /Applications/Claude.app",
                 "type": "basic",
                 "from": {
                   "key_code": "a",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1022,24 +943,22 @@
             ]
           },
           {
-            "description": "Hyper Key + i",
+            "description": "Left Option + Shift + i",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Microsoft Teams.app'"
+                    "shell_command": "open '/Applications/Microsoft Teams.app'"
                   }
                 ],
-                "description": "Open -a 'Microsoft Teams.app'",
+                "description": "Open /Applications/Microsoft Teams.app",
                 "type": "basic",
                 "from": {
                   "key_code": "i",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1047,24 +966,22 @@
             ]
           },
           {
-            "description": "Hyper Key + d",
+            "description": "Left Option + Shift + d",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'DevOps.app'"
+                    "shell_command": "open '/Users/TRamey/Applications/Chrome Apps.localized/DevOps.app'"
                   }
                 ],
-                "description": "Open -a 'DevOps.app'",
+                "description": "Open /Users/TRamey/Applications/Chrome Apps.localized/DevOps.app",
                 "type": "basic",
                 "from": {
                   "key_code": "d",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1072,24 +989,22 @@
             ]
           },
           {
-            "description": "Hyper Key + g",
+            "description": "Left Option + Shift + g",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'DataGrip.app'"
+                    "shell_command": "open '/Applications/DataGrip.app'"
                   }
                 ],
-                "description": "Open -a 'DataGrip.app'",
+                "description": "Open /Applications/DataGrip.app",
                 "type": "basic",
                 "from": {
                   "key_code": "g",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1097,24 +1012,22 @@
             ]
           },
           {
-            "description": "Hyper Key + m",
+            "description": "Left Option + Shift + m",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Spotify.app'"
+                    "shell_command": "open '/Applications/Spotify.app'"
                   }
                 ],
-                "description": "Open -a 'Spotify.app'",
+                "description": "Open /Applications/Spotify.app",
                 "type": "basic",
                 "from": {
                   "key_code": "m",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1122,24 +1035,22 @@
             ]
           },
           {
-            "description": "Hyper Key + j",
+            "description": "Left Option + Shift + j",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Jira.app'"
+                    "shell_command": "open '/Users/TRamey/Applications/Chrome Apps.localized/Jira.app'"
                   }
                 ],
-                "description": "Open -a 'Jira.app'",
+                "description": "Open /Users/TRamey/Applications/Chrome Apps.localized/Jira.app",
                 "type": "basic",
                 "from": {
                   "key_code": "j",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1147,24 +1058,22 @@
             ]
           },
           {
-            "description": "Hyper Key + p",
+            "description": "Left Option + Shift + p",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Postman.app'"
+                    "shell_command": "open '/Applications/Postman.app'"
                   }
                 ],
-                "description": "Open -a 'Postman.app'",
+                "description": "Open /Applications/Postman.app",
                 "type": "basic",
                 "from": {
                   "key_code": "p",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1172,24 +1081,22 @@
             ]
           },
           {
-            "description": "Hyper Key + f",
+            "description": "Left Option + Shift + f",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Finder.app'"
+                    "shell_command": "open '/System/Library/CoreServices/Finder.app'"
                   }
                 ],
-                "description": "Open -a 'Finder.app'",
+                "description": "Open /System/Library/CoreServices/Finder.app",
                 "type": "basic",
                 "from": {
                   "key_code": "f",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1197,24 +1104,22 @@
             ]
           },
           {
-            "description": "Hyper Key + b",
+            "description": "Left Option + Shift + b",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Google Chrome.app'"
+                    "shell_command": "open '/Applications/Google Chrome.app'"
                   }
                 ],
-                "description": "Open -a 'Google Chrome.app'",
+                "description": "Open /Applications/Google Chrome.app",
                 "type": "basic",
                 "from": {
                   "key_code": "b",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1222,24 +1127,22 @@
             ]
           },
           {
-            "description": "Hyper Key + t",
+            "description": "Left Option + Shift + t",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Ghostty.app'"
+                    "shell_command": "open '/Applications/Ghostty.app'"
                   }
                 ],
-                "description": "Open -a 'Ghostty.app'",
+                "description": "Open /Applications/Ghostty.app",
                 "type": "basic",
                 "from": {
                   "key_code": "t",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }
@@ -1247,24 +1150,22 @@
             ]
           },
           {
-            "description": "Hyper Key + v",
+            "description": "Left Option + Shift + v",
             "manipulators": [
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Visual Studio Code.app'"
+                    "shell_command": "open '/Applications/Visual Studio Code.app'"
                   }
                 ],
-                "description": "Open -a 'Visual Studio Code.app'",
+                "description": "Open /Applications/Visual Studio Code.app",
                 "type": "basic",
                 "from": {
                   "key_code": "v",
                   "modifiers": {
                     "mandatory": [
-                      "left_command",
-                      "left_control",
-                      "left_shift",
-                      "left_option"
+                      "left_option",
+                      "shift"
                     ]
                   }
                 }

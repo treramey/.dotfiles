@@ -1,52 +1,15 @@
 #!/bin/bash
 
-# focus workspace
-lalt - 1 : aerospace workspace 1
-lalt - 2 : aerospace workspace 2
-lalt - 3 : aerospace workspace 3
-lalt - 4 : aerospace workspace 4
-lalt - 5 : aerospace workspace 5
+# focus space
+lalt - 1 : /opt/homebrew/bin/rift-cli execute workspace switch 0
+lalt - 2 : /opt/homebrew/bin/rift-cli execute workspace switch 1
+lalt - 3 : /opt/homebrew/bin/rift-cli execute workspace switch 2
+lalt - 4 : /opt/homebrew/bin/rift-cli execute workspace switch 3
+lalt - 5 : /opt/homebrew/bin/rift-cli execute workspace switch 4
 
-# cycle workspace
-lalt - tab : aerospace workspace-back-and-forth
-
-# move workspace to monitor
-lalt + ctrl - 1 : aerospace move-workspace-to-monitor 1
-lalt + ctrl - 2 : aerospace move-workspace-to-monitor 2
-lalt + ctrl - 3 : aerospace move-workspace-to-monitor 3
-
-# move window to workspace
-lalt + shift - 1 : aerospace move-node-to-workspace 1
-lalt + shift - 2 : aerospace move-node-to-workspace 2
-lalt + shift - 3 : aerospace move-node-to-workspace 3
-lalt + shift - 4 : aerospace move-node-to-workspace 4
-lalt + shift - 5 : aerospace move-node-to-workspace 5
-
-# focus window
-lalt - h : aerospace focus left
-lalt - j : aerospace focus down
-lalt - k : aerospace focus up
-lalt - l : aerospace focus right
-
-# move window
-lalt + shift - h : aerospace move left
-lalt + shift - j : aerospace move down
-lalt + shift - k : aerospace move up
-lalt + shift - l : aerospace move right
-
-# resize window
-lalt + ctrl - n : aerospace resize smart -50
-lalt + ctrl - p : aerospace resize smart +50
-
-# resize postman to 1/3 width
-lalt + shift - p : aerospace resize smart -625
-
-# toggle floating
-lalt + shift - space : aerospace layout floating tiling
-
-# change binding mode
-lalt - e : aerospace join-with right
-lalt - v : aerospace join-with up
-
-# # reload aerospace config
-lalt + shift - r : aerospace reload-config
+# move window to space
+shift + lalt - 1 : /opt/homebrew/bin/rift-cli execute workspace move-window 0
+shift + lalt - 2 : /opt/homebrew/bin/rift-cli execute workspace move-window 1
+shift + lalt - 3 : /opt/homebrew/bin/rift-cli execute workspace move-window 2
+shift + lalt - 4 : /opt/homebrew/bin/rift-cli execute workspace move-window 3
+shift + lalt - 5 : /opt/homebrew/bin/rift-cli execute workspace move-window 4

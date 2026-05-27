@@ -26,19 +26,14 @@ export function createHyperSubLayer(
 	const subLayerVariableName = generateSubLayerVariableName(sublayer_key);
 
 	return [
-		// When Hyper + sublayer_key is pressed, set the variable to 1; on key_up, set it to 0 again
+		// When Left Option + sublayer_key is pressed, set the variable to 1; on key_up, set it to 0 again
 		{
-			description: `Toggle Hyper sublayer ${sublayer_key}`,
+			description: `Toggle Left Option sublayer ${sublayer_key}`,
 			type: "basic",
 			from: {
 				key_code: sublayer_key,
 				modifiers: {
-					mandatory: [
-						"left_command",
-						"left_control",
-						"left_shift",
-						"left_option",
-					],
+					mandatory: ["left_option"],
 				},
 			},
 			to_after_key_up: [
@@ -60,7 +55,7 @@ export function createHyperSubLayer(
 				},
 			],
 			// This enables us to press other sublayer keys in the current sublayer
-			// (e.g. Hyper + O > M even though Hyper + M is also a sublayer)
+			// (e.g. Left Option + O > M even though Left Option + M is also a sublayer)
 			// basically, only trigger a sublayer if no other sublayer is active
 			conditions: allSubLayerVariables
 				.filter((subLayerVariable) => subLayerVariable !== subLayerVariableName)
@@ -112,7 +107,9 @@ export function createHyperSubLayers(
 	return Object.entries(subLayers).map(([key, value]) =>
 		"to" in value
 			? {
-					description: `Hyper Key + ${key}`,
+					// Non-nested commands open on Left Option + Shift, so plain
+					// lalt + key stays free for normal option/special-character typing.
+					description: `Left Option + Shift + ${key}`,
 					manipulators: [
 						{
 							...value,
@@ -120,20 +117,16 @@ export function createHyperSubLayers(
 							from: {
 								key_code: key as KeyCode,
 								modifiers: {
-									// Mandatory modifiers are *not* added to the "to" event
-									mandatory: [
-										"left_command",
-										"left_control",
-										"left_shift",
-										"left_option",
-									],
+									// Mandatory modifiers are *not* added to the "to" event.
+									// Shift is required, but either physical Shift key should work.
+									mandatory: ["left_option", "shift"],
 								},
 							},
 						},
 					],
 				}
 			: {
-					description: `Hyper Key sublayer "${key}"`,
+					description: `Left Option sublayer "${key}"`,
 					manipulators: createHyperSubLayer(
 						key as KeyCode,
 						value,
@@ -147,23 +140,45 @@ function generateSubLayerVariableName(key: KeyCode) {
 	return `hyper_sublayer_${key}`;
 }
 
+function shellQuote(value: string): string {
+	return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
 /**
- * Shortcut for "open" shell command
+ * Shortcut for opening a URL, file, or app bundle path.
  */
 export function open(what: string): LayerCommand {
 	return {
 		to: [
 			{
-				shell_command: `open ${what}`,
+				shell_command: `open ${shellQuote(what)}`,
 			},
 		],
 		description: `Open ${what}`,
 	};
 }
 
+export function run(command: string, description?: string): LayerCommand {
+	return {
+		to: [
+			{
+				shell_command: command,
+			},
+		],
+		description: description ?? `Run ${command}`,
+	};
+}
+
 /**
- * Shortcut for "Open an app" command (of which there are a bunch)
+ * Shortcut for opening an app bundle by path.
  */
-export function app(name: string): LayerCommand {
-	return open(`-a '${name}.app'`);
+export function app(name: string, path = `/Applications/${name}.app`): LayerCommand {
+	return open(path);
+}
+
+export function appExecutable(path: string): LayerCommand {
+	return run(
+		`/usr/bin/nohup ${shellQuote(path)} >/dev/null 2>&1 &`,
+		`Launch ${path}`,
+	);
 }
