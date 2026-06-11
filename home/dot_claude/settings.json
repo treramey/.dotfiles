@@ -1,9 +1,23 @@
 {
   "includeCoAuthoredBy": false,
+  "includeGitInstructions": false,
+  "alwaysThinkingEnabled": true,
+  "autoMemoryEnabled": false,
+  "effortLevel": "xhigh",
+  "showClearContextOnPlanAccept": true,
+  "useAutoModeDuringPlan": false,
+  "enableAllProjectMcpServers": true,
+  "skillListingBudgetFraction": 0.02,
+  "skipAutoPermissionPrompt": true,
+  "spinnerTipsEnabled": true,
   "permissions": {
     "allow": [
       "Read(*)",
       "Edit(*)",
+      "Write(/tmp/**)",
+      "Write(~/.agents/**)",
+      "Write(~/.claude/**)",
+      "Write(~/.claude-prompts/**)",
       "Bash(ast-grep *)",
       "Bash(awk *)",
       "Bash(biome *)",
@@ -57,44 +71,110 @@
       "Bash(z *)",
       "Bash(zip *)",
       "Bash(zoxide *)",
-      "WebFetch(*)",
-      "WebSearch(*)",
-      "mcp__grep_app__*",
-      "mcp__opensrc__*"
+      "Bash(gh *)",
+      "Bash(chezmoi *)",
+      "Bash(uv *)",
+      "Bash(python3 *)",
+      "Bash(node *)",
+      "Bash(npx *)",
+      "Bash(bat *)",
+      "Bash(eza *)",
+      "Bash(curl *)",
+      "Bash(stat *)",
+      "Glob",
+      "TodoWrite",
+      "WebFetch",
+      "WebSearch",
+      "Skill(commit)",
+      "Skill(create-jira-ticket)",
+      "Skill(diagnose)",
+      "Skill(grill-with-docs)",
+      "Skill(handoff)",
+      "Skill(improve-codebase-architecture)",
+      "Skill(init-deep)",
+      "Skill(librarian)",
+      "Skill(prototype)",
+      "Skill(setup-matt-pocock-skills)",
+      "Skill(sync-pocock-skills)",
+      "Skill(tdd)",
+      "Skill(tmux)",
+      "Skill(to-issues)",
+      "Skill(to-prd)",
+      "Skill(triage)",
+      "Skill(write-a-skill)",
+      "Skill(zoom-out)",
+      "mcp__context7",
+      "mcp__filesystem",
+      "mcp__sequential-thinking",
+      "mcp__serena"
     ],
     "deny": [
       "Read(.env)",
       "Read(.env.*)",
       "Read(.envrc)",
-      "Read(secrets/*)"
+      "Read(secrets/*)",
+      "Read(~/.ssh/**)",
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(dd:*)",
+      "Bash(mkfs:*)",
+      "Bash(chmod -R:*)",
+      "Bash(chown -R:*)",
+      "Bash(kill -9:*)",
+      "Bash(killall:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(npm publish:*)",
+      "Bash(sudo:*)",
+      "Bash(su:*)",
+      "Bash(doas:*)",
+      "Bash(passwd:*)",
+      "Bash(userdel:*)",
+      "Bash(usermod:*)",
+      "Bash(systemctl:*)",
+      "Bash(reboot:*)",
+      "Bash(shutdown:*)",
+      "Bash(> /etc/*)",
+      "Bash(> /dev/sda*)"
     ],
     "additionalDirectories": [
-      "/home/tmr/.dotfiles/",
-      "/home/tmr/workspace/"
+      "/Users/TRamey/.dotfiles/",
+      "/Users/TRamey/workspace/",
+      "/Users/TRamey/dev/"
+    ],
+    "defaultMode": "auto"
+  },
+  "enabledPlugins": {},
+  "skipDangerousModePermissionPrompt": true,
+  "teammateMode": "tmux",
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccstatusline@latest"
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "true",
+    "ENABLE_CLAUDEAI_MCP_SERVERS": "false",
+    "ENABLE_TOOL_SEARCH": "auto:5"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/PostToolUse/add_plan_frontmatter.py"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/UserPromptSubmit/log_prompts.py"
+          }
+        ]
+      }
     ]
-  },
-  "enabledPlugins": {
-    "code-simplifier@claude-plugins-official": true,
-    "csharp-lsp@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "lua-lsp@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "plannotator@plannotator": true,
-    "impeccable@impeccable": true
-  },
-  "extraKnownMarketplaces": {
-    "plannotator": {
-      "source": {
-        "source": "github",
-        "repo": "backnotprop/plannotator"
-      }
-    },
-    "impeccable": {
-      "source": {
-        "source": "github",
-        "repo": "pbakaus/impeccable"
-      }
-    }
-  },
-  "skipDangerousModePermissionPrompt": true
+  }
 }
