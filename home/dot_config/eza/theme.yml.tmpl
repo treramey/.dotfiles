@@ -1,3 +1,110 @@
+{{ if (index . "is_omarchy" | default false) -}}
+colourful: true
+
+# Omarchy/system theme: ANSI color names only.
+# The active terminal palette supplies the actual colors.
+
+filekinds:
+  normal: { foreground: "default" }
+  directory: { foreground: "blue" }
+  symlink: { foreground: "cyan" }
+  pipe: { foreground: "yellow" }
+  block_device: { foreground: "yellow" }
+  char_device: { foreground: "yellow" }
+  socket: { foreground: "magenta" }
+  special: { foreground: "magenta" }
+  executable: { foreground: "green" }
+  mount_point: { foreground: "blue" }
+
+perms:
+  user_read: { foreground: "default" }
+  user_write: { foreground: "yellow" }
+  user_execute_file: { foreground: "green" }
+  user_execute_other: { foreground: "green" }
+  group_read: { foreground: "default" }
+  group_write: { foreground: "yellow" }
+  group_execute: { foreground: "green" }
+  other_read: { foreground: "default" }
+  other_write: { foreground: "yellow" }
+  other_execute: { foreground: "green" }
+  special_user_file: { foreground: "red" }
+  special_other: { foreground: "red" }
+  attribute: { foreground: "cyan" }
+
+size:
+  major: { foreground: "default" }
+  minor: { foreground: "cyan" }
+  number_byte: { foreground: "default" }
+  number_kilo: { foreground: "yellow" }
+  number_mega: { foreground: "green" }
+  number_giga: { foreground: "magenta" }
+  number_huge: { foreground: "red" }
+  unit_byte: { foreground: "default" }
+  unit_kilo: { foreground: "yellow" }
+  unit_mega: { foreground: "green" }
+  unit_giga: { foreground: "magenta" }
+  unit_huge: { foreground: "red" }
+
+users:
+  user_you: { foreground: "yellow" }
+  user_root: { foreground: "red" }
+  user_other: { foreground: "magenta" }
+  group_yours: { foreground: "cyan" }
+  group_other: { foreground: "default" }
+  group_root: { foreground: "red" }
+
+links:
+  normal: { foreground: "cyan" }
+  multi_link_file: { foreground: "blue" }
+
+git:
+  new: { foreground: "green" }
+  modified: { foreground: "yellow" }
+  deleted: { foreground: "red" }
+  renamed: { foreground: "cyan" }
+  typechange: { foreground: "magenta" }
+  ignored: { foreground: "default" }
+  conflicted: { foreground: "red" }
+
+git_repo:
+  branch_main: { foreground: "default" }
+  branch_other: { foreground: "magenta" }
+  git_clean: { foreground: "green" }
+  git_dirty: { foreground: "yellow" }
+
+security_context:
+  colon: { foreground: "default" }
+  user: { foreground: "cyan" }
+  role: { foreground: "magenta" }
+  typ: { foreground: "default" }
+  range: { foreground: "magenta" }
+
+file_type:
+  image: { foreground: "yellow" }
+  video: { foreground: "red" }
+  music: { foreground: "cyan" }
+  lossless: { foreground: "blue" }
+  crypto: { foreground: "yellow" }
+  document: { foreground: "default" }
+  compressed: { foreground: "magenta" }
+  temp: { foreground: "red" }
+  compiled: { foreground: "green" }
+  build: { foreground: "yellow" }
+  source: { foreground: "cyan" }
+
+punctuation: { foreground: "default" }
+date: { foreground: "green" }
+inode: { foreground: "default" }
+blocks: { foreground: "default" }
+header: { foreground: "blue" }
+octal: { foreground: "cyan" }
+flags: { foreground: "magenta" }
+
+symlink_path: { foreground: "cyan" }
+control_char: { foreground: "green" }
+broken_symlink: { foreground: "red" }
+broken_path_overlay: { foreground: "default" }
+{{ else -}}
 colourful: true
 
 # Colors are in format of:
@@ -119,3 +226,4 @@ symlink_path: { foreground: "#9ccfd8" }
 control_char: { foreground: "#31748f" }
 broken_symlink: { foreground: "#eb6f92" }
 broken_path_overlay: { foreground: "#524f67" }
+{{ end -}}

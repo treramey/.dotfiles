@@ -1,0 +1,22 @@
+[metadata]
+name = "ssh"
+description = "Pick an SSH host and open it in a new tmux Mosh session"
+requirements = ["ssh", "mosh", "tmux"]
+
+[ui]
+orientation = "portrait"
+
+[ui.preview_panel]
+hidden = true
+
+[source]
+command = "~/.local/scripts/tv-ssh-hosts"
+no_sort = true
+
+[keybindings]
+enter = "actions:connect"
+
+[actions.connect]
+description = "Open Mosh connection in a new tmux session"
+command = "~/.local/scripts/tmux-ssh-session '{}'"
+mode = "execute"
