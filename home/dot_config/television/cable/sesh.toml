@@ -10,7 +10,10 @@ hidden = true
 orientation = "portrait"
 
 [source]
-command = ["sesh list -i --icons", "sesh list -t --icons", "fd -H -t d -E .Trash ."]
+# The first source strips Sesh's built-in colors, then re-adds a single
+# Television-specific style for tmux sessions that are already open.
+# `output`/actions use strip_ansi so the styling does not affect connecting.
+command = ["$HOME/.local/scripts/tv-sesh-source", "$HOME/.local/scripts/tv-tmux-source", "fd -H -t d -E .Trash ."]
 ansi = true
 no_sort = true
 output = "{strip_ansi|split: :1..|join: }"

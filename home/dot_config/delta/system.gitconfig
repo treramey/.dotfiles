@@ -1,0 +1,30 @@
+[delta]
+	features = system
+
+[delta "system"]
+	# Omarchy/system: ANSI color names only. The terminal palette supplies the hex.
+	blame-palette = blue cyan green yellow magenta
+	commit-decoration-style = blue bold box ul
+	file-decoration-style = blue
+	file-style = blue bold
+	hunk-header-decoration-style = yellow box ul
+	hunk-header-file-style = blue bold
+	hunk-header-line-number-style = yellow bold
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = white
+	line-numbers-minus-style = red bold
+	line-numbers-plus-style = green bold
+	line-numbers-right-style = white
+	line-numbers-zero-style = white
+	minus-emph-style = bold syntax red
+	minus-empty-line-marker-style = normal red
+	minus-style = syntax red
+	plus-emph-style = bold syntax green
+	plus-empty-line-marker-style = normal green
+	plus-style = syntax green
+	map-styles = \
+		bold purple => syntax magenta, \
+		bold blue => syntax blue, \
+		bold cyan => syntax cyan, \
+		bold yellow => syntax yellow
+	syntax-theme = ansi

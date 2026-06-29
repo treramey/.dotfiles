@@ -1,13 +1,11 @@
 {{- if .is_arch -}}
 {{- $popup_border_style := "fg=#c4a7e7" -}}
-{{- if .is_omarchy -}}
+{{- if (index . "is_omarchy" | default false) -}}
 {{-   $popup_border_style = "fg=blue" -}}
 {{- end -}}
 # Let tmux import the current shell's SSH agent variables for new clients.
 # The live tmux server environment is also refreshed from fish conf.d/env.fish.
-set -g update-environment "DISPLAY SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION WINDOWID XAUTHORITY"
-set-environment -g SSH_AUTH_SOCK "$HOME/.bitwarden-ssh-agent.sock"
-set-environment -gu SSH_AGENT_PID
+set -g update-environment "DISPLAY SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION WINDOWID XAUTHORITY PI_TMUX_IMAGE_PROTOCOL"
 
 set -g extended-keys on
 set -g extended-keys-format csi-u
@@ -60,8 +58,8 @@ bind-key -n C-f new-window -c '#{pane_current_path}' -n 'Sesh' tv tmux-sesh
 # bind-key -n C-f display-popup -E -w 45% -h 45% -d '#{pane_current_path}' -T 'Sesh' tv tmux-sesh
 bind-key -n C-w new-window -c '#{pane_current_path}' -n 'Search' tv wt-search
 bind-key -n C-g new-window -c '#{pane_current_path}' -n 'SSH' tv ssh
-bind g popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S '{{ $popup_border_style }}' "env SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock lazygit"
-bind G popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S '{{ $popup_border_style }}' "env SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock gh dash"
+bind g popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S '{{ $popup_border_style }}' "lazygit"
+bind G popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S '{{ $popup_border_style }}' "gh dash"
 bind p split-window -h -l 25% -c "#{pane_current_path}" pi
 
 # Pane navigation: vim → send keys, multiple panes → navigate, single pane → pass through
@@ -161,8 +159,7 @@ set -g extended-keys-format csi-u
 set -as terminal-features 'xterm*:extkeys'
 
 set -s escape-time 0
-set-environment -g SSH_AUTH_SOCK "$HOME/.bitwarden-ssh-agent.sock"
-set-environment -gu SSH_AGENT_PID
+set -g update-environment "DISPLAY SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION WINDOWID XAUTHORITY PI_TMUX_IMAGE_PROTOCOL"
 
 set -g prefix C-Space
 set -g prefix2 C-b
@@ -205,8 +202,8 @@ bind v run-shell "$HOME/.local/bin/tmux-native-split -h '#{pane_id}'"
 bind c run-shell "$HOME/.local/bin/tmux-new-native-window '#{pane_id}'"
 
 # tools
-bind g popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S 'fg=#c4a7e7' "env SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock lazygit"
-bind G popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S 'fg=#c4a7e7' "env SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock gh dash"
+bind g popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S 'fg=#c4a7e7' "lazygit"
+bind G popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S 'fg=#c4a7e7' "gh dash"
 # Work config AI agents
 bind -N "work config: Claude agent" p split-window -h -l 25% -c "#{pane_current_path}" claude
 bind -N "work config: Pi agent" P split-window -h -l 25% -c "#{pane_current_path}" pi

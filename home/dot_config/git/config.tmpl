@@ -1,3 +1,8 @@
+{{ if (index . "is_omarchy" | default false) -}}
+[include]
+	path = "~/.config/delta/system.gitconfig"
+
+{{ end -}}
 [alias]
 	fomo = "!git fetch origin $(__git.default_branch) && git rebase origin/$(__git.default_branch) --autostash"
 	lg = "!git_log_n $argv"
