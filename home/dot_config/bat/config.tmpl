@@ -1,0 +1,5 @@
+{{ if (index . "is_omarchy" | default false) -}}
+--theme="ansi"
+{{ else -}}
+--theme="rose-pine"
+{{ end -}}
