@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+
+mkdir -p ~/.cache
+
+echo "$1" > ~/.cache/nvim-theme-trigger
+
+switcher="$HOME/.local/scripts/nvim-theme-switch"
+
+if [[ -x "$switcher" ]]; then
+  "$switcher" "$1" || true
+elif command -v nvim-theme-switch >/dev/null 2>&1; then
+  nvim-theme-switch "$1" || true
+fi
+
+lazygit_switcher="$HOME/.local/scripts/lazygit-omarchy-theme"
+
+if [[ -x "$lazygit_switcher" ]]; then
+  "$lazygit_switcher" || true
+elif command -v lazygit-omarchy-theme >/dev/null 2>&1; then
+  lazygit-omarchy-theme || true
+fi
+
+delta_switcher="$HOME/.local/scripts/delta-omarchy-theme"
+
+if [[ -x "$delta_switcher" ]]; then
+  "$delta_switcher" || true
+elif command -v delta-omarchy-theme >/dev/null 2>&1; then
+  delta-omarchy-theme || true
+fi
