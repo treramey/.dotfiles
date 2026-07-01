@@ -1,6 +1,0 @@
-{
-  "name": "fireworks-provider",
-  "pi": {
-    "extensions": ["index.ts"]
-  }
-}

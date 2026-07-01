@@ -22,6 +22,7 @@ __pycache__/
 # opencode
 home/.config/opencode/node_modules/
 .opencode/plans/
+home/dot_claude/skills/code-review-workspace/
 
 # jj per-repo configs
 home/.config/jj/repos/

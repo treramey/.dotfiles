@@ -128,8 +128,11 @@ _set_macos_defaults() {
 _start_services() {
     print_info "Starting services..."
     if command_exists skhd; then
-        brew services start skhd 2>/dev/null || true
-        print_success "skhd started"
+        if skhd --restart-service 2>/dev/null || skhd --start-service 2>/dev/null; then
+            print_success "skhd service started"
+        else
+            print_warning "failed to start skhd service"
+        fi
     else
         print_warning "skhd not found, skipping"
     fi

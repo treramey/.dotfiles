@@ -1,13 +1,10 @@
-import { readFileSync, existsSync } from "node:fs";
-import { homedir } from "node:os";
-import { join } from "node:path";
-import { complete, type Api, type Model, type UserMessage } from "@mariozechner/pi-ai";
+import { complete, type Api, type Model, type UserMessage } from "@earendil-works/pi-ai";
 import {
   BorderedLoader,
   Theme,
   type ExtensionAPI,
   type ExtensionContext,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 import {
   type Component,
   type Focusable,
@@ -19,7 +16,7 @@ import {
   truncateToWidth,
   visibleWidth,
   wrapTextWithAnsi,
-} from "@mariozechner/pi-tui";
+} from "@earendil-works/pi-tui";
 
 interface ExtractedQuestion {
   question: string;
@@ -51,6 +48,7 @@ Rules:
 - Extract only questions that require user input.
 - Keep questions in the original order.
 - Each extracted question must be understandable on its own without requiring the user to reread earlier messages.
+- Concisely preserve any context that the user may need to answer the question without needing to reread earlier messages.
 - Prefer preserving the original wording with light cleanup over aggressive paraphrasing.
 - Preserve all details that could affect the answer, including the subject, options, constraints, file/component names, and requested output format.
 - Resolve ambiguous references like "it", "that", "this", or "the above" when nearby text makes the referent clear.
@@ -62,145 +60,17 @@ Rules:
 - If there are no user-answerable questions, return {"questions": []}.`;
 
 interface ExtractionModelPreference {
-  provider?: string;
-  modelId: string;
-}
-
-interface ExtractionModelOption {
-  id: string;
-  label: string;
   provider: string;
   modelId: string;
 }
 
-const ANSWER_EXTENSION_NAME = "answer";
-const EXTENSION_SETTINGS_PATH = join(homedir(), ".pi", "agent", "settings-extensions.json");
-const PRIMARY_EXTRACTION_MODEL_SETTING_ID = "primaryExtractionModel";
-const SECONDARY_EXTRACTION_MODEL_SETTING_ID = "secondaryExtractionModel";
-
-const DEFAULT_EXTRACTION_MODEL_PREFERENCES: readonly ExtractionModelPreference[] = [
-  { provider: "openai-codex", modelId: "gpt-5.4-mini" },
-  { provider: "openai", modelId: "gpt-5.4-mini" },
+const EXTRACTION_MODEL_PREFERENCES: readonly ExtractionModelPreference[] = [
+  { provider: "openai-codex", modelId: "gpt-5.5" },
   { provider: "anthropic", modelId: "claude-haiku-4-5" },
 ];
 
-const STATIC_FALLBACK_EXTRACTION_MODEL_OPTIONS = DEFAULT_EXTRACTION_MODEL_PREFERENCES.map((candidate) => ({
-  id: toExtractionModelKey(candidate),
-  label: candidate.provider ? `${candidate.provider} / ${candidate.modelId}` : candidate.modelId,
-  provider: candidate.provider ?? "",
-  modelId: candidate.modelId,
-})) satisfies ExtractionModelOption[];
-
-function toExtractionModelKey(candidate: ExtractionModelPreference): string {
-  return candidate.provider ? `${candidate.provider}/${candidate.modelId}` : candidate.modelId;
-}
-
-function parseExtractionModelKey(value: string): ExtractionModelPreference | undefined {
-  const normalized = value.trim();
-  if (!normalized) return undefined;
-  const slashIndex = normalized.indexOf("/");
-  if (slashIndex <= 0 || slashIndex === normalized.length - 1) {
-    return { modelId: normalized };
-  }
-  return {
-    provider: normalized.slice(0, slashIndex),
-    modelId: normalized.slice(slashIndex + 1),
-  };
-}
-
-function getStoredAnswerSettings(): Record<string, unknown> {
-  try {
-    if (!existsSync(EXTENSION_SETTINGS_PATH)) return {};
-    const raw = readFileSync(EXTENSION_SETTINGS_PATH, "utf8");
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const answerSettings = parsed[ANSWER_EXTENSION_NAME];
-    if (answerSettings && typeof answerSettings === "object" && !Array.isArray(answerSettings)) {
-      return answerSettings as Record<string, unknown>;
-    }
-  } catch {
-    // Ignore malformed settings and fall back to defaults.
-  }
-  return {};
-}
-
-function getStoredAnswerSetting(key: string): string | undefined {
-  const value = getStoredAnswerSettings()[key];
-  return typeof value === "string" ? value : undefined;
-}
-
-function mergeExtractionModelPreferences(...groups: readonly ExtractionModelPreference[][]): ExtractionModelPreference[] {
-  const merged: ExtractionModelPreference[] = [];
-  const seen = new Set<string>();
-
-  for (const group of groups) {
-    for (const candidate of group) {
-      const key = toExtractionModelKey(candidate);
-      if (seen.has(key)) continue;
-      seen.add(key);
-      merged.push(candidate);
-    }
-  }
-
-  return merged;
-}
-
-function getConfiguredExtractionModelPreferences(): ExtractionModelPreference[] {
-  const settingIds = [
-    PRIMARY_EXTRACTION_MODEL_SETTING_ID,
-    SECONDARY_EXTRACTION_MODEL_SETTING_ID,
-  ];
-
-  return settingIds
-    .map((settingId) => getStoredAnswerSetting(settingId)?.trim())
-    .filter((value): value is string => Boolean(value))
-    .map((value) => parseExtractionModelKey(value))
-    .filter((candidate): candidate is ExtractionModelPreference => Boolean(candidate));
-}
-
-function getAvailableExtractionModelOptions(
-  modelRegistry?: Pick<ExtensionContext["modelRegistry"], "getAvailable">,
-): ExtractionModelOption[] {
-  if (!modelRegistry) return [...STATIC_FALLBACK_EXTRACTION_MODEL_OPTIONS];
-
-  const unique = new Map<string, ExtractionModelOption>();
-  for (const model of modelRegistry.getAvailable()) {
-    if (!model.input.includes("text")) continue;
-    const id = `${model.provider}/${model.id}`;
-    if (unique.has(id)) continue;
-    unique.set(id, {
-      id,
-      label: model.name && model.name !== model.id ? `${model.provider} / ${model.id} — ${model.name}` : `${model.provider} / ${model.id}`,
-      provider: model.provider,
-      modelId: model.id,
-    });
-  }
-
-  const options = Array.from(unique.values()).sort((a, b) => a.label.localeCompare(b.label));
-  return options.length > 0 ? options : [...STATIC_FALLBACK_EXTRACTION_MODEL_OPTIONS];
-}
-
-function getDefaultExtractionModelPreferences(
-  modelRegistry?: Pick<ExtensionContext["modelRegistry"], "getAvailable">,
-): ExtractionModelPreference[] {
-  const options = getAvailableExtractionModelOptions(modelRegistry);
-  const available = new Set(options.map((option) => option.id));
-  const preferred = DEFAULT_EXTRACTION_MODEL_PREFERENCES.filter((candidate) => available.has(toExtractionModelKey(candidate)));
-  if (preferred.length > 0) return preferred;
-  return options.slice(0, 2).map((option) => ({ provider: option.provider, modelId: option.modelId }));
-}
-
-function getExtractionModelPreferences(
-  modelRegistry?: Pick<ExtensionContext["modelRegistry"], "getAvailable">,
-): ExtractionModelPreference[] {
-  const configured = getConfiguredExtractionModelPreferences();
-  const defaults = getDefaultExtractionModelPreferences(modelRegistry);
-  return mergeExtractionModelPreferences(configured, defaults);
-}
-
-function formatExtractionModelPreferences(preferences: ExtractionModelPreference[]): string {
-  return preferences
-    .map((candidate) => candidate.provider ? `${candidate.provider}/${candidate.modelId}` : candidate.modelId)
-    .join(", ");
+function formatExtractionModelPreferences(preferences: readonly ExtractionModelPreference[]): string {
+  return preferences.map((candidate) => `${candidate.provider}/${candidate.modelId}`).join(", ");
 }
 
 function getTextParts(content: Array<{ type: string; text?: string; }>): string[] {
@@ -318,23 +188,19 @@ async function selectExtractionModel(
   modelRegistry: {
     find: (provider: string, modelId: string) => Model<Api> | undefined;
     getApiKeyAndHeaders: (model: Model<Api>) => Promise<
-      | { ok: true; apiKey?: string; headers?: Record<string, string> }
-      | { ok: false; error: string }
+      | { ok: true; apiKey?: string; headers?: Record<string, string>; }
+      | { ok: false; error: string; }
     >;
-    getAvailable: () => Model<Api>[];
   },
-  preferences: ExtractionModelPreference[],
+  preferences: readonly ExtractionModelPreference[],
 ): Promise<Model<Api> | undefined> {
   for (const candidate of preferences) {
-    const models = candidate.provider
-      ? [modelRegistry.find(candidate.provider, candidate.modelId)].filter((model): model is Model<Api> => Boolean(model))
-      : modelRegistry.getAvailable().filter((model) => model.id === candidate.modelId && model.input.includes("text"));
+    const model = modelRegistry.find(candidate.provider, candidate.modelId);
+    if (!model) continue;
 
-    for (const model of models) {
-      const auth = await modelRegistry.getApiKeyAndHeaders(model);
-      if (auth.ok) {
-        return model;
-      }
+    const auth = await modelRegistry.getApiKeyAndHeaders(model);
+    if (auth.ok) {
+      return model;
     }
   }
 
@@ -623,7 +489,7 @@ export default function (pi: ExtensionAPI) {
       ctx.ui.notify("Using the last completed assistant message", "warning");
     }
 
-    const extractionModelPreferences = getExtractionModelPreferences(ctx.modelRegistry);
+    const extractionModelPreferences = EXTRACTION_MODEL_PREFERENCES;
     const extractionModel = await selectExtractionModel(ctx.modelRegistry, extractionModelPreferences);
     if (!extractionModel) {
       ctx.ui.notify(
@@ -660,7 +526,12 @@ export default function (pi: ExtensionAPI) {
         const response = await complete(
           extractionModel,
           { systemPrompt: SYSTEM_PROMPT, messages: [userMessage] },
-          { apiKey: auth.apiKey, headers: auth.headers, signal: loader.signal },
+          {
+            apiKey: auth.apiKey,
+            headers: auth.headers,
+            signal: loader.signal,
+            ...(extractionModel.provider === "openai-codex" ? { reasoningEffort: "none" } : {}),
+          },
         );
 
         if (response.stopReason === "aborted") {
