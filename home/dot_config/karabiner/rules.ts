@@ -1,10 +1,73 @@
 import fs from "fs";
 import { KarabinerRules } from "./types";
-import { createHyperSubLayers, app, appExecutable, open } from "./utils";
+import { createHyperSubLayers, app, open } from "./utils";
 
-const defualtBrowser = "Google Chrome";
+const defualtBrowser = "Helium";
 
 const rules: KarabinerRules[] = [
+  // Define the Hyper key itself
+  {
+    description: "Hyper Key (⌃⌥⇧⌘)",
+    manipulators: [
+      {
+        description: "right_command -> Hyper Key",
+        from: {
+          key_code: "right_command",
+        },
+        to: [
+          {
+            key_code: "left_shift",
+            modifiers: ["left_command", "left_control", "left_option"],
+          },
+        ],
+        // TODO: Try homerow workflow - press hyper alone to trigger homerow
+        // If right_command is pressed by itself, homerow will show up
+        // Homerow configured under `Clicking - Shorctut`
+        // to_if_alone: [
+        //   {
+        //     key_code: "7",
+        //     modifiers: [
+        //       "left_command",
+        //       "left_control",
+        //       "left_option",
+        //       "left_shift",
+        //     ],
+        //   },
+        // ],
+        type: "basic",
+      },
+      {
+        description:
+          "Avoid starting sysdiagnose with the built-in macOS shortcut cmd+shift+option+ctrl+,",
+        from: {
+          key_code: "comma",
+          modifiers: { mandatory: ["command", "shift", "option", "control"] },
+        },
+        to: [],
+        type: "basic",
+      },
+      {
+        description:
+          "Avoid starting sysdiagnose with the built-in macOS shortcut cmd+shift+option+ctrl+.",
+        from: {
+          key_code: "period",
+          modifiers: { mandatory: ["command", "shift", "option", "control"] },
+        },
+        to: [],
+        type: "basic",
+      },
+      {
+        description:
+          "Avoid starting sysdiagnose with the built-in macOS shortcut cmd+shift+option+ctrl+/",
+        from: {
+          key_code: "slash",
+          modifiers: { mandatory: ["command", "shift", "option", "control"] },
+        },
+        to: [],
+        type: "basic",
+      },
+    ],
+  },
   {
     description: "Tab + number: F1 ~ F12",
     manipulators: [
@@ -352,16 +415,16 @@ const rules: KarabinerRules[] = [
         "raycast://extensions/raycast/emoji-symbols/search-emoji-symbols",
       ),
     },
-    r: appExecutable("/Applications/Rider.app/Contents/MacOS/rider"),
+    r: app("Rider"),
     e: app("Microsoft Outlook"),
     a: app("Claude"),
     i: app("Microsoft Teams"),
-    d: app("DevOps", "/Users/TRamey/Applications/Chrome Apps.localized/DevOps.app"),
+    d: app("DevOps"),
     g: app("DataGrip"),
     m: app("Spotify"),
-    j: app("Jira", "/Users/TRamey/Applications/Chrome Apps.localized/Jira.app"),
+    j: app("Jira"),
     p: app("Postman"),
-    f: app("Finder", "/System/Library/CoreServices/Finder.app"),
+    f: app("Finder"),
     b: app(defualtBrowser),
     t: app("Ghostty"),
     v: app("Visual Studio Code"),

@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 const messages = [
   // Short
@@ -247,6 +247,7 @@ const messages = [
   "Singling...",
   "Ringling...",
   "Kingling...",
+  "Tokenmaxxing...",
 
   // Long
   "Consulting the void...",
