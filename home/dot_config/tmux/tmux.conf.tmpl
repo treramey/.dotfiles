@@ -1,6 +1,6 @@
 {{- if .is_arch -}}
-{{- $popup_border_style := "fg=#c4a7e7" -}}
-{{- if (index . "is_omarchy" | default false) -}}
+{{- $popup_border_style := printf "fg=%s" .rose_pine.iris -}}
+{{- if eq (includeTemplate "theme-mode" .) "dynamic" -}}
 {{-   $popup_border_style = "fg=blue" -}}
 {{- end -}}
 # Let tmux import the current shell's SSH agent variables for new clients.

@@ -1,30 +1,23 @@
 #!/bin/bash
 set -euo pipefail
 
+# Omarchy calls this hook with the new theme's name on every theme switch.
+# One adapter per tool, all inline; runtime state lands only in ~/.cache so
+# chezmoi-managed configs never drift.
+
+theme_name="${1:?usage: theme-set <omarchy-theme-name>}"
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+theme_dir="$config_home/omarchy/current/theme"
+
 mkdir -p ~/.cache
 
-echo "$1" > ~/.cache/nvim-theme-trigger
+# nvim: theme_switcher.lua watches this file and swaps the colorscheme live.
+echo "$theme_name" > ~/.cache/nvim-theme-trigger
 
-switcher="$HOME/.local/scripts/nvim-theme-switch"
-
-if [[ -x "$switcher" ]]; then
-  "$switcher" "$1" || true
-elif command -v nvim-theme-switch >/dev/null 2>&1; then
-  nvim-theme-switch "$1" || true
+# delta: git config includes this cache file after delta/system.gitconfig,
+# so the light/dark feature selection follows the active theme.
+feature="system-dark"
+if [[ -f "$theme_dir/light.mode" ]]; then
+  feature="system-light"
 fi
-
-lazygit_switcher="$HOME/.local/scripts/lazygit-omarchy-theme"
-
-if [[ -x "$lazygit_switcher" ]]; then
-  "$lazygit_switcher" || true
-elif command -v lazygit-omarchy-theme >/dev/null 2>&1; then
-  lazygit-omarchy-theme || true
-fi
-
-delta_switcher="$HOME/.local/scripts/delta-omarchy-theme"
-
-if [[ -x "$delta_switcher" ]]; then
-  "$delta_switcher" || true
-elif command -v delta-omarchy-theme >/dev/null 2>&1; then
-  delta-omarchy-theme || true
-fi
+git config --file ~/.cache/delta-features.gitconfig delta.features "$feature"

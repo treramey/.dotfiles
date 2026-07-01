@@ -1,4 +1,4 @@
-{{ if (index . "is_omarchy" | default false) -}}
+{{ if eq (includeTemplate "theme-mode" .) "dynamic" -}}
 --theme="ansi"
 {{ else -}}
 --theme="rose-pine"

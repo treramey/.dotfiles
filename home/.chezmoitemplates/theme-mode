@@ -1,0 +1,12 @@
+{{- /* The theme-mode seam: every themed config branches on this one value.
+     "dynamic"  — Omarchy owns the palette; configs use ANSI colors and the
+                  theme-set hook hot-reloads the rest.
+     "static"   — no Omarchy; configs pin Rose Pine dark (.rose_pine data).
+     Probed at apply time (not init), so a fresh `chezmoi init` needs no
+     hand-set data. ~/.local/share/omarchy is Omarchy's install dir;
+     ~/.config/omarchy is unsuitable — chezmoi itself creates it for hooks. */ -}}
+{{- if stat (joinPath .chezmoi.homeDir ".local/share/omarchy") -}}
+dynamic
+{{- else -}}
+static
+{{- end -}}

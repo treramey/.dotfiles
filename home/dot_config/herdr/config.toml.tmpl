@@ -1,0 +1,116 @@
+onboarding = false
+
+[terminal]
+default_shell = "/opt/homebrew/bin/fish"
+shell_mode = "auto"
+new_cwd = "follow"
+
+[theme]
+name = "rose-pine"
+
+[update]
+channel = "stable"
+
+[keys]
+prefix = "ctrl+space"
+
+help = "prefix+?"
+settings = "prefix+shift+s"
+detach = ["prefix+d", "prefix+q"]
+reload_config = "prefix+shift+r"
+goto = "prefix+g"
+
+workspace_picker = "prefix+w"
+new_workspace = "prefix+shift+n"
+rename_workspace = "prefix+shift+w"
+close_workspace = "prefix+shift+d"
+previous_workspace = "prefix+("
+next_workspace = "prefix+)"
+
+focus_agent = "prefix+alt+1..9"
+
+new_tab = "prefix+c"
+previous_tab = "prefix+p"
+next_tab = "prefix+n"
+switch_tab = "prefix+1..9"
+rename_tab = "prefix+comma"
+close_tab = "prefix+shift+x"
+
+split_vertical = "prefix+v"
+split_horizontal = "prefix+h"
+close_pane = "prefix+x"
+zoom = "prefix+m"
+copy_mode = "prefix+y"
+resize_mode = "prefix+r"
+
+focus_pane_left = ["ctrl+h"]
+focus_pane_down = ["ctrl+j"]
+focus_pane_up = ["ctrl+k"]
+focus_pane_right = ["ctrl+l"]
+swap_pane_right = ""
+cycle_pane_next = "prefix+tab"
+cycle_pane_previous = "prefix+shift+tab"
+last_pane = "prefix+l"
+
+toggle_sidebar = "prefix+b"
+
+navigate_workspace_up = "up"
+navigate_workspace_down = "down"
+navigate_pane_left = "h"
+navigate_pane_down = "j"
+navigate_pane_up = "k"
+navigate_pane_right = "l"
+
+# Search Herdr workspaces and zoxide directories in one Television picker.
+# Press Ctrl+F.
+[[keys.command]]
+key = "ctrl+f"
+type = "pane"
+command = "PATH=\"$HOME/.local/scripts:/opt/homebrew/bin:$PATH\" herdr-tv"
+description = "search Herdr workspaces and directories"
+
+[[keys.command]]
+key = "prefix+shift+l"
+type = "pane"
+command = "SSH_AUTH_SOCK=\"$HOME/.bitwarden-ssh-agent.sock\" /opt/homebrew/bin/lazygit"
+description = "open lazygit"
+
+[ui]
+sidebar_width = 32
+sidebar_min_width = 18
+sidebar_max_width = 36
+mouse_capture = true
+right_click_passthrough_modifier = "ctrl"
+mouse_scroll_lines = 3
+confirm_close = false
+prompt_new_tab_name = false
+agent_panel_scope = "all"
+accent = "{{ .rose_pine.iris }}"
+
+[ui.toast]
+delivery = "off"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "top-right"
+
+[ui.toast.clipboard]
+enabled = true
+position = "bottom-center"
+
+[ui.sound]
+enabled = false
+
+[session]
+resume_agents_on_restore = true
+
+[remote]
+manage_ssh_config = true
+
+[experimental]
+pane_history = true
+allow_nested = false
+kitty_graphics = true
+
+[advanced]
+scrollback_limit_bytes = 52428800
