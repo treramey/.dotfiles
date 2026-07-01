@@ -1,5 +1,7 @@
 [delta]
-	features = system-light
+	# Default only; ~/.cache/delta-features.gitconfig (written by the omarchy
+	# theme-set hook, included after this file) overrides it at runtime.
+	features = system-dark
 
 [delta "system-base"]
 	blame-palette = "#3b82f6" "#06b6d4" "#22c55e" "#f59e0b" "#a855f7"

@@ -1,6 +1,13 @@
-{{ if (index . "is_omarchy" | default false) -}}
+{{ if eq (includeTemplate "theme-mode" .) "dynamic" -}}
 [include]
+	# Delta feature definitions (managed), then the live light/dark selection
+	# the omarchy theme-set hook writes outside chezmoi's view.
 	path = "~/.config/delta/system.gitconfig"
+	path = "~/.cache/delta-features.gitconfig"
+
+{{ else -}}
+[include]
+	path = "~/.config/delta/rose-pine.gitconfig"
 
 {{ end -}}
 [alias]
