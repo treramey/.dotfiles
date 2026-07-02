@@ -32,6 +32,15 @@ chezmoi-managed files.
 (`rose-pine-main`, `rose-pine-dawn`, …). Omarchy theme names enter only
 through `omarchy_aliases` at the trigger/state input edge.
 
+### Formatter Registry (Neovim)
+
+The filetype→formatter table in `plugin/23_format.lua` (conform's
+`formatters_by_ft`) — the single place that answers "what formats
+filetype X". Project-dependent formatters gate themselves with
+conditions. Formatter wiring belongs here, never in per-filetype
+`after/ftplugin` files (those are for genuinely filetype-local editor
+settings).
+
 ### .NET Toolchain
 
 The Neovim configuration slice that makes C#/.NET development work end to end:
