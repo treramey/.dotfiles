@@ -1,0 +1,6 @@
+{
+  "lastChangelogVersion": "0.80.3",
+  "theme": "light",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.5"
+}
