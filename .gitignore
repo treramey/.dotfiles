@@ -5,6 +5,7 @@ home/.config/fish/conf.d/secrets.fish
 home/.config/fish/conf.d/vault-funcs.fish
 home/.config/opencode/amp_stuff/
 .envrc
+homelab/caddy/.env
 */**/tmux/plugins/*
 backups/
 packages/failed_packages_*.txt
@@ -27,23 +28,31 @@ home/dot_claude/skills/code-review-workspace/
 # jj per-repo configs
 home/.config/jj/repos/
 
+# agent skills intentionally kept local
+home/dot_agents/skills/ui/
+
 # pi agent runtime/state (keep settings + customization resources tracked)
-home/.pi/agent/*
-home/.pi/todos/*
+home/dot_pi/agent/*
+home/dot_pi/todos/*
 .pi/todos/*
 
 # pi extensions node_modules
-home/.pi/agent/extensions/**/node_modules/
+home/dot_pi/agent/extensions/**/node_modules/
 
-
-!home/.pi/agent/tsconfig.json
-!home/.pi/agent/package.json
-!home/.pi/agent/cloak.json
-!home/.pi/agent/themes/
-!home/.pi/agent/themes/*.json
-!home/.pi/agent/extensions/
-!home/.pi/agent/extensions/**
-!home/.pi/agent/mcp.json
-!home/.pi/agent/APPEND_SYSTEM.md
-!home/.pi/agent/skills/
-!home/.pi/agent/skills/**
+!home/dot_pi/settings.json
+!home/dot_pi/skills-lock.json
+!home/dot_pi/package.json
+!home/dot_pi/package-lock.json
+!home/dot_pi/AGENTS.md
+!home/dot_pi/agent/settings.json
+!home/dot_pi/agent/tsconfig.json
+!home/dot_pi/agent/package.json
+!home/dot_pi/agent/cloak.json
+!home/dot_pi/agent/themes/
+!home/dot_pi/agent/themes/*.json
+!home/dot_pi/agent/extensions/
+!home/dot_pi/agent/extensions/**
+!home/dot_pi/agent/mcp.json
+!home/dot_pi/agent/APPEND_SYSTEM.md
+!home/dot_pi/agent/skills/
+!home/dot_pi/agent/skills/**
