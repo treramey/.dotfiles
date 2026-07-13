@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $(basename "$0") <theme-slug>"
+  exit 1
+fi
+
+theme="$1"
+
+case "$theme" in
+  boring|bulwer-omarchy|caroline-skyline|catppuccin-latte|catppuccin|ethereal|everforest|flexoki-light|gruvbox|hackerman|kanagawa|kanagawa-lotus|kanagawa-dragon|kurayami|lumon|matte-black|miasma|nord|osaka-jade|retro-82|ristretto|rose-pine|rose-pine-dark|thegreek|tokyo-night|vantablack|white) ;;
+  *)
+    echo "Unknown Neovim theme: $theme" >&2
+    exit 1
+    ;;
+esac
+
+mkdir -p ~/.cache "${XDG_STATE_HOME:-$HOME/.local/state}/nvim/theme-switcher"
+printf '%s\n' "$theme" > ~/.cache/nvim-theme-trigger
+printf '%s\n' "$theme" > "${XDG_STATE_HOME:-$HOME/.local/state}/nvim/theme-switcher/theme"
+
+shopt -s nullglob
+if [[ -n ${XDG_RUNTIME_DIR-} && -d ${XDG_RUNTIME_DIR-} ]]; then
+  servers=("${XDG_RUNTIME_DIR}"/nvim.*)
+else
+  servers=(/run/user/*/nvim.*)
+fi
+shopt -u nullglob
+
+if ((${#servers[@]} == 0)); then
+  echo "No Neovim servers found; $theme will be applied on next start."
+  exit 0
+fi
+
+nvim_bin="${NVIM_BIN:-nvim}"
+if [[ -x /usr/bin/nvim ]]; then
+  nvim_bin=/usr/bin/nvim
+fi
+
+for server in "${servers[@]}"; do
+  "$nvim_bin" --server "$server" --remote-expr \
+    "luaeval('pcall(function() package.loaded[\"treramey.theme_switcher\"] = nil; local ok, mod = pcall(require, \"treramey.theme_switcher\"); if not ok then mod = dofile(vim.fn.expand(\"~/.config/nvim/lua/treramey/theme_switcher.lua\")) end; mod.apply_slug(\"${theme}\", { persist = true, notify = false }) end)')" \
+    >/dev/null 2>&1 || true
+done
+
+echo "Applied Neovim theme: $theme (${#servers[@]} instance(s))"
