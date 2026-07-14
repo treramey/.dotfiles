@@ -39,7 +39,7 @@ npm workspace for pi agent extensions + skills. TypeScript, ESM-only.
 | Task | Location |
 |------|----------|
 | Change default model/provider | `agent/settings.json` |
-| Add pi package | `agent/settings.json` → `packages[]` |
+| Add pi package | `agent/settings.json` → `packages[]` using `npm:<name>` specs |
 | Create extension | `agent/extensions/<name>/` with `package.json` |
 | Create standalone extension | `agent/extensions/<name>.ts` |
 | Create skill | `agent/skills/<name>/SKILL.md` |
@@ -50,6 +50,7 @@ npm workspace for pi agent extensions + skills. TypeScript, ESM-only.
 ## CONVENTIONS
 
 - Extensions as npm workspace packages: each has own `package.json`
+- Third-party pi packages: install through `agent/settings.json` using Pi's native `npm:<name>` package specs
 - Standalone extensions: single `.ts` file in `extensions/`
 - Skills: `SKILL.md` as entry, optional bundled resources (templates, patches)
 - ESM only: `"type": "module"` everywhere
@@ -72,7 +73,7 @@ npm workspace for pi agent extensions + skills. TypeScript, ESM-only.
   "defaultProvider": "opencode.cloudflare.dev",
   "defaultModel": "claude-opus-4-6",
   "defaultThinkingLevel": "high",
-  "theme": "catppuccin-macchiato",
+  "theme": "light",
   "packages": ["npm:pi-extmgr", "npm:@plannotator/pi-extension"]
 }
 ```
