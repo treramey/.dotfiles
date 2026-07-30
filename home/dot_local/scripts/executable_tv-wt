@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+encode() { printf '%s' "$1" | base64 -w0; }
+decode() { printf '%s' "$1" | base64 --decode; }
+
+projects() {
+  # Zoxide may contain a repository's linked worktrees and nested directories.
+  # Key by Git's shared common directory, then display only its primary checkout.
+  zoxide query -l | while IFS= read -r candidate; do
+    [[ -d $candidate ]] || continue
+    common=$(git -C "$candidate" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || continue
+    common=$(realpath "$common")
+    primary=$(git -C "$candidate" worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p' | head -n1)
+    [[ -n $primary ]] || continue
+    printf '%s\t%s\n' "$common" "$primary"
+  done | awk -F '\t' '!seen[$1]++ { print $2 }' | while IFS= read -r repo; do
+    display=${repo/#$HOME/\~}
+    printf '%s\t%s\n' "$(encode "$repo")" "$display"
+  done
+}
+
+project_preview() {
+  local repo
+  repo=$(decode "$1")
+  git -C "$repo" -c color.status=always status --short --branch
+  printf '\nWorktrees:\n'
+  wt -C "$repo" list 2>/dev/null || true
+  printf '\nRecent commits:\n'
+  git -C "$repo" log --oneline --decorate --color=always -10
+}
+
+browse() {
+  local repo
+  repo=$(decode "$1")
+  cd "$repo"
+  exec tv wt-worktrees "$repo"
+}
+
+worktrees() {
+  wt list --format=json 2>/dev/null | jq -r '
+    .[] | select(.kind == "worktree" and .path != null and .branch != null) |
+    (.path | @base64) + "\t" + (.branch | @base64) + "\t" +
+    (if .is_current then "@  " elif .is_main then "^  " else "+  " end) +
+    (.branch // "detached") + "  ·  " + .path'
+}
+
+preview() {
+  local path branch
+  path=$(decode "$1")
+  branch=$(decode "$2")
+  git -C "$path" -c color.status=always status --short --branch
+  printf '\nRecent commits:\n'
+  git -C "$path" log --oneline --decorate --color=always -10
+  printf '\nBranch: %s\nPath: %s\n' "$branch" "$path"
+}
+
+open_shell() {
+  local path
+  path=$(decode "$1")
+  cd "$path"
+  exec "${SHELL:-/bin/sh}" -l
+}
+
+switch_worktree() {
+  local branch
+  branch=$(decode "$1")
+  exec wt switch "$branch" -x "${SHELL:-/bin/sh}"
+}
+
+remove_worktree() {
+  local branch
+  branch=$(decode "$1")
+  exec wt remove --foreground "$branch"
+}
+
+case ${1:-} in
+  --projects) projects ;;
+  --project-preview) project_preview "$2" ;;
+  --browse) browse "$2" ;;
+  --worktrees) worktrees ;;
+  --preview) preview "$2" "$3" ;;
+  --shell) open_shell "$2" ;;
+  --switch) switch_worktree "$2" ;;
+  --remove) remove_worktree "$2" ;;
+  *) exec tv wt-projects ;;
+esac

@@ -14,7 +14,15 @@ readonly BOLD='\033[1m'
 # Metadata
 readonly SCRIPT_NAME="dot"
 readonly VERSION="3.0.0"
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve this script's real location even when invoked via symlink
+# (e.g. ~/.local/bin/dot -> ~/.dotfiles/dot).
+SCRIPT_PATH="${BASH_SOURCE[0]}"
+while [[ -L "$SCRIPT_PATH" ]]; do
+    SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_PATH")" >/dev/null 2>&1 && pwd)"
+    SCRIPT_PATH="$(readlink "$SCRIPT_PATH")"
+    [[ "$SCRIPT_PATH" != /* ]] && SCRIPT_PATH="$SCRIPT_DIR/$SCRIPT_PATH"
+done
+DOTFILES_DIR="$(cd -P "$(dirname "$SCRIPT_PATH")" >/dev/null 2>&1 && pwd)"
 readonly DOTFILES_DIR
 
 # Platform detection
@@ -57,6 +65,49 @@ _ensure_chezmoi() {
     }
     export PATH="${HOME}/.local/bin:${PATH}"
     print_success "chezmoi installed"
+}
+
+_link_live_workspace() {
+    local target="$1"
+    local source="$2"
+
+    if [[ ! -e "$source" ]]; then
+        print_error "Live workspace source missing: $source"
+        return 1
+    fi
+
+    mkdir -p "$(dirname "$target")"
+
+    if [[ -L "$target" ]]; then
+        local current
+        current="$(readlink "$target")"
+        if [[ "$current" == "$source" ]]; then
+            print_success "Live workspace linked: $target -> $source"
+            return 0
+        fi
+    fi
+
+    if [[ -e "$target" || -L "$target" ]]; then
+        local backup="${target}.bak-$(date +%Y%m%d-%H%M%S)"
+        print_warning "Backing up existing $target to $backup"
+        mv "$target" "$backup"
+    fi
+
+    ln -s "$source" "$target"
+
+    if [[ ! -L "$target" ]] || [[ "$(readlink "$target")" != "$source" ]]; then
+        print_error "Failed to link live workspace: $target -> $source"
+        return 1
+    fi
+
+    print_success "Live workspace linked: $target -> $source"
+}
+
+_setup_live_workspaces() {
+    print_header "Checking live workspace links"
+    _link_live_workspace "${HOME}/.pi" "${DOTFILES_DIR}/home/dot_pi" || return 1
+    _link_live_workspace "${HOME}/.agents" "${DOTFILES_DIR}/home/dot_agents" || return 1
+    _link_live_workspace "${HOME}/.config/nvim" "${DOTFILES_DIR}/home/dot_config/nvim" || return 1
 }
 
 # ─── macOS-specific ──────────────────────────────────────────────────────────
@@ -190,6 +241,8 @@ cmd_init() {
         return 1
     fi
 
+    _setup_live_workspaces || return 1
+
     # macOS post-setup
     if is_macos; then
         if confirm "Set macOS defaults?" "y"; then
@@ -223,6 +276,8 @@ cmd_apply() {
         print_error "Failed to apply dotfiles"
         return 1
     fi
+
+    _setup_live_workspaces || return 1
 }
 
 cmd_update() {
@@ -277,6 +332,10 @@ cmd_cd() {
 cmd_managed() {
     _ensure_chezmoi || return 1
     chezmoi managed --source "${DOTFILES_DIR}" "$@"
+}
+
+cmd_link_live() {
+    _setup_live_workspaces
 }
 
 cmd_status() {
@@ -429,6 +488,7 @@ cmd_help() {
     echo "    add <file>      Add a file to the source state"
     echo "    edit [target]   Edit a target file, or open dotfiles dir"
     echo "    managed         List all managed files"
+    echo "    link-live       Link live workspaces (.pi, .agents, nvim)"
     echo "    cd              Open a shell in the source directory"
     echo "    watch [cmd]     Auto-apply on changes (start|stop|status)"
     echo "    doctor          Run diagnostics"
@@ -467,6 +527,7 @@ main() {
         add)     cmd_add "$@" ;;
         edit)    cmd_edit "$@" ;;
         managed) cmd_managed "$@" ;;
+        link-live) cmd_link_live "$@" ;;
         cd)      cmd_cd "$@" ;;
         watch)   cmd_watch "$@" ;;
         doctor)  cmd_doctor "$@" ;;
