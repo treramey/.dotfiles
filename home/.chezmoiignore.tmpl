@@ -38,4 +38,12 @@
 .config/nvim/.luarc.json
 .config/opencode/node_modules
 .config/opencode/*.bak
+# Live workspaces: these are symlinked into ~/.dotfiles and edited in-place.
+# Chezmoi should not copy/apply them as normal managed trees.
+.pi
+.pi/**
+.agents
+.agents/**
+.config/nvim
+.config/nvim/**
 .claude/skills/code-review-workspace
