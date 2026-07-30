@@ -7,18 +7,19 @@ if [[ $# -ne 1 ]]; then
 fi
 
 theme="$1"
+nvim_bin="${NVIM_BIN:-nvim}"
+resolver="${XDG_CONFIG_HOME:-$HOME/.config}/nvim/lua/treramey/theme_catalog_resolver.lua"
 
-case "$theme" in
-  boring|bulwer-omarchy|caroline-skyline|catppuccin-latte|catppuccin|ethereal|everforest|flexoki-light|gruvbox|hackerman|kanagawa|kanagawa-lotus|kanagawa-dragon|kurayami|lumon|matte-black|miasma|nord|osaka-jade|retro-82|ristretto|rose-pine|rose-pine-dark|thegreek|tokyo-night|vantablack|white) ;;
-  *)
-    echo "Unknown Neovim theme: $theme" >&2
-    exit 1
-    ;;
-esac
+if [[ ! -f "$resolver" ]]; then
+  echo "Neovim theme catalog resolver is unavailable" >&2
+  exit 1
+fi
+
+canonical_slug=$("$nvim_bin" --headless -u NONE -i NONE -l "$resolver" -- "$theme") || exit 1
 
 mkdir -p ~/.cache "${XDG_STATE_HOME:-$HOME/.local/state}/nvim/theme-switcher"
-printf '%s\n' "$theme" > ~/.cache/nvim-theme-trigger
-printf '%s\n' "$theme" > "${XDG_STATE_HOME:-$HOME/.local/state}/nvim/theme-switcher/theme"
+printf '%s\n' "$canonical_slug" > ~/.cache/nvim-theme-trigger
+printf '%s\n' "$canonical_slug" > "${XDG_STATE_HOME:-$HOME/.local/state}/nvim/theme-switcher/theme"
 
 shopt -s nullglob
 if [[ -n ${XDG_RUNTIME_DIR-} && -d ${XDG_RUNTIME_DIR-} ]]; then
@@ -33,15 +34,10 @@ if ((${#servers[@]} == 0)); then
   exit 0
 fi
 
-nvim_bin="${NVIM_BIN:-nvim}"
-if [[ -x /usr/bin/nvim ]]; then
-  nvim_bin=/usr/bin/nvim
-fi
-
 for server in "${servers[@]}"; do
   "$nvim_bin" --server "$server" --remote-expr \
-    "luaeval('pcall(function() package.loaded[\"treramey.theme_switcher\"] = nil; local ok, mod = pcall(require, \"treramey.theme_switcher\"); if not ok then mod = dofile(vim.fn.expand(\"~/.config/nvim/lua/treramey/theme_switcher.lua\")) end; mod.apply_slug(\"${theme}\", { persist = true, notify = false }) end)')" \
+    "luaeval('(function() local slug = vim.fn.readfile(vim.fn.expand(\"~/.cache/nvim-theme-trigger\"), \"\", 1)[1]; return require(\"treramey.theme_switcher\").apply_slug(slug, { persist = true, notify = false }) end)()')" \
     >/dev/null 2>&1 || true
 done
 
-echo "Applied Neovim theme: $theme (${#servers[@]} instance(s))"
+echo "Applied Neovim theme: $canonical_slug (${#servers[@]} instance(s))"
