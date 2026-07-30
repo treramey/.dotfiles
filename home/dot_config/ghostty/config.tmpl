@@ -23,6 +23,10 @@ cursor-style-blink = false
 # (all shell integration options must be passed together)
 shell-integration-features = no-cursor,ssh-env
 
+# Let remote OSC 52 clipboard providers copy and paste through Ghostty.
+clipboard-read = allow
+clipboard-write = allow
+
 # Keyboard bindings
 keybind = shift+insert=paste_from_clipboard
 keybind = control+insert=copy_to_clipboard
