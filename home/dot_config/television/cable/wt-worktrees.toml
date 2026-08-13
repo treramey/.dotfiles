@@ -1,7 +1,7 @@
 [metadata]
 name = "wt-worktrees"
 description = "Browse existing Worktrunk worktrees"
-requirements = ["git", "jq", "wt"]
+requirements = ["git", "wt"]
 
 [ui]
 orientation = "portrait"
@@ -21,7 +21,7 @@ ctrl-o = "actions:switch"
 ctrl-d = "actions:remove"
 
 [actions.shell]
-description = "Open a shell in the selected worktree"
+description = "Open the selected worktree"
 command = "$HOME/.local/scripts/tv-wt --shell '{split:\t:0}'"
 mode = "execute"
 
