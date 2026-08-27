@@ -35,18 +35,16 @@ prefix = "ctrl+space"
 
 # Basics.
 help = "prefix+?"
-# Keep prefix+shift+s available for workspace picking.
-settings = "prefix+shift+comma"
+settings = "prefix+shift+s"
 detach = ["prefix+d", "prefix+q"]
 reload_config = "prefix+r"
 goto = "prefix+s"
 
 # Workspace controls:
-#   prefix+shift+s choose workspace
-#   prefix+w       also open workspace navigation (Herdr default muscle memory)
+#   prefix+w       workspace navigation (Herdr default muscle memory)
 #   prefix+shift+w rename workspace (avoids symbol-layer gymnastics)
 #   prefix+( / )   previous / next workspace
-workspace_picker = ["prefix+shift+s", "prefix+w"]
+workspace_picker = "prefix+w"
 new_workspace = "prefix+shift+n"
 rename_workspace = "prefix+shift+w"
 close_workspace = "prefix+shift+d"
@@ -83,12 +81,14 @@ cycle_pane_previous = "prefix+shift+tab"
 # Keep Herdr's dashboard/sidebar available, but not on prefix+b since C-b is not the prefix here.
 toggle_sidebar = "prefix+b"
 
-# Navigate-mode movement.
-navigate_workspace_up = "up"
-navigate_workspace_down = "down"
+# Navigate-mode movement. j/k move the workspace selection (vim muscle memory);
+# pane up/down take the arrows instead. This layout runs one pane per tab, and
+# ctrl+h/j/k/l already handles pane focus, so pane movement here barely matters.
+navigate_workspace_up = "k"
+navigate_workspace_down = "j"
 navigate_pane_left = "h"
-navigate_pane_down = "j"
-navigate_pane_up = "k"
+navigate_pane_down = "down"
+navigate_pane_up = "up"
 navigate_pane_right = "l"
 
 # Forward ctrl+h/j/k/l into Neovim, or focus the adjacent Herdr pane.
@@ -126,7 +126,9 @@ description = "switch worktree"
 [[keys.command]]
 key = "prefix+g"
 type = "pane"
-command = "lazygit"
+# Run in the focused pane's directory (Herdr sets HERDR_ACTIVE_PANE_CWD for custom
+# commands); the workspace root may not be a git repo.
+command = "cd \"${HERDR_ACTIVE_PANE_CWD:-$PWD}\" && lazygit"
 description = "open lazygit"
 
 [[keys.command]]
