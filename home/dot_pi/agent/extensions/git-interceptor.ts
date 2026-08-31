@@ -13,7 +13,8 @@
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { isToolCallEventType } from "@earendil-works/pi-coding-agent";
+
+import { parsePiShellToolCall } from "./policy/pi-tool-events.ts";
 
 const GIT_ENV_PREFIX =
 	"export GIT_EDITOR=true GIT_SEQUENCE_EDITOR=true GIT_MERGE_AUTOEDIT=no\n";
@@ -25,15 +26,26 @@ const BLOCK_REASON =
 	"Do not attempt to bypass them. Instead: fix the underlying issue that " +
 	"is causing the hook to fail, or ask the user for help.";
 
+/** The deterministic Git policy outcome for one shell command. */
+export type GitShellCommandPolicyDecision =
+	| { readonly _tag: "unrelated" }
+	| { readonly _tag: "block"; readonly reason: string }
+	| { readonly _tag: "allow"; readonly command: string };
+
+/** Blocks hook bypasses and makes agent-driven Git commands non-interactive. */
+export function applyGitShellCommandPolicy(command: string): GitShellCommandPolicyDecision {
+	if (!command.includes("git")) return { _tag: "unrelated" };
+	if (NO_VERIFY_RE.test(command)) return { _tag: "block", reason: BLOCK_REASON };
+	return { _tag: "allow", command: GIT_ENV_PREFIX + command };
+}
+
 export default function (pi: ExtensionAPI) {
 	pi.on("tool_call", (event) => {
-		if (!isToolCallEventType("bash", event)) return;
-		if (!event.input.command.includes("git")) return;
-
-		if (NO_VERIFY_RE.test(event.input.command)) {
-			return { block: true, reason: BLOCK_REASON };
-		}
-
-		event.input.command = GIT_ENV_PREFIX + event.input.command;
+		const shellCall = parsePiShellToolCall(event);
+		if (shellCall === undefined) return;
+		const decision = applyGitShellCommandPolicy(shellCall.command);
+		if (decision._tag === "unrelated") return;
+		if (decision._tag === "block") return { block: true, reason: decision.reason };
+		shellCall.replaceCommand(decision.command);
 	});
 }

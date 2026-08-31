@@ -1,6 +1,36 @@
 import type { AssistantMessage } from "@earendil-works/pi-ai";
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { getAgentDir, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+const CODEX_CONVERSION_CONFIG = "pi-codex-conversion.json";
+
+function readFastModeSetting(configPath: string): boolean | undefined {
+	try {
+		const config: unknown = JSON.parse(readFileSync(configPath, "utf8"));
+		if (!config || typeof config !== "object") return undefined;
+		const openai = (config as { openai?: unknown }).openai;
+		if (!openai || typeof openai !== "object") return undefined;
+		const fast = (openai as { fast?: unknown }).fast;
+		return typeof fast === "boolean" ? fast : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+function isFastModeEnabled(cwd: string, projectTrusted: boolean): boolean {
+	// Match pi-codex-conversion's global → trusted project → environment precedence.
+	let enabled = readFastModeSetting(join(getAgentDir(), CODEX_CONVERSION_CONFIG)) ?? false;
+	if (projectTrusted) {
+		enabled = readFastModeSetting(join(cwd, ".pi", CODEX_CONVERSION_CONFIG)) ?? enabled;
+	}
+
+	const fastOverride = process.env.PI_CODEX_FAST?.trim().toLowerCase();
+	if (fastOverride === "1" || fastOverride === "true") return true;
+	if (fastOverride === "0" || fastOverride === "false") return false;
+	return enabled;
+}
 
 export default function (pi: ExtensionAPI) {
 	pi.on("session_start", async (_event, ctx) => {
@@ -102,6 +132,9 @@ export default function (pi: ExtensionAPI) {
 					const levelDot = theme.fg(levelColor, "●");
 					const modelStr = theme.fg("accent", ctx.model?.id || "no-model");
 					const levelStr = theme.fg("muted", thinkingLevel);
+					const fastModeStr = isFastModeEnabled(ctx.cwd, ctx.isProjectTrusted())
+						? theme.fg("warning", "⚡")
+						: "";
 
 					// Git branch — use success color
 					const gitStr = branch ? theme.fg("toolDiffAdded", " " + branch) : "";
@@ -121,6 +154,7 @@ export default function (pi: ExtensionAPI) {
 					// ===== RIGHT: model info =====
 					const rightParts = [
 						modelStr,
+						fastModeStr,
 						levelDot + " " + levelStr,
 						gitStr,
 					].filter(Boolean);

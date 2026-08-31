@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": true,
+    "types": ["node"]
+  },
+  "include": [
+    "policy/pi-tool-events.ts",
+    "git-interceptor.ts",
+    "cloudflare-deployment-allowlist.ts",
+    "worker-configuration-guard.ts",
+    "uv-python-interceptor.ts",
+    "pi-cloak/index.ts",
+    "tests/*.test.ts"
+  ]
+}

@@ -5,12 +5,14 @@
     "servers": {
       "executor": {
         "type": "remote",
-        "url": "https://exe.mulroy.ai/mcp?elicitation_mode=native"
+        "url": "https://exe.mulroy.ai/mcp?elicitation_mode=native",
+        "enabled": false
       },
       "cf-portal": {
         "type": "remote",
         "url": "https://portal.mcp.cfdata.org/mcp?codemode=search_and_execute",
-        "oauth": {}
+        "oauth": {},
+        "enabled": false
       },
       "uidotsh": {
         "type": "remote",
@@ -18,11 +20,12 @@
         "headers": {
           "Authorization": "Bearer ${UIDOTSH_TOKEN}"
         },
-        "oauth": false
+        "oauth": false,
+        "enabled": false
       },
       "open-computer-use": {
         "type": "local",
-        "command": ["open-computer-use", "mcp"],
+        "command": ["/home/tmr/.pi/agent/bin/open-computer-use-system-python", "mcp"],
         "enabled": true,
         "timeout": 60000
       }

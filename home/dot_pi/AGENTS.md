@@ -1,94 +1,40 @@
-# PI AGENT WORKSPACE
+# Pi harness workspace
 
-**Generated:** 2026-05-09T00:00:00Z
-**Commit:** 871ce6f
+TypeScript, ESM-only Pi configuration and local extensions. The directory is
+stowed to `~/.pi`; edit the dotfiles source, not the generated symlink target.
 
-npm workspace for pi agent extensions + skills. TypeScript, ESM-only.
+## Change map
 
-## STRUCTURE
+| Change | Source of truth |
+| --- | --- |
+| Default provider, model, package pins, subagent routing | `agent/settings.json` |
+| Codex execution behavior | `agent/pi-codex-conversion.json` |
+| Background model choices | `agent/pi-auto-trees.json`, `agent/pi-smart-btw.json`, `agent/pi-subagent-review.json` |
+| Local tool-event normalization | `agent/extensions/policy/pi-tool-events.ts` |
+| Git, Cloudflare, Worker, Python, or secret policy | matching extension under `agent/extensions/` plus `agent/extensions/tests/` |
+| Package-style local extension | `agent/extensions/<name>/` with its own `package.json` |
+| Standalone extension | `agent/extensions/<name>.ts` |
+| Retired extension reference | `archive/extensions/` |
 
-```
-.pi/
-├── package.json          # Workspace root: workspaces = ["agent/extensions/*"]
-├── tsconfig.json         # Strict, bundler mode, ESNext, noEmit
-├── agent/
-│   ├── settings.json     # Provider, model, theme, packages, interview config
-│   ├── cloak.json        # Secret masking patterns for agent output
-│   ├── extensions/       # TypeScript extensions (6 packages + 5 standalone)
-│   │   ├── opencode-cloudflare/  # Cloudflare gateway provider (auth, catalog, dispatch)
-│   │   ├── web-tools/            # webfetch + websearch tools (Exa provider)
-│   │   ├── pi-mcp/               # MCP adapter with OAuth + panel UI
-│   │   ├── pi-skill-toggle/      # Skill discovery, toggle UI, frontmatter patching
-│   │   ├── pi-cloak/             # Secret cloaking extension
-│   │   ├── todos/                # File-based todo management
-│   │   ├── answer.ts             # Standalone: answer formatting
-│   │   ├── git-interceptor.ts    # Standalone: git command interception
-│   │   ├── update.ts             # Standalone: self-update logic
-│   │   ├── whimsical.ts          # Standalone: whimsical diagram integration
-│   │   └── web-tools.json        # Helium browser profile config
-│   └── skills/           # 15 agent skills (SKILL.md + resources)
-│       ├── tdd/          # Test-driven development
-│       ├── tmux/         # Tmux remote control
-│       ├── triage/       # Issue triage state machine
-│       ├── init-deep/    # AGENTS.md generation (this skill)
-│       └── ...           # grill-with-docs, to-issues, to-prd, write-a-skill, etc.
-```
+## Required verification
 
-## WHERE TO LOOK
+Run `npm run check` after extension changes. It typechecks retained extension
+workspaces and runs the Pi/Codex safety adapter suite. After package or settings
+changes, also start `PI_STARTUP_BENCHMARK=1 pi` and inspect the loaded-extension
+list for errors and collisions.
 
-| Task | Location |
-|------|----------|
-| Change default model/provider | `agent/settings.json` |
-| Add pi package | `agent/settings.json` → `packages[]` using `npm:<name>` specs |
-| Create extension | `agent/extensions/<name>/` with `package.json` |
-| Create standalone extension | `agent/extensions/<name>.ts` |
-| Create skill | `agent/skills/<name>/SKILL.md` |
-| Secret masking | `agent/cloak.json` |
-| Run extension tests | `npm run test:web-tools` (from .pi root) |
-| Type-check | `npm run check` (from .pi root) |
+## Harness invariants
 
-## CONVENTIONS
-
-- Extensions as npm workspace packages: each has own `package.json`
-- Third-party pi packages: install through `agent/settings.json` using Pi's native `npm:<name>` package specs
-- Standalone extensions: single `.ts` file in `extensions/`
-- Skills: `SKILL.md` as entry, optional bundled resources (templates, patches)
-- ESM only: `"type": "module"` everywhere
-- Dependencies: `@earendil-works/pi-ai`, `@earendil-works/pi-coding-agent`, `@earendil-works/pi-tui`
-- TypeScript strict mode: `noUncheckedIndexedAccess`, `noImplicitOverride`
-
-## ANTI-PATTERNS
-
-- Installing deps at workspace root for extension-specific needs (use per-package)
-- Committing `node_modules/` (gitignored per-extension)
-- Editing `agent/settings.json` outside dotfiles repo (stow overwrites)
-- Adding runtime state files to git (most of `agent/*` is gitignored, only extensions/skills/settings un-ignored)
-- Writing any model ID from a local `opencode-cloudflare` overlay into tests, fixtures, docs, examples, source comments, tracked configuration, or any other version-controlled file. Overlay models are internal/private; use public catalog models or generic placeholders in tracked artifacts.
-
-## KEY SETTINGS
-
-```jsonc
-// agent/settings.json
-{
-  "defaultProvider": "opencode.cloudflare.dev",
-  "defaultModel": "claude-opus-4-6",
-  "defaultThinkingLevel": "high",
-  "theme": "light",
-  "packages": ["npm:pi-extmgr", "npm:@plannotator/pi-extension"]
-}
-```
-
-## GITIGNORE PATTERN
-
-Most of `agent/` is gitignored by default. Tracked files are explicitly un-ignored:
-- `agent/settings.json`, `agent/cloak.json`, `agent/tsconfig.json`, `agent/package.json`
-- `agent/extensions/**` (but `node_modules/` within are re-ignored)
-- `agent/skills/**`
-- `agent/themes/*.json`
-
-## NOTES
-
-- `web-tools.json` is Helium browser profile config, not extension settings
-- opencode-cloudflare supports native pi `/login` + importing existing OpenCode auth
-- Treat model IDs supplied through local `opencode-cloudflare` overlays as private information: never expose them in version-controlled content.
-- pi-skill-toggle has a full UI layer (overlay, render, view-model)
+- Keep third-party packages pinned with exact `npm:<name>@<version>` entries.
+- Route shell and file-mutation policy through
+  `agent/extensions/policy/pi-tool-events.ts` so Pi and Codex event dialects
+  receive the same guardrails.
+- Keep `whimsical.ts` active unless a task explicitly replaces its diagram
+  integration.
+- Use `pi-web-access` as the active web layer. The old custom OpenCode provider
+  and web tools live in `archive/extensions/` for rollback only.
+- Treat archived code as inactive reference. Restore it to `agent/extensions/`
+  and update workspace scripts before expecting Pi to load or test it.
+- Keep runtime state out of Git; `.gitignore` explicitly permits only tracked
+  configuration files beneath `agent/`.
+- Preserve ESM and the strict TypeScript options already used by each workspace.
