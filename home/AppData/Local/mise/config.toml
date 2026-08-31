@@ -1,0 +1,8 @@
+# Windows runtime defaults. Install and activate them with `mise install`.
+
+[settings]
+idiomatic_version_file_enable_tools = ["node"]
+
+[tools]
+node = "lts"
+python = "latest"
