@@ -3,6 +3,16 @@
 .config/omarchy
 {{ end }}
 
+{{ if eq .chezmoi.os "windows" }}
+# The existing .config and .local trees configure POSIX applications and
+# macOS/Linux desktop tooling. Windows receives only the native PowerShell and
+# NuGet targets below, rather than unusable Unix paths or shell scripts.
+.config
+.config/**
+.local
+.local/**
+{{ end }}
+
 {{ if ne .chezmoi.os "darwin" }}
 .config/aerospace
 .config/skhd
@@ -47,3 +57,11 @@
 .config/nvim
 .config/nvim/**
 .claude/skills/code-review-workspace
+
+{{ if ne .chezmoi.os "windows" }}
+# These paths use Windows' native per-user locations.
+AppData
+AppData/**
+Documents/PowerShell
+Documents/PowerShell/**
+{{ end }}
