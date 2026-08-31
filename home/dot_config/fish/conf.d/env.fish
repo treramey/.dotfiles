@@ -3,6 +3,13 @@ source "$HOME/.local/share/../bin/env.fish"
 # Environment variables
 set -gx XDG_CONFIG_HOME "$HOME/.config"
 
+# Herdr embeds Ghostty's VT engine. Its Kitty graphics renderer is enabled in
+# the Herdr config, but it does not set TERM_PROGRAM itself. Advertise the
+# supported graphics protocol so Pi renders images instead of placeholders.
+if set -q HERDR_ENV
+    set -gx TERM_PROGRAM ghostty
+end
+
 # Pi image previews can use Kitty graphics passthrough inside tmux when the
 # outer terminal supports it. Other terminals fall back to ANSI block previews.
 if test "$TERM_PROGRAM" = ghostty; or test "$TERM_PROGRAM" = kitty; or test "$TERM_PROGRAM" = WezTerm; or set -q KITTY_WINDOW_ID; or set -q WEZTERM_PANE

@@ -29,8 +29,8 @@ bind -T copy-mode-vi y send -X copy-selection-and-cancel
 
 # Pane Controls
 # Splits reuse the current ssh command when the active pane is an SSH session.
-bind h run-shell "$HOME/.local/scripts/tmux-native-split -v '#{pane_id}'"
-bind v run-shell "$HOME/.local/scripts/tmux-native-split -h '#{pane_id}'"
+bind h run-shell "$HOME/.local/bin/tmux-native-split -v '#{pane_id}'"
+bind v run-shell "$HOME/.local/bin/tmux-native-split -h '#{pane_id}'"
 bind x kill-pane
 
 bind -n C-M-Left select-pane -L
@@ -46,7 +46,7 @@ bind -n C-M-S-Right resize-pane -R 5
 # Window navigation
 # bind r command-prompt -I "#W" "rename-window -- '%%'"
 # New window: if current pane is ssh, open another ssh connection to the same host.
-bind c run-shell "$HOME/.local/scripts/tmux-new-native-window '#{pane_id}'"
+bind c run-shell "$HOME/.local/bin/tmux-new-native-window '#{pane_id}'"
 bind k kill-window
 
 
@@ -198,10 +198,10 @@ bind -r h select-pane -L
 bind l switch-client -l
 
 # Splits reuse the current ssh command when the active pane is an SSH session.
-bind h run-shell "$HOME/.local/scripts/tmux-native-split -v '#{pane_id}'"
-bind v run-shell "$HOME/.local/scripts/tmux-native-split -h '#{pane_id}'"
+bind h run-shell "$HOME/.local/bin/tmux-native-split -v '#{pane_id}'"
+bind v run-shell "$HOME/.local/bin/tmux-native-split -h '#{pane_id}'"
 # New window: if current pane is ssh, open another ssh connection to the same host.
-bind c run-shell "$HOME/.local/scripts/tmux-new-native-window '#{pane_id}'"
+bind c run-shell "$HOME/.local/bin/tmux-new-native-window '#{pane_id}'"
 
 # tools
 bind g popup -EE -w 90% -h 90% -d "#{pane_current_path}" -b rounded -S 'fg=#c4a7e7' "env SSH_AUTH_SOCK=$HOME/.bitwarden-ssh-agent.sock lazygit"
