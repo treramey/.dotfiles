@@ -1,32 +1,51 @@
-# .pi
+# Pi harness
 
-Global pi config, synced via dotfiles and stowed into `~/.pi`.
+Global Pi configuration, synced through this dotfiles repository and stowed at
+`~/.pi`.
 
-## Extension dependency workspace
+The default runtime is OpenAI Codex on GPT-5.6 Terra with medium reasoning.
+Codex Conversion supplies the execution dialect, while the local policy
+extensions keep Git, Cloudflare deployment, Worker configuration, Python, and
+secret-handling guardrails active for both Pi and Codex tool event shapes.
 
-Package-style global extensions stay in `agent/extensions/` so pi can still auto-discover them from:
+## Maintenance
 
-- `~/.pi/agent/extensions/*.ts`
-- `~/.pi/agent/extensions/*/index.ts`
-
-This directory is now the shared npm workspace root for extensions with their own `package.json` files.
-
-Install or refresh all extension dependencies from here:
+Install or refresh local extension dependencies from this directory:
 
 ```bash
-npm install
+npm install --ignore-scripts
 ```
 
-Run workspace checks:
+Run every retained workspace check and the cross-dialect safety suite:
 
 ```bash
 npm run check
 ```
 
-Current workspace-managed extensions live under:
+Run a smoke test after package or extension changes:
 
-- `agent/extensions/web-tools`
-- `agent/extensions/pi-mcp`
-- `agent/extensions/opencode-cloudflare`
+```bash
+PI_STARTUP_BENCHMARK=1 pi
+```
 
-After changing extension code, reload pi with `/reload`.
+Use `/reload` after changing extension code in a running Pi session.
+
+## Layout
+
+- `agent/settings.json` pins third-party Pi packages and model routing.
+- `agent/pi-codex-conversion.json` configures the Codex execution harness.
+- `agent/pi-auto-trees.json`, `agent/pi-smart-btw.json`, and
+  `agent/pi-subagent-review.json` route background work to Luna, Terra, or Sol.
+- `agent/extensions/policy/pi-tool-events.ts` normalizes Pi and Codex tool
+  events before local safety policies inspect them.
+- `agent/extensions/whimsical.ts` remains an active local extension.
+- `archive/extensions/` contains reversible snapshots of retired extensions;
+  Pi does not auto-load this directory.
+
+The custom `opencode-cloudflare` provider and `web-tools` implementation are
+archived. `pi-web-access` is the active web layer.
+
+## Neovim bridge
+
+The Pi side of `pi-nvim` is installed here. The Neovim side is configured in
+`~/.config/nvim/plugin/28_pi.lua` with the `<Leader>a…` mappings.

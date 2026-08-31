@@ -21,14 +21,16 @@
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { createBashTool } from "@earendil-works/pi-coding-agent";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+
+import { parsePiShellToolCall } from "./policy/pi-tool-events.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const interceptedCommandsPath = join(__dirname, "..", "intercepted-commands");
 
-function getBlockedCommandMessage(command: string): string | null {
+/** Returns the uv migration guidance for a disallowed Python shell command. */
+export function getUvPolicyBlockedMessage(command: string): string | undefined {
   // Match commands at the start of a shell segment (start/newline/; /&& /|| /|)
   const pipCommandPattern = /(?:^|\n|[;|&]{1,2})\s*(?:\S+\/)?pip\s*(?:$|\s)/m;
   const pip3CommandPattern = /(?:^|\n|[;|&]{1,2})\s*(?:\S+\/)?pip3\s*(?:$|\s)/m;
@@ -103,21 +105,21 @@ function getBlockedCommandMessage(command: string): string | null {
     ].join("\n");
   }
 
-  return null;
+  return undefined;
 }
 
 export default function (pi: ExtensionAPI) {
-  const cwd = process.cwd();
-  const bashTool = createBashTool(cwd, {
-    commandPrefix: `export PATH="${interceptedCommandsPath}:$PATH"`,
-    spawnHook: (ctx) => {
-      const blockedMessage = getBlockedCommandMessage(ctx.command);
-      if (blockedMessage) {
-        throw new Error(blockedMessage);
-      }
-      return ctx;
-    },
-  });
+  pi.on("tool_call", (event) => {
+    const shellCall = parsePiShellToolCall(event);
+    if (shellCall === undefined) return;
 
-  pi.registerTool(bashTool);
+    const blockedMessage = getUvPolicyBlockedMessage(shellCall.command);
+    if (blockedMessage !== undefined) {
+      return { block: true, reason: blockedMessage };
+    }
+
+    shellCall.replaceCommand(
+      `export PATH="${interceptedCommandsPath}:$PATH"\n${shellCall.command}`,
+    );
+  });
 }

@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, join, resolve } from "node:path";
 
+import { parsePiSecretBearingToolResult } from "../policy/pi-tool-events.ts";
+
 type CloakPatternSpec = string | {
   pattern: string;
   replace?: string;
@@ -127,14 +129,16 @@ function compilePattern(spec: CloakPatternSpec, ruleReplace?: string): CompiledC
     return {
       source: spec,
       regex: new RegExp(spec, "g"),
-      replace: ruleReplace,
+      ...(ruleReplace === undefined ? {} : { replace: ruleReplace }),
     };
   }
+
+  const replace = spec.replace ?? ruleReplace;
 
   return {
     source: spec.pattern,
     regex: new RegExp(spec.pattern, ensureGlobalFlags(spec.flags)),
-    replace: spec.replace ?? ruleReplace,
+    ...(replace === undefined ? {} : { replace }),
   };
 }
 
@@ -309,12 +313,11 @@ function applyPatternsToLine(
   return { line: updated, changed };
 }
 
-export function cloakText(rawText: string, rawPath: string, cwd: string, state: RuntimeState): string {
-  if (!state.config.enabled) return rawText;
-
-  const matchingRules = state.rules.filter((rule) => ruleMatchesPath(rule, rawPath, cwd));
-  if (matchingRules.length === 0) return rawText;
-
+function cloakTextWithRules(
+  rawText: string,
+  matchingRules: readonly CompiledCloakRule[],
+  state: RuntimeState,
+): string {
   const newline = rawText.includes("\r\n") ? "\r\n" : "\n";
   const lines = rawText.split(/\r?\n/);
   let changed = false;
@@ -334,6 +337,20 @@ export function cloakText(rawText: string, rawPath: string, cwd: string, state: 
   });
 
   return changed ? cloakedLines.join(newline) : rawText;
+}
+
+/** Redacts configured secrets from the result of reading one known file path. */
+export function cloakText(rawText: string, rawPath: string, cwd: string, state: RuntimeState): string {
+  if (!state.config.enabled) return rawText;
+  const matchingRules = state.rules.filter((rule) => ruleMatchesPath(rule, rawPath, cwd));
+  if (matchingRules.length === 0) return rawText;
+  return cloakTextWithRules(rawText, matchingRules, state);
+}
+
+/** Redacts every configured secret pattern from model-visible shell command output. */
+export function cloakCommandOutputText(rawText: string, state: RuntimeState): string {
+  if (!state.config.enabled || state.rules.length === 0) return rawText;
+  return cloakTextWithRules(rawText, state.rules, state);
 }
 
 export default function (pi: ExtensionAPI) {
@@ -365,11 +382,12 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.on("tool_result", async (event, ctx) => {
-    if (event.toolName !== "read") return undefined;
+    const secretBearingResult = parsePiSecretBearingToolResult(event);
+    if (secretBearingResult === undefined) return undefined;
     if (!state.config.enabled) return undefined;
 
-    const rawPath = typeof event.input?.path === "string" ? event.input.path : "";
-    if (!rawPath) return undefined;
+    const rawPath = secretBearingResult.path;
+    if (secretBearingResult.toolName === "read" && rawPath === undefined) return undefined;
 
     let changed = false;
     const content = event.content.map((part) => {
@@ -377,7 +395,9 @@ export default function (pi: ExtensionAPI) {
         return part;
       }
 
-      const cloakedText = cloakText(part.text, rawPath, ctx.cwd, state);
+      const cloakedText = rawPath === undefined
+        ? cloakCommandOutputText(part.text, state)
+        : cloakText(part.text, rawPath, ctx.cwd, state);
       if (cloakedText === part.text) {
         return part;
       }
