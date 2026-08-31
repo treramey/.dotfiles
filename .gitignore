@@ -35,6 +35,7 @@ home/dot_agents/skills/ui/
 home/dot_pi/agent/*
 home/dot_pi/todos/*
 .pi/todos/*
+.pi/semantic-grep.sqlite
 
 # pi extensions node_modules
 home/dot_pi/agent/extensions/**/node_modules/
@@ -45,6 +46,11 @@ home/dot_pi/agent/extensions/**/node_modules/
 !home/dot_pi/package-lock.json
 !home/dot_pi/AGENTS.md
 !home/dot_pi/agent/settings.json
+!home/dot_pi/agent/pi-codex-conversion.json
+!home/dot_pi/agent/pi-auto-trees.json
+!home/dot_pi/agent/pi-smart-btw.json
+!home/dot_pi/agent/pi-subagent-review.json
+!home/dot_pi/agent/inline-skills.json
 !home/dot_pi/agent/tsconfig.json
 !home/dot_pi/agent/package.json
 !home/dot_pi/agent/cloak.json

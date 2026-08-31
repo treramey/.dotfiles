@@ -40,14 +40,6 @@ else
   write_delta_features
 fi
 
-pi_switcher="$HOME/.local/scripts/omarchy-theme-set-pi"
-
-if [[ -x "$pi_switcher" ]]; then
-  "$pi_switcher" || true
-elif command -v omarchy-theme-set-pi >/dev/null 2>&1; then
-  omarchy-theme-set-pi || true
-fi
-
 vesktop_switcher="$HOME/.local/scripts/omarchy-theme-set-vesktop"
 
 if [[ -x "$vesktop_switcher" ]]; then

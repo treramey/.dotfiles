@@ -1,0 +1,156 @@
+onboarding = false
+
+[terminal]
+# Use Fish while preserving login shell behavior.
+default_shell = "fish"
+shell_mode = "auto"
+
+[update]
+channel = "stable"
+
+[keys]
+# Prefix: C-Space
+prefix = "ctrl+space"
+
+# Basics.
+help = "prefix+?"
+# Keep prefix+shift+s available for workspace picking.
+settings = "prefix+shift+comma"
+detach = ["prefix+d", "prefix+q"]
+reload_config = "prefix+r"
+goto = "prefix+s"
+
+# Workspace controls:
+#   prefix+shift+s choose workspace
+#   prefix+w       also open workspace navigation (Herdr default muscle memory)
+#   prefix+shift+w rename workspace (avoids symbol-layer gymnastics)
+#   prefix+( / )   previous / next workspace
+workspace_picker = ["prefix+shift+s", "prefix+w"]
+new_workspace = "prefix+shift+n"
+rename_workspace = "prefix+shift+w"
+close_workspace = "prefix+shift+d"
+previous_workspace = "prefix+("
+next_workspace = "prefix+)"
+
+# Agents.
+focus_agent = "prefix+alt+1..9"
+
+# Tab controls.
+new_tab = "prefix+c"
+previous_tab = "prefix+p"
+next_tab = "prefix+n"
+switch_tab = "prefix+1..9"
+rename_tab = "prefix+comma"
+close_tab = "prefix+shift+x"
+
+# Pane creation (matching Omarchy/tmux muscle memory).
+split_vertical = "prefix+v"
+split_horizontal = "prefix+h"
+close_pane = "prefix+x"
+zoom = "prefix+m"
+copy_mode = "prefix+y"
+
+# Pane resize mode.
+resize_mode = "prefix+shift+r"
+
+# Pane navigation; ctrl+h/j/k/l are direct Herdr chords.
+focus_pane_left = ["ctrl+h"]
+focus_pane_down = ["ctrl+j"]
+focus_pane_up = ["ctrl+k"]
+focus_pane_right = ["ctrl+l"]
+cycle_pane_next = "prefix+tab"
+cycle_pane_previous = "prefix+shift+tab"
+
+# Match tmux: return to the last focused Herdr pane.
+last_pane = "prefix+l"
+
+# Keep Herdr's dashboard/sidebar available, but not on prefix+b since C-b is not the prefix here.
+toggle_sidebar = "prefix+b"
+
+# Navigate-mode movement.
+navigate_workspace_up = "up"
+navigate_workspace_down = "down"
+navigate_pane_left = "h"
+navigate_pane_down = "j"
+navigate_pane_up = "k"
+navigate_pane_right = "l"
+
+# Search existing Herdr workspaces and zoxide directories in one Television
+# picker. Selecting a directory creates and focuses a workspace for it.
+[[keys.command]]
+key = "ctrl+f"
+type = "pane"
+command = "PATH=\"$HOME/.local/scripts:$PATH\" herdr-tv"
+description = "switch or create workspace"
+
+[[keys.command]]
+key = "prefix+g"
+type = "pane"
+command = "lazygit"
+description = "open lazygit"
+
+# Open a 50:50 code workspace: Pi in the focused pane and Neovim to its right.
+[[keys.command]]
+key = "prefix+shift+e"
+type = "shell"
+command = "~/.local/bin/herdr-pi-nvim-layout"
+description = "Pi/Neovim code layout (50:50)"
+
+# Override Herdr's built-in "new worktree" key with the Worktrunk plugin's
+# switch/create picker.
+[[keys.command]]
+key = "prefix+shift+g"
+type = "plugin_action"
+command = "worktrunk.open"
+description = "Worktree: switch / create"
+
+[[keys.command]]
+# Avoid colliding with keys.close_workspace (prefix+shift+d).
+key = "prefix+shift+backspace"
+type = "plugin_action"
+command = "worktrunk.remove"
+description = "Worktree: remove"
+
+[ui]
+sidebar_width = 32
+sidebar_min_width = 18
+sidebar_max_width = 36
+right_click_passthrough_modifier = "ctrl"
+mouse_scroll_lines = 3
+# Keep Herdr's named, visually separated split panes.
+pane_gaps = true
+pane_outer_borders = true
+show_agent_labels_on_pane_borders = true
+agent_panel_sort = "spaces"
+
+[ui.toast]
+delivery = "herdr"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "top-right"
+
+[ui.toast.clipboard]
+enabled = true
+position = "bottom-center"
+
+[ui.sound]
+# Keep sound notifications disabled.
+enabled = false
+
+[session]
+# Resume supported coding agents when restoring sessions.
+resume_agents_on_restore = true
+
+[remote]
+manage_ssh_config = true
+
+[experimental]
+# Persist recent pane output to disk; keep in mind it may include secrets.
+pane_history = true
+allow_nested = false
+kitty_graphics = true
+
+[advanced]
+# Scrollback limit is byte-based.
+scrollback_limit_bytes = 52428800
