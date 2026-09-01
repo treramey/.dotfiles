@@ -49,7 +49,7 @@ local function load_omarchy_colors()
   }
 end
 
-config.font = wezterm.font "JetBrainsMono Nerd Font"
+config.font = wezterm.font("MonoLisa Variable", { weight = "Regular" })
 config.font_size = 9
 config.term = "xterm-256color"
 config.scrollback_lines = 10000
