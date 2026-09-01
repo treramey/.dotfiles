@@ -4,7 +4,10 @@
   "copyFormatting": "none",
   "profiles": {
     "defaults": {
-      "colorScheme": "Rosé Pine"
+      "colorScheme": "Rosé Pine",
+      "font": {
+        "face": "MonoLisa Variable"
+      }
     },
     "list": []
   },
