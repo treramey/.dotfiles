@@ -10,11 +10,11 @@ if wez.config_builder then
 end
 
 -- General configurations
-c.font = wez.font("Berkeley Mono", { weight = "Medium" })
+c.font = wez.font("MonoLisa Variable", { weight = "Regular" })
 c.font_rules = {
   {
     italic = true,
-    font = wez.font("Berkeley Mono", { weight = "Medium", italic = true }),
+    font = wez.font("MonoLisa Variable", { weight = "Regular", italic = true }),
   },
 }
 c.font_size = 15
