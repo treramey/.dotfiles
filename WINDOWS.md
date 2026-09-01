@@ -78,7 +78,8 @@ Useful optional switches are:
 ```
 
 The Windows Chezmoi profile intentionally ignores the Linux `.config` and
-`.local` trees. PowerShell configuration is deployed to
+`.local` trees, except for the native WezTerm configuration deployed to
+`~/.config/wezterm`. PowerShell configuration is deployed to
 `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`.
 
 Windows Terminal receives the managed Rose Pine scheme from
