@@ -295,7 +295,9 @@ $scoopExtraPackages = @($packageManifest.scoopExtras | Where-Object {
     -not $SkipContainerInstall -or $_ -ne "rancher-desktop"
 })
 $wingetPackages = @($packageManifest.winget)
-$fontPackages = if ($SkipFontInstall) { @() } else { @($packageManifest.scoopFonts) }
+# An `if` expression enumerates its output during assignment. Wrap the whole
+# expression so a single font remains an array under Windows PowerShell 5.1.
+$fontPackages = @(if ($SkipFontInstall) { @() } else { $packageManifest.scoopFonts })
 
 if ($Plan) {
     Get-WindowsBootstrapPlan `
