@@ -1,23 +1,33 @@
 {{- if eq .chezmoi.os "windows" }}
-# Managed by chezmoi. Keep this profile limited to Windows and portable tools.
+# Managed by chezmoi. Windows stays a thin host; development tools run in WSL.
 
-# Let cross-platform command-line tools share a predictable per-user config
-# location without applying this repository's Unix-specific .config tree.
-$env:XDG_CONFIG_HOME = Join-Path $HOME ".config"
-$env:STARSHIP_CONFIG = Join-Path $env:LOCALAPPDATA "starship.toml"
-$env:MISE_GLOBAL_CONFIG_FILE = Join-Path $env:LOCALAPPDATA "mise\config.toml"
-
-if (Get-Command nvim -ErrorAction SilentlyContinue) {
-    $env:EDITOR = "nvim"
-    $env:VISUAL = "nvim"
+if (Get-Module -ListAvailable -Name PSReadLine) {
+    Import-Module PSReadLine
+    Set-PSReadLineOption -EditMode Windows
+    Set-PSReadLineOption -HistoryNoDuplicates
+    Set-PSReadLineOption -PredictionSource History
+    Set-PSReadLineOption -PredictionViewStyle ListView
 }
 
-if (Get-Command mise -ErrorAction SilentlyContinue) {
-    $miseActivation = & mise activate powershell
-    Invoke-Expression ($miseActivation -join [Environment]::NewLine)
+if (Get-Command git -ErrorAction SilentlyContinue) {
+    Set-Alias -Name g -Value git
 }
 
-if (Get-Command starship -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& starship init powershell)
+if (Get-Command neovide -ErrorAction SilentlyContinue) {
+    function global:Open-WslNeovide {
+        if ($args.Count -eq 0) {
+            $wslHome = (& wsl.exe --exec sh -lc 'printf %s "$HOME"').Trim()
+            if ($LASTEXITCODE -eq 0 -and $wslHome) {
+                & neovide --wsl --chdir "$wslHome/src"
+                return
+            }
+        }
+
+        & neovide --wsl @args
+    }
+
+    Set-Alias -Name nvim -Value Open-WslNeovide
+    Set-Alias -Name vim -Value Open-WslNeovide
+    Set-Alias -Name v -Value Open-WslNeovide
 }
 {{- end }}
