@@ -81,6 +81,11 @@ The Windows Chezmoi profile intentionally ignores the Linux `.config` and
 `.local` trees. PowerShell configuration is deployed to
 `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`.
 
+Windows Terminal receives the managed Rose Pine scheme from
+`~/AppData/Local/Microsoft/Windows Terminal/settings.json`. WSL applications
+also use the static Rose Pine palette; only an Omarchy installation follows
+Omarchy's generated active theme.
+
 ### 3. Provision Ubuntu
 
 Clone the repository again inside WSL. The Windows and WSL checkouts are

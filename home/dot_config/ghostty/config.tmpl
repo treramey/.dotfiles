@@ -1,7 +1,11 @@
-{{- if .is_arch -}}
+{{- if eq (includeTemplate "theme-mode" .) "dynamic" -}}
 # Dynamic theme colors
-config-file = ?"~/.config/omarchy/current/theme/ghostty.conf"
+config-file = ?"~/.local/state/omarchy/current/theme/ghostty.conf"
+{{- else -}}
+theme = light:Rose Pine Dawn,dark:Rose Pine
+{{- end }}
 
+{{- if .is_arch -}}
 # Font
 font-family = MonoLisa Variable
 font-style = Regular
@@ -41,8 +45,6 @@ mouse-scroll-multiplier = 0.95
 # Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
 async-backend = epoll
 {{- else -}}
-theme = light:Rose Pine Dawn,dark:Rose Pine
-
 adjust-cell-height = 35%
 font-family = MonoLisa Variable
 font-size = 14

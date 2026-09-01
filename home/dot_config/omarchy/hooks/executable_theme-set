@@ -6,8 +6,7 @@ set -euo pipefail
 # chezmoi-managed configs never drift.
 
 theme_name="${1:?usage: theme-set <omarchy-theme-name>}"
-config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-theme_dir="$config_home/omarchy/current/theme"
+theme_dir="$HOME/.local/state/omarchy/current/theme"
 
 mkdir -p ~/.cache
 
