@@ -89,19 +89,18 @@ Omarchy's generated active theme.
 
 ### 3. Provision Ubuntu
 
-Clone the repository again inside WSL. The Windows and WSL checkouts are
-separate because each operating system has its own Chezmoi source and target
+Run the Ubuntu bootstrap inside WSL. It clones a separate Linux checkout to
+`~/.dotfiles`, because Windows and WSL have different Chezmoi source and target
 paths.
 
 ```bash
 sudo apt-get update
-sudo apt-get install --yes git
-git clone https://github.com/treramey/.dotfiles.git ~/.dotfiles
-~/.dotfiles/install-ubuntu.sh
+sudo apt-get install --yes curl
+curl -fsSL https://raw.githubusercontent.com/treramey/.dotfiles/main/install-ubuntu.sh | bash
 ```
 
 `install-ubuntu.sh` is intentionally only a bootstrap. It installs the minimum
-packages needed for Chezmoi, initializes the repository, and runs
+packages needed for Git and Chezmoi, clones or reuses the Linux repository, and runs
 `chezmoi apply`. The Chezmoi `run_onchange` script then:
 
 - reconciles the Ubuntu APT package list;

@@ -248,7 +248,7 @@ function Test-WindowsBootstrapWslEnvironment {
 
     & wsl.exe --distribution $Distribution --exec sh -lc "command -v nvim >/dev/null 2>&1"
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "Windows bootstrap WSL Neovim check failed: run ~/.dotfiles/install-ubuntu.sh inside $Distribution before launching 'neovide --wsl'."
+        Write-Warning "Windows bootstrap WSL Neovim check failed: run the Ubuntu bootstrap command documented in WINDOWS.md inside $Distribution before launching 'neovide --wsl'."
         return
     }
 
@@ -359,4 +359,4 @@ if (-not $SkipWslCheck) {
 }
 
 Write-Host ""
-Write-Host "Windows host bootstrap complete. Run ~/.dotfiles/install-ubuntu.sh inside $WslDistribution to provision development tools." -ForegroundColor Green
+Write-Host "Windows host bootstrap complete. Run the Ubuntu bootstrap command from WINDOWS.md inside $WslDistribution to provision development tools." -ForegroundColor Green

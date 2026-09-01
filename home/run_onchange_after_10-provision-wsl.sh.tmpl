@@ -84,6 +84,12 @@ enable_wsl_bitwarden_ssh_bridge() {
     systemctl --user enable bitwarden-ssh-agent-bridge.service
     if ! systemctl --user restart bitwarden-ssh-agent-bridge.service; then
         printf 'WSL provisioning warning: Bitwarden SSH bridge is not ready; install npiperelay on Windows, enable Bitwarden SSH Agent, then rerun chezmoi apply.\n' >&2
+        return
+    fi
+
+    local agent_socket="$HOME/.bitwarden-ssh-agent.sock"
+    if ! SSH_AUTH_SOCK="$agent_socket" timeout 5 ssh-add -L >/dev/null 2>&1; then
+        printf 'WSL provisioning warning: Bitwarden bridge is listening, but no SSH keys are available. Open and unlock Bitwarden Desktop, enable Settings > SSH agent, then restart bitwarden-ssh-agent-bridge.service.\n' >&2
     fi
 }
 
