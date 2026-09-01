@@ -1,6 +1,6 @@
 {
   "lastChangelogVersion": "0.84.4",
-  "theme": "omarchy-system",
+  "theme": "rose-pine",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-terra",
   "packages": [

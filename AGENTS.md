@@ -142,14 +142,26 @@ When modifying configurations:
 
 ## Theme Consistency
 
-Rose Pine theme applied throughout:
+Theme selection has one platform policy:
+
+- Omarchy uses the palette generated at
+  `~/.local/state/omarchy/current/theme/` and follows live theme changes.
+- macOS, Windows/WSL, and non-Omarchy Linux use Rose Pine.
+
+The policy applies throughout:
 - Ghostty terminal
+- WezTerm terminal
+- Windows Terminal
 - FZF search
 - Bat syntax highlighting
 - Eza file listing
 - Delta git diffs
-- Oh-my-posh prompt
+- Pi
 - Tmux status bar
+
+Chezmoi templates branch through `home/.chezmoitemplates/theme-mode`. Keep
+Omarchy-generated artifacts out of Git; for example,
+`home/dot_pi/agent/themes/omarchy-system.json` is runtime state.
 
 ## Important Notes
 

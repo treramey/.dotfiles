@@ -5,7 +5,7 @@ set -euo pipefail
 # Mirrors Omarchy/Ryan's generated-theme approach used for Pi: one stable theme
 # file whose colors are regenerated whenever the Omarchy theme changes.
 
-CURRENT_THEME_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/omarchy/current/theme"
+CURRENT_THEME_PATH="$HOME/.local/state/omarchy/current/theme"
 COLORS_PATH="$CURRENT_THEME_PATH/colors.toml"
 VESKTOP_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/vesktop"
 VESKTOP_THEMES_DIR="$VESKTOP_CONFIG_DIR/themes"
@@ -51,14 +51,19 @@ mkdir -p "$VESKTOP_THEMES_DIR"
 
 /usr/bin/python3 - "$COLORS_PATH" "$VESKTOP_THEME_PATH" <<'PY'
 import os
+import subprocess
 import sys
 import tempfile
-import tomllib
 
 colors_path, theme_path = sys.argv[1], sys.argv[2]
 
-with open(colors_path, "rb") as f:
-    source = tomllib.load(f)
+resolved_colors = subprocess.run(
+    ["omarchy-theme-color", "--file", colors_path, "--all"],
+    check=True,
+    capture_output=True,
+    text=True,
+).stdout.splitlines()
+source = dict(line.split("\t", 1) for line in resolved_colors if "\t" in line)
 
 
 def hex_to_rgb(value):
