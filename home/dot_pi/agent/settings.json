@@ -3,6 +3,10 @@
   "theme": "rose-pine",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-terra",
+  "npmCommand": [
+    "npm",
+    "--save-exact"
+  ],
   "packages": [
     "npm:@howaboua/pi-codex-conversion@3.0.23",
     "npm:@ff-labs/pi-fff@0.10.5",
