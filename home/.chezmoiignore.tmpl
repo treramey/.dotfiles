@@ -17,6 +17,11 @@
 # macOS/Linux desktop tooling. Development tools and Neovim run inside WSL.
 .config
 .config/**
+# WezTerm runs natively on Windows and reads its configuration from
+# %USERPROFILE%\.config\wezterm.
+!.config
+!.config/wezterm
+!.config/wezterm/**
 .local
 .local/**
 {{ end }}
