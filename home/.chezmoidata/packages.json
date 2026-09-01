@@ -30,9 +30,13 @@
         "fish",
         "git",
         "git-lfs",
+        "libicu78",
+        "mosh",
+        "pipx",
         "socat",
         "tmux",
         "unzip",
+        "xdg-terminal-exec",
         "zip"
       ]
     },
@@ -48,6 +52,7 @@
         { "name": "rust", "version": "1.98.0" },
         { "name": "shfmt", "version": "3.14.0" },
         { "name": "stylua", "version": "2.5.2" },
+        { "name": "uv", "version": "0.12.7" },
         { "name": "npm:@fsouza/prettierd", "version": "0.29.0" },
         { "name": "npm:@earendil-works/pi-coding-agent", "version": "0.84.4" },
         { "name": "pipx:xmlformatter", "version": "0.2.9" }
@@ -63,6 +68,7 @@
         { "name": "fd", "version": "10.5.0" },
         { "name": "fzf", "version": "0.74.3" },
         { "name": "gh", "version": "2.98.0" },
+        { "name": "go:github.com/joshmedeski/sesh/v2", "version": "2.28.0" },
         { "name": "herdr", "version": "0.8.2" },
         { "name": "jq", "version": "1.8.2" },
         { "name": "just", "version": "1.58.0" },
