@@ -55,7 +55,7 @@ config.term = "xterm-256color"
 config.scrollback_lines = 10000
 
 config.window_padding = { left = 14, right = 14, top = 14, bottom = 14 }
-config.window_decorations = "NONE"
+config.window_decorations = "TITLE | RESIZE"
 config.window_close_confirmation = "NeverPrompt"
 config.hide_tab_bar_if_only_one_tab = true
 config.use_fancy_tab_bar = false
