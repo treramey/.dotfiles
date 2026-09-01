@@ -9,7 +9,7 @@
 {{-   end -}}
 {{- end -}}
 
-sourceDir = "~/.dotfiles"
+sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 [data]
   is_arch = {{ $is_arch }}

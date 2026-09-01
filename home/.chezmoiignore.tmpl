@@ -3,10 +3,18 @@
 .config/omarchy
 {{ end }}
 
+{{ if ne (includeTemplate "is-wsl" .) "true" }}
+# WSL login shells need Mise shims before Neovide asks WSL to locate Neovim.
+.profile
+.local/bin/wslview
+.local/bin/bitwarden-ssh-agent-bridge
+.config/systemd/user/bitwarden-ssh-agent-bridge.service
+10-provision-wsl.sh
+{{ end }}
+
 {{ if eq .chezmoi.os "windows" }}
 # The existing .config and .local trees configure POSIX applications and
-# macOS/Linux desktop tooling. Windows receives only the native PowerShell and
-# NuGet targets below, rather than unusable Unix paths or shell scripts.
+# macOS/Linux desktop tooling. Development tools and Neovim run inside WSL.
 .config
 .config/**
 .local
