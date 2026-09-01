@@ -52,9 +52,11 @@ link_wsl_live_workspace() {
 }
 
 link_wsl_live_workspaces() {
-    local chezmoi_source_path repository_path
-    chezmoi_source_path="$(chezmoi source-path)"
-    repository_path="$(git -C "$chezmoi_source_path" rev-parse --show-toplevel)"
+    local repository_path
+    # This script runs inside `chezmoi apply`, which owns the persistent-state
+    # lock. Do not invoke chezmoi recursively here; its source path is already
+    # available when this template is rendered.
+    repository_path="$(git -C {{ .chezmoi.sourceDir | quote }} rev-parse --show-toplevel)"
 
     write_wsl_provision_step "Reconciling live dotfiles workspaces"
     link_wsl_live_workspace "$repository_path/home/dot_config/nvim" "$HOME/.config/nvim"
