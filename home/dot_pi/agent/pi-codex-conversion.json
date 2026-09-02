@@ -1,5 +1,5 @@
 {
-  "executionMode": "normal",
+  "executionMode": "code",
   "voiceFeaturesOnly": false,
   "prompt": {
     "heavySystemPromptOverwrite": false
@@ -37,7 +37,7 @@
     "maxHeapMiB": 4096
   },
   "openai": {
-    "fast": true,
+    "fast": false,
     "verbosity": "low",
     "lunaCacheKeepaliveMinutes": 0,
     "proxyResponsesLite": false,
