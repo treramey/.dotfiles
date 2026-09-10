@@ -6,6 +6,10 @@ This file provides detailed guidance for AI agents working with this dotfiles re
 
 Arch Linux dotfiles managed with chezmoi. Configuration files in `dot_config/` are templated/copied to `$HOME/.config/`.
 
+Windows and Ubuntu WSL configuration is owned by
+`https://github.com/treramey/dots-windows`. Keep Windows-specific configuration
+and provisioning in that repository, not here.
+
 **Core Stack:** Zsh + Neovim + Tmux + Git + Hyprland
 
 ## Shell Setup (Zsh)
@@ -146,12 +150,11 @@ Theme selection has one platform policy:
 
 - Omarchy uses the palette generated at
   `~/.local/state/omarchy/current/theme/` and follows live theme changes.
-- macOS, Windows/WSL, and non-Omarchy Linux use Rose Pine.
+- macOS and non-Omarchy Linux use Rose Pine.
 
 The policy applies throughout:
 - Ghostty terminal
 - WezTerm terminal
-- Windows Terminal
 - FZF search
 - Bat syntax highlighting
 - Eza file listing

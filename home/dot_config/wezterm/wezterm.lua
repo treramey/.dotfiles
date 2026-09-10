@@ -26,17 +26,6 @@ c.scrollback_lines = 3000
 c.default_workspace = "main"
 c.max_fps = 240
 
-if wez.target_triple:find "windows" then
-  c.wsl_domains = {
-    {
-      name = "WSL:Ubuntu",
-      distribution = "Ubuntu",
-      default_cwd = "~",
-    },
-  }
-  c.default_domain = "WSL:Ubuntu"
-end
-
 -- appearance
 appearance.apply_to_config(c)
 c.window_decorations = "NONE"
