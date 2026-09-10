@@ -219,6 +219,7 @@ versions. Then update the target environment:
 ```bash
 cd ~/.dotfiles
 git pull
+git submodule update --init --recursive
 chezmoi apply
 ```
 

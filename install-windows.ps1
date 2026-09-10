@@ -191,6 +191,11 @@ function Initialize-WindowsBootstrapChezmoi {
         $Url
     )
 
+    Invoke-WindowsBootstrapCommand -Command "git" -Arguments @(
+        "-C", $Path,
+        "submodule", "update", "--init", "--recursive"
+    )
+
     $chezmoiSourcePath = (& chezmoi --source $Path source-path).Trim()
     if (-not (Test-Path -LiteralPath (Join-Path $chezmoiSourcePath ".chezmoi.toml.tmpl"))) {
         throw "Windows bootstrap chezmoi initialization failed: source missing at $chezmoiSourcePath"

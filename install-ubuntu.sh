@@ -70,6 +70,7 @@ checkout_ubuntu_dotfiles() {
 
 initialize_ubuntu_dotfiles() {
     write_ubuntu_bootstrap_step "Applying Ubuntu WSL dotfiles and provisioning"
+    git -C "$repository_path" submodule update --init --recursive
     chezmoi --source "$repository_path" init --no-tty "$repository_url"
     local chezmoi_source_path
     chezmoi_source_path="$(chezmoi --source "$repository_path" source-path)"
