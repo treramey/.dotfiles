@@ -1,0 +1,4 @@
+# Herdr plugin sources installed on this machine.
+fullerzz/herdr-plugin-sesh
+plannotator/herdr-annotate
+smart-splits-nvim/smart-splits.nvim
