@@ -3,7 +3,7 @@
 **Generated:** 2026-01-29T00:00:00Z
 **Commit:** f2997bb
 
-Layered: `config.fish` -> `conf.d/*.fish` (auto) -> `functions/*.fish` (lazy)
+Startup: `conf.d/*.fish` loads before `config.fish`; `functions/*.fish` loads on demand.
 
 ## STRUCTURE
 
@@ -14,7 +14,6 @@ fish/
 │   ├── aliases.fish    # Shell aliases (c, code, pn, oc, wr)
 │   ├── paths.fish      # PATH modifications
 │   ├── git.fish        # Git abbreviations init
-│   ├── brew.fish       # Homebrew setup
 │   ├── opencode.fish   # Experimental feature flags
 │   └── ...             # Tool-specific (fnm, bun, zoxide, starship)
 ├── functions/          # Lazy-loaded functions
@@ -40,7 +39,7 @@ fish/
 - Functions use `-d "description"` flag (mandatory)
 - Private helpers prefix `__` (e.g., `__git.default_branch`)
 - Namespace pattern: `__<namespace>.<function>` (dot-separated)
-- Fallback chains for cross-platform compat (uuidgen -> python3 -> node)
+- UUID fallback chain: uuidgen -> python3 -> node
 - Fisher for plugin management (`fish_plugins`)
 - Use `fish_add_path` not manual `set PATH`
 - Use `set -gx` for global exports
@@ -63,7 +62,7 @@ fish/
 | `wr` | wrangler |
 | `lc` | localcode (dev opencode) |
 | `ks` | tmux kill-server |
-| `pbc`/`pbp` | pbcopy/pbpaste |
+| `pbc`/`pbp` | Wayland clipboard via wl-copy and wl-paste |
 
 ## GIT ABBREVIATIONS
 
@@ -92,7 +91,7 @@ fish/
 | `notify <msg>` | Desktop notification |
 | `scratch` | Temp file in editor |
 | `tempd` | cd into new temp directory |
-| `trash <file>` | Safe delete to ~/.Trash |
+| `trash <file>` | Move files to `$XDG_DATA_HOME/Trash/files`, defaulting to `~/.local/share/Trash/files` |
 | `httpstatus <code>` | HTTP status lookup (supports wildcards) |
 
 ## OPENCODE FLAGS

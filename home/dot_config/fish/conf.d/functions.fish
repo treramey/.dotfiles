@@ -25,8 +25,8 @@ end
 
 function localcode
     if test (count $argv) -eq 0
-        bun --cwd /Users/$USER/Code/personal/opencode/packages/opencode dev -- (pwd)
+        bun --cwd "$HOME/Code/personal/opencode/packages/opencode" dev -- (pwd)
     else
-        bun --cwd /Users/$USER/Code/personal/opencode/packages/opencode dev -- $argv
+        bun --cwd "$HOME/Code/personal/opencode/packages/opencode" dev -- $argv
     end
 end

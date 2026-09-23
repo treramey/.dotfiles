@@ -1,0 +1,211 @@
+" =============================================================================
+" IdeaVim Configuration
+" Rider / JetBrains IDEs
+" =============================================================================
+
+let mapleader = " "
+
+" Space is reserved for leader mappings.
+nnoremap <Space> <Nop>
+vnoremap <Space> <Nop>
+
+
+" =============================================================================
+" Options
+" =============================================================================
+
+set number
+set relativenumber
+set noshowmode
+
+set incsearch
+set hlsearch
+set ignorecase
+set smartcase
+
+set nowrap
+set breakindent
+
+set clipboard=unnamed,unnamedplus
+set clipboard+=ideaput
+
+set cursorline
+set scrolloff=8
+set colorcolumn=80
+
+" Optional: install the JetBrains "Which-Key" plugin, then uncomment this.
+" set which-key
+
+
+" =============================================================================
+" Save / Quit
+" =============================================================================
+
+nnoremap <Leader>w :w<CR>
+nnoremap <Leader>q :q<CR>
+nnoremap <Leader>z :wq<CR>
+
+
+" =============================================================================
+" Vim Navigation and Editing
+" =============================================================================
+
+" Keep the cursor centered while navigating.
+nnoremap <C-u> <C-u>zz
+nnoremap <C-d> <C-d>zz
+nnoremap { {zz
+nnoremap } }zz
+nnoremap N Nzz
+nnoremap n nzz
+nnoremap G Gzz
+nnoremap gg ggzz
+nnoremap <C-i> <C-i>zz
+nnoremap <C-o> <C-o>zz
+nnoremap % %zz
+nnoremap * *zz
+nnoremap # #zz
+
+" First non-whitespace character / end of line.
+nnoremap H ^
+nnoremap L $
+
+" Redo.
+nnoremap U <C-r>
+
+" Clear highlighted search results.
+nnoremap <Leader>no :nohlsearch<CR>
+
+" Leave insert mode quickly.
+inoremap jj <Esc>
+inoremap JJ <Esc>
+
+" Visual-mode line navigation.
+vnoremap H ^
+vnoremap L $h
+
+" Move selected text and keep it selected.
+vnoremap <A-j> :m '>+1<CR>gv=gv
+vnoremap <A-k> :m '<-2<CR>gv=gv
+
+" Paste without replacing the yank register.
+vnoremap <Leader>p "_dP
+
+" Reselect after indentation.
+xnoremap < <gv
+xnoremap > >gv
+
+
+" =============================================================================
+" Language / LSP Equivalents
+" =============================================================================
+"
+" IdeaVim requires recursive mappings for <Action> targets. Keep these as nmap,
+" xmap, and imap rather than changing them to their noremap variants.
+
+" Same <Leader>l taxonomy as Neovim.
+nmap <Leader>la <Action>(ShowIntentionActions)
+xmap <Leader>la <Action>(ShowIntentionActions)
+nmap <Leader>ld <Action>(ShowErrorDescription)
+nmap <Leader>lf <Action>(ReformatCode)
+xmap <Leader>lf <Action>(ReformatCode)
+nmap <Leader>li <Action>(GotoImplementation)
+nmap <Leader>lh <Action>(ShowHoverInfo)
+nmap <Leader>lI <Action>(ToggleInlayHintsGloballyAction)
+nmap <Leader>ll <Action>(CodeVision.ShowMore)
+nmap <Leader>lr <Action>(RenameElement)
+nmap <Leader>gr <Action>(FindUsages)
+nmap <Leader>ls <Action>(GotoDeclaration)
+nmap <Leader>lt <Action>(GotoTypeDeclaration)
+nmap <Leader>lc <Action>(CompileDirty)
+
+" Additional Rider diagnostics and inspection actions.
+nmap <Leader>ln <Action>(GotoNextError)
+nmap <Leader>lp <Action>(GotoPreviousError)
+nmap <Leader>lq <Action>(ActivateProblemsViewToolWindow)
+nmap <Leader>lx <Action>(InspectCode)
+
+" Direct LSP-style navigation.
+nmap gd <Action>(GotoDeclaration)
+nmap gD <Action>(GotoDeclarationOnly)
+nmap gi <Action>(GotoImplementation)
+nmap gr <Action>(FindUsages)
+nmap td <Action>(GotoTypeDeclaration)
+nmap K <Action>(ShowHoverInfo)
+imap <C-k> <Action>(ParameterInfo)
+
+" Diagnostic navigation aliases.
+nmap ]d <Action>(GotoNextError)
+nmap [d <Action>(GotoPreviousError)
+nmap ]e <Action>(GotoNextError)
+nmap [e <Action>(GotoPreviousError)
+nmap ]w <Action>(GotoNextError)
+nmap [w <Action>(GotoPreviousError)
+
+
+" =============================================================================
+" Search
+" =============================================================================
+
+" Same <Leader>s taxonomy as Neovim.
+nmap <Leader>sb <Action>(Switcher)
+nmap <Leader>sf <Action>(GotoFile)
+nmap <Leader>sg <Action>(FindInPath)
+xmap <Leader>sg <Action>(FindInPath)
+nmap <Leader>sw <Action>(FindWordAtCaret)
+nmap <Leader>st <Action>(ActivateTODOToolWindow)
+nmap <Leader>so <Action>(FileStructurePopup)
+nmap <Leader>sd <Action>(ActivateProblemsViewToolWindow)
+nmap <Leader>sD <Action>(CodeInspection.OnEditor)
+nmap <Leader>sh <Action>(ContextHelp)
+
+" Rider search additions.
+nmap <Leader>sS <Action>(GotoSymbol)
+nmap <Leader>sT <Action>(GotoClass)
+nmap <Leader>sa <Action>(GotoAction)
+nmap <Leader>sA <Action>(SearchEverywhere)
+
+" Search Everywhere remains available on the familiar double leader.
+nmap <Leader><Leader> <Action>(SearchEverywhere)
+
+
+" =============================================================================
+" Files / Project / Terminal
+" =============================================================================
+
+nmap <Leader>ff <Action>(GotoFile)
+nmap <Leader>fr <Action>(RecentFiles)
+nmap <Leader>e <Action>(SelectInProjectView)
+nmap <Leader>E <Action>(ActivateProjectToolWindow)
+nmap <Leader>t <Action>(ActivateTerminalToolWindow)
+
+
+" =============================================================================
+" Git
+" =============================================================================
+
+nmap <Leader>gd <Action>(Diff.ShowDiff)
+nmap <Leader>gc <Action>(VcsHistory.ShowAllAffected)
+nmap <Leader>gC <Action>(Vcs.ShowTabbedFileHistory)
+nmap <Leader>gb <Action>(Annotate)
+nmap <Leader>gv <Action>(ActivateVersionControlToolWindow)
+
+
+" =============================================================================
+" Run / Debug
+" =============================================================================
+
+nmap <Leader>rr <Action>(Run)
+nmap <Leader>rd <Action>(Debug)
+nmap <Leader>rs <Action>(Stop)
+nmap <Leader>rb <Action>(ToggleLineBreakpoint)
+
+
+" =============================================================================
+" IdeaVim
+" =============================================================================
+
+" Reload this file.
+nnoremap <Leader>vr :source ~/.ideavimrc<CR>
+
+" Search available JetBrains action IDs.
+nnoremap <Leader>va :actionlist<Space>

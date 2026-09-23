@@ -28,7 +28,6 @@ readonly DOTFILES_DIR
 # Platform detection
 OS="$(uname -s)"
 readonly OS
-is_macos() { [[ "$OS" == "Darwin" ]]; }
 is_arch() { [[ "$OS" == "Linux" ]] && [[ -f /etc/arch-release ]]; }
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -110,85 +109,6 @@ _setup_live_workspaces() {
     _link_live_workspace "${HOME}/.config/nvim" "${DOTFILES_DIR}/home/dot_config/nvim" || return 1
 }
 
-# ─── macOS-specific ──────────────────────────────────────────────────────────
-
-_install_homebrew() {
-    if command_exists brew; then
-        print_success "Homebrew is already installed"
-        return 0
-    fi
-
-    print_info "Installing Homebrew..."
-    if NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
-        print_success "Homebrew installed"
-        if [[ "$(uname -m)" == "arm64" ]]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        else
-            eval "$(/usr/local/bin/brew shellenv)"
-        fi
-        brew analytics off
-    else
-        print_error "Homebrew installation failed"
-        return 1
-    fi
-}
-
-_install_packages() {
-    if [[ ! -f "${DOTFILES_DIR}/Brewfile" ]]; then
-        print_error "Brewfile not found"
-        return 1
-    fi
-
-    print_info "Installing packages from Brewfile..."
-    if brew bundle --file="${DOTFILES_DIR}/Brewfile"; then
-        print_success "All packages installed"
-    else
-        print_warning "Some packages failed, trying individually..."
-        local failed=()
-        local count=0
-
-        while IFS= read -r line; do
-            [[ "$line" =~ ^[[:space:]]*# ]] && continue
-            [[ -z "${line// }" ]] && continue
-
-            if [[ "$line" =~ ^brew[[:space:]]+\"([^\"]+)\" ]]; then
-                local pkg="${BASH_REMATCH[1]}"
-                if brew install "$pkg" 2>/dev/null; then ((++count)); else failed+=("brew:$pkg"); fi
-            elif [[ "$line" =~ ^cask[[:space:]]+\"([^\"]+)\" ]]; then
-                local pkg="${BASH_REMATCH[1]}"
-                if brew install --cask "$pkg" 2>/dev/null; then ((++count)); else failed+=("cask:$pkg"); fi
-            fi
-        done < "${DOTFILES_DIR}/Brewfile"
-
-        if [[ ${#failed[@]} -gt 0 ]]; then
-            print_warning "Failed to install ${#failed[@]} packages:"
-            printf "  - %s\n" "${failed[@]}"
-            printf "%s\n" "${failed[@]}" > "${DOTFILES_DIR}/failed_packages_$(date +%Y%m%d_%H%M%S).txt"
-        fi
-        print_success "Installed $count packages"
-    fi
-}
-
-_set_macos_defaults() {
-    print_info "Setting macOS defaults..."
-    defaults write -g NSWindowShouldDragOnGesture -bool true
-    defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
-    print_success "macOS defaults set"
-}
-
-_start_services() {
-    print_info "Starting services..."
-    if command_exists skhd; then
-        if skhd --restart-service 2>/dev/null || skhd --start-service 2>/dev/null; then
-            print_success "skhd service started"
-        else
-            print_warning "failed to start skhd service"
-        fi
-    else
-        print_warning "skhd not found, skipping"
-    fi
-}
-
 _build_bat_cache() {
     if ! command_exists bat; then
         print_warning "bat not installed, skipping cache build"
@@ -206,13 +126,6 @@ cmd_init() {
 
     # Install chezmoi
     _ensure_chezmoi || return 1
-
-    # macOS: Homebrew + packages
-    if is_macos; then
-        print_header "Setting up macOS"
-        _install_homebrew || return 1
-        _install_packages || return 1
-    fi
 
     # Arch: install watchman if missing
     if is_arch && ! command_exists watchman; then
@@ -243,14 +156,6 @@ cmd_init() {
 
     _setup_live_workspaces || return 1
 
-    # macOS post-setup
-    if is_macos; then
-        if confirm "Set macOS defaults?" "y"; then
-            _set_macos_defaults
-        fi
-        _start_services
-    fi
-
     _build_bat_cache
 
     print_header "Done!"
@@ -262,7 +167,7 @@ cmd_apply() {
 
     _ensure_chezmoi || return 1
 
-    # Regenerate config from template so data variables (e.g. is_arch) are available
+    # Ensure chezmoi uses this repository as its source
     chezmoi init --source "${DOTFILES_DIR}" --apply=false || return 1
 
     # Clear cached state so chezmoi re-evaluates all files,
@@ -297,15 +202,6 @@ cmd_update() {
     else
         print_error "Failed to pull"
         return 1
-    fi
-
-    # macOS: update Homebrew packages
-    if is_macos; then
-        if confirm "Update Homebrew packages?" "y"; then
-            print_info "Updating Homebrew..."
-            brew update && brew upgrade
-            print_success "Packages updated"
-        fi
     fi
 
     # Re-apply
@@ -356,25 +252,23 @@ cmd_doctor() {
     fi
 
     # Platform-specific
-    if is_macos; then
-        if command_exists brew; then print_success "Homebrew installed"; else print_error "Homebrew not installed"; ((++issues)); fi
-    elif is_arch; then
+    if is_arch; then
         if command_exists pacman; then print_success "pacman available"; else print_error "pacman not found"; ((++issues)); fi
         if command_exists yay; then print_success "yay available"; else print_warning "yay not installed"; fi
     fi
 
     # Shell
-    local zsh_path
-    zsh_path=$(command -v zsh 2>/dev/null || true)
-    if [[ -n "$zsh_path" ]]; then
-        print_success "Zsh installed"
-        if [[ "$SHELL" == "$zsh_path" ]]; then
-            print_success "Zsh is default shell"
+    local fish_path
+    fish_path=$(command -v fish 2>/dev/null || true)
+    if [[ -n "$fish_path" ]]; then
+        print_success "Fish installed"
+        if [[ "${SHELL:-}" == "$fish_path" ]]; then
+            print_success "Fish is default shell"
         else
-            print_warning "Zsh is not default shell (current: $SHELL)"
+            print_warning "Fish is not default shell (current: ${SHELL:-unset})"
         fi
     else
-        print_error "Zsh not installed"
+        print_error "Fish not installed"
         ((++issues))
     fi
 
@@ -428,9 +322,7 @@ cmd_watch() {
 
     if ! command_exists watchman; then
         print_error "watchman is not installed"
-        if is_macos; then
-            print_info "Install with: brew install watchman"
-        elif is_arch; then
+        if is_arch; then
             print_info "Install with: yay -S watchman-bin"
         fi
         return 1
@@ -482,7 +374,7 @@ cmd_help() {
     echo -e "${BOLD}COMMANDS:${RESET}"
     echo "    init            Initialize and install everything"
     echo "    apply [path]    Apply dotfiles with chezmoi"
-    echo "    update          Pull changes, update packages, re-apply"
+    echo "    update          Pull changes and re-apply"
     echo "    diff            Preview pending changes"
     echo "    status          Show what's out of sync"
     echo "    add <file>      Add a file to the source state"
@@ -500,7 +392,7 @@ cmd_help() {
     echo ""
     echo -e "${BOLD}CONFIGURATION:${RESET}"
     echo "    Dotfiles: ${DOTFILES_DIR}"
-    echo "    Platform: $(is_macos && echo "macOS" || (is_arch && echo "Arch Linux" || echo "Linux"))"
+    echo "    Platform: Omarchy"
     echo ""
 }
 

@@ -31,14 +31,10 @@ function timer -d "Countdown timer with notification"
   # Send notification if notify function is available
   if functions -q notify
     notify "Timer finished!" "⏰ Timer"
-  else if command -v osascript &>/dev/null
-    osascript -e "display notification \"Timer finished!\" with title \"⏰ Timer\""
   end
   
   # Try to make a sound
-  if command -v afplay &>/dev/null
-    afplay /System/Library/Sounds/Glass.aiff &>/dev/null &
-  else if command -v tput &>/dev/null
+  if command -v tput &>/dev/null
     tput bel
   end
 end

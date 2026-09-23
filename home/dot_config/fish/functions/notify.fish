@@ -12,12 +12,6 @@ function notify -d "Send a desktop notification"
     set title $argv[2]
   end
 
-  # macOS
-  if command -v osascript &>/dev/null
-    osascript -e "display notification \"$message\" with title \"$title\""
-    return 0
-  end
-
   # Linux with notify-send
   if command -v notify-send &>/dev/null
     notify-send "$title" "$message"

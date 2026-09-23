@@ -1,0 +1,79 @@
+[
+  {
+    "context": "vim_mode == normal && !menu",
+    "bindings": {
+      "space w": "workspace::Save",
+      "space q": "pane::CloseActiveItem",
+
+      "space b a": "pane::AlternateFile",
+      "space b d": "pane::CloseActiveItem",
+      "space b s": "workspace::NewFile",
+      "space e": "project_panel::ToggleFocus",
+
+      "space l a": "editor::ToggleCodeActions",
+      "space l d": "editor::Hover",
+      "space l f": "editor::Format",
+      "space l h": "editor::Hover",
+      "space l i": "editor::GoToImplementation",
+      "space l r": "editor::Rename",
+      "space l s": "editor::GoToDefinition",
+      "space l t": "editor::GoToTypeDefinition",
+      "space l shift-i": "editor::ToggleInlayHints",
+
+      "space s b": "tab_switcher::ToggleAll",
+      "space s d": "diagnostics::Deploy",
+      "space s f": "file_finder::Toggle",
+      "space s g": "pane::DeploySearch",
+      "space s o": "outline::Toggle",
+
+      "space g b": "git::Blame",
+      "space g r": "editor::FindAllReferences",
+      "space g s": "editor::BlameHover",
+
+      "space o w": "editor::ToggleSoftWrap",
+      "space o z": "workspace::ToggleZoom",
+      "space t": "terminal_panel::Toggle",
+
+      "g i": "editor::GoToImplementation",
+      "g r": "editor::FindAllReferences",
+      "t d": "editor::GoToTypeDefinition",
+      "shift-h": "vim::FirstNonWhitespace",
+      "shift-l": "vim::EndOfLine",
+      "shift-u": "vim::Redo",
+
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-\\": "workspace::ActivatePreviousPane"
+    }
+  },
+  {
+    "context": "vim_mode == visual && !menu",
+    "bindings": {
+      "shift-h": "vim::FirstNonWhitespace",
+      "shift-l": "vim::EndOfLine",
+      "alt-j": "editor::MoveLineDown",
+      "alt-k": "editor::MoveLineUp",
+      "space s g": "pane::DeploySearch"
+    }
+  },
+  {
+    "context": "vim_mode == insert && !menu",
+    "bindings": {
+      "j j": "vim::NormalBefore",
+      "shift-j shift-j": "vim::NormalBefore",
+      "ctrl-k": "editor::ShowSignatureHelp"
+    }
+  },
+  {
+    "context": "Dock",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-\\": "workspace::ActivatePreviousPane"
+    }
+  }
+]

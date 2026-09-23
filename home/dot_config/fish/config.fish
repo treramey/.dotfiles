@@ -17,7 +17,7 @@ mise activate fish | source
 fish_add_path --move --path "$HOME/.local/bin"
 
 # Omarchy's vendor envs.fish sets a basic FZF_DEFAULT_OPTS after user conf.d.
-# Re-apply the dotfiles fzf theme here so tab completion/fzf stay monochrome.
+# Re-apply the Omarchy terminal palette mapping for fzf.fish.
 set -l fzf_theme ~/.config/fish/conf.d/fzf-theme.fish
 if test -r $fzf_theme
     source $fzf_theme

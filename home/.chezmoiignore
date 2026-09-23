@@ -1,20 +1,3 @@
-{{ if eq .chezmoi.os "darwin" }}
-# Omarchy hooks are Linux-only; without this chezmoi creates ~/.config/omarchy on macOS.
-.config/omarchy
-{{ end }}
-
-{{ if ne .chezmoi.os "darwin" }}
-.config/aerospace
-.config/skhd
-.config/borders
-.config/karabiner
-.config/svim
-.config/spicetify
-.config/spotify_player
-.config/NuGet
-.config/fmdt
-{{ end }}
-
 .config/fish/fish_variables
 # Fisher-managed plugin files (plugin-git, fzf.fish)
 .config/fish/conf.d/fzf.fish

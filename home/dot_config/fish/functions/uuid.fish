@@ -1,5 +1,5 @@
 function uuid -d "Generate a UUID"
-  # Try uuidgen first (available on macOS and many Linux systems)
+  # Try the system uuidgen command first.
   if command -v uuidgen &>/dev/null
     uuidgen | tr '[:upper:]' '[:lower:]'
     return 0

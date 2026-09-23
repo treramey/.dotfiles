@@ -7,9 +7,7 @@ function trash -d "Move files to trash instead of deleting"
 
   # Determine trash directory
   set -l trash_dir
-  if test (uname) = Darwin
-    set trash_dir ~/.Trash
-  else if test -n "$XDG_DATA_HOME"
+  if test -n "$XDG_DATA_HOME"
     set trash_dir $XDG_DATA_HOME/Trash/files
   else
     set trash_dir ~/.local/share/Trash/files

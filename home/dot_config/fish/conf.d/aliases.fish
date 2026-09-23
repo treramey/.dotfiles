@@ -29,13 +29,12 @@ alias ks 'tmux kill-server'
 
 # tools
 alias grep 'grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox}'
-alias pbc 'pbcopy'
-alias pbp 'pbpaste'
+alias pbc 'wl-copy'
+alias pbp 'wl-paste'
 alias pn 'pnpm'
 alias oc 'opencode'
 complete -c oc -e
 alias wr 'wrangler'
 alias lc 'localcode'
-alias rider 'open -a Rider'
 alias howdy 'sh $HOME/.config/fetch.sh'
 alias pray 'bun install'

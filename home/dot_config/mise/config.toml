@@ -1,0 +1,25 @@
+[settings]
+idiomatic_version_file_enable_tools = ["node", "dotnet"]
+
+[settings.ruby]
+
+[settings.dotnet]
+isolated = true
+
+[tools]
+"bun" = "1.4.0"
+"cargo:plannotator-tui" = "0.9.2"
+"dotnet" = "10"
+"go" = "1.27.0"
+"gum" = "2.0.0"
+"node" = "24.13.1"
+"pnpm" = "11.25.0"
+"python" = "3.14.7"
+"rust" = "1.98.0"
+"shfmt" = "3.14.0"
+"stylua" = "2.5.2"
+"uv" = "0.12.7"
+"npm:@fsouza/prettierd" = "0.29.0"
+"npm:@earendil-works/pi-coding-agent" = "latest"
+"pipx:xmlformatter" = "0.2.9"
+gh = "latest"
