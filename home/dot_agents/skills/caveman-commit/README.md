@@ -1,44 +1,49 @@
 # caveman-commit
 
-Terse Conventional Commits. Why over what.
+Terse Conventional Commits by default. Repositories under `~/Code/work` use Azure DevOps ticket prefixes instead.
 
-## What it does
+## Select the format
 
-Generates commit messages in Conventional Commits format. Subject ≤50 chars, hard cap 72. Imperative mood. Body only when the *why* is non-obvious or there are breaking changes. No AI attribution, no "this commit does X", no emoji unless the project uses them. Body always required for breaking changes, security fixes, data migrations, and reverts — future debuggers need the context.
+Check the Git worktree root before writing a message. Resolve symlinks in the root and `~/Code/work`. Use AD# only when the resolved root is `~/Code/work` or a descendant on a directory boundary. Use Conventional Commits everywhere else.
 
-Outputs only the message. Does not stage, commit, or amend.
+## Conventional Commits
 
-## How to invoke
+Use `<type>(<scope>): <imperative summary>`, with an optional scope. Keep the subject to 50 characters when possible and no more than 72. Do not end it with a period. Use the project's capitalization convention.
 
-```
-/caveman-commit
-```
+Types include `feat`, `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `build`, `ci`, `style`, and `revert`.
 
-Also triggers on phrases like "write a commit", "commit message", "generate commit".
+## Repositories under `~/Code/work`
 
-## Example output
+Use `AD#<ticket-number> <imperative summary>`. Use the actual Azure DevOps ticket number from the user or task context. Ask when it is missing or ambiguous. Do not invent a number or add Conventional Commit markers.
 
-Diff: new endpoint for user profile.
+Keep the shared subject and body rules. Add a body only when the reason is not clear, or when the change is breaking, a security fix, a data migration, or a revert.
+
+## Output
+
+Outputs only the message. Does not stage, commit, or amend. Invoke with `/caveman-commit`. It also triggers on phrases such as "write a commit", "commit message", and "generate commit".
+
+## Examples
+
+Default format:
 
 ```
 feat(api): add GET /users/:id/profile
 
 Mobile client needs profile data without the full user payload
 to reduce LTE bandwidth on cold-launch screens.
-
 Closes #128
 ```
 
-Diff: breaking API rename.
+Inside `~/Code/work`:
 
 ```
-feat(api)!: rename /v1/orders to /v1/checkout
+AD#12345 add GET /users/:id/profile
 
-BREAKING CHANGE: clients on /v1/orders must migrate to /v1/checkout
-before 2026-06-01. Old route returns 410 after that date.
+Mobile client needs profile data without the full user payload
+to reduce LTE bandwidth on cold-launch screens.
 ```
 
 ## See also
 
 - [`SKILL.md`](./SKILL.md) — full LLM-facing instructions
-- [Caveman README](../../README.md) — repo overview
+- [Upstream caveman-commit skill](https://github.com/adriankarlen/dots/blob/main/home/.agents/skills/caveman-commit/SKILL.md)
