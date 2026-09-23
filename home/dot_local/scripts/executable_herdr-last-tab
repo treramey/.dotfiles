@@ -15,7 +15,7 @@
 set -uo pipefail
 
 # Spawned keybinding commands do not inherit an interactive shell's PATH.
-PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/herdr"
 state_file="$state_dir/last-tab"

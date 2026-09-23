@@ -1,0 +1,8 @@
+version = 1
+
+[list]
+source_order = ["herdr", "config", "zoxide"]
+
+[picker]
+# Follow Herdr's terminal theme using the locally patched Sesh plugin.
+herdr_theme_inherit = true

@@ -1,0 +1,241 @@
+onboarding = false
+
+[theme]
+# Follow Omarchy's terminal palette without generated custom colors.
+name = "terminal"
+
+[terminal]
+# Use Fish while preserving login shell behavior.
+default_shell = "fish"
+shell_mode = "auto"
+
+[update]
+channel = "stable"
+
+[keys]
+# Prefix: Ctrl+Space
+prefix = "ctrl+space"
+
+# Basics.
+help = "prefix+?"
+# Keep prefix+shift+s available for workspace picking.
+settings = "prefix+comma"
+detach = ["prefix+d", "prefix+q"]
+reload_config = "prefix+r"
+goto = "prefix+s"
+
+# Workspace controls:
+#   prefix+shift+s choose workspace
+#   prefix+w       also open workspace navigation (Herdr default muscle memory)
+#   prefix+shift+w rename workspace (avoids symbol-layer gymnastics)
+#   prefix+shift+k / j previous / next workspace
+workspace_picker = ["prefix+shift+s", "prefix+w"]
+new_workspace = "prefix+shift+n"
+rename_workspace = "prefix+shift+w"
+close_workspace = "prefix+shift+d"
+previous_workspace = "prefix+shift+k"
+next_workspace = "prefix+shift+j"
+
+# Agents.
+focus_agent = "prefix+alt+1..9"
+
+# Tab controls.
+new_tab = "prefix+c"
+previous_tab = "prefix+p"
+next_tab = "prefix+right"
+switch_tab = "prefix+1..9"
+rename_tab = "prefix+shift+comma"
+close_tab = "prefix+shift+x"
+
+# Pane creation (matching Omarchy/tmux muscle memory).
+split_vertical = "prefix+v"
+split_horizontal = "prefix+h"
+close_pane = "prefix+x"
+zoom = "prefix+m"
+copy_mode = "prefix+y"
+
+# Pane resize mode.
+resize_mode = "prefix+shift+r"
+
+# Pane navigation is delegated to smart-splits.nvim plugin actions below.
+cycle_pane_next = "prefix+tab"
+cycle_pane_previous = "prefix+shift+tab"
+
+# Keep Herdr's dashboard/sidebar available, but not on prefix+b since C-b is not the prefix here.
+toggle_sidebar = "prefix+b"
+
+# Navigate-mode movement.
+navigate_workspace_up = "up"
+navigate_workspace_down = "down"
+navigate_pane_left = "h"
+navigate_pane_down = "j"
+navigate_pane_up = "k"
+navigate_pane_right = "l"
+
+[[keys.command]]
+key = "ctrl+h"
+type = "plugin_action"
+command = "smart-splits.nvim.left"
+description = "navigate left (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "plugin_action"
+command = "smart-splits.nvim.down"
+description = "navigate down (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "plugin_action"
+command = "smart-splits.nvim.up"
+description = "navigate up (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "plugin_action"
+command = "smart-splits.nvim.right"
+description = "navigate right (vim/herdr)"
+
+# Search Herdr workspaces, configured sessions, and zoxide directories in Sesh.
+[[keys.command]]
+key = "ctrl+f"
+type = "plugin_action"
+command = "fullerzz.sesh.open-picker"
+description = "open Sesh picker"
+
+[[keys.command]]
+key = "prefix+g"
+type = "pane"
+command = "lazygit"
+description = "open lazygit"
+
+# Install on new machines with:
+# herdr plugin install fullerzz/herdr-plugin-sesh --ref v0.11.0 --yes
+[[keys.command]]
+key = "prefix+t"
+type = "plugin_action"
+command = "fullerzz.sesh.open-picker"
+description = "open Sesh picker"
+
+[[keys.command]]
+key = "prefix+l"
+type = "plugin_action"
+command = "fullerzz.sesh.last"
+description = "switch to previous Sesh workspace"
+
+[[keys.command]]
+key = "prefix+n"
+type = "shell"
+command = "herdr-tab-dev"
+description = "start Film Planner API and UI in split panes"
+
+# Open a 50:50 code workspace: Pi in the focused pane and Neovim to its right.
+[[keys.command]]
+key = "prefix+shift+e"
+type = "shell"
+command = "~/.local/bin/herdr-pi-nvim-layout"
+description = "Pi/Neovim code layout (50:50)"
+
+# Submit Worktrunk to the focused pane so its shell can change directory.
+[[keys.command]]
+key = "ctrl+w"
+type = "shell"
+command = "\"$HERDR_BIN_PATH\" pane run \"$HERDR_ACTIVE_PANE_ID\" \"wt switch\""
+description = "Worktree: switch / create"
+
+# Herdr Annotate: terminal comments, document review, and agent feedback.
+[[keys.command]]
+key = "prefix+a"
+type = "plugin_action"
+command = "annotate.capture"
+description = "Annotate selected terminal text"
+
+[[keys.command]]
+key = "prefix+shift+a"
+type = "plugin_action"
+command = "annotate.copy-context"
+description = "Copy annotations as agent context"
+
+[[keys.command]]
+key = "prefix+ctrl+a"
+type = "plugin_action"
+command = "annotate.copy-archive"
+description = "Copy annotations as context and archive them"
+
+# prefix+m remains pane zoom; use prefix+shift+m for annotation management.
+[[keys.command]]
+key = "prefix+shift+m"
+type = "plugin_action"
+command = "annotate.manage"
+description = "Manage annotations"
+
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "annotate.open"
+description = "Review documents in the current folder"
+
+[[keys.command]]
+key = "prefix+shift+o"
+type = "plugin_action"
+command = "annotate.last"
+description = "Review the agent's last reply"
+
+[[keys.command]]
+key = "prefix+ctrl+o"
+type = "plugin_action"
+command = "annotate.last-newest"
+description = "Review the agent's newest reply"
+
+[ui]
+mobile_width_threshold = 64
+redraw_on_focus_gained = true
+# ANSI cyan follows Omarchy's terminal palette, not a fixed RGB color.
+accent = "cyan"
+sidebar_width = 32
+sidebar_min_width = 18
+sidebar_max_width = 36
+right_click_passthrough_modifier = "ctrl"
+mouse_scroll_lines = 3
+# Keep Herdr's named, visually separated split panes.
+pane_gaps = true
+pane_outer_borders = true
+show_agent_labels_on_pane_borders = true
+agent_panel_sort = "priority"
+confirm_close = true
+# Create tabs immediately without asking for a tab name.
+prompt_new_tab_name = false
+prompt_new_workspace_name = true
+status_indicators = "dots"
+
+[ui.toast]
+delivery = "herdr"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "top-right"
+
+[ui.toast.clipboard]
+enabled = true
+position = "bottom-center"
+
+[ui.sound]
+# Keep sound notifications disabled.
+enabled = false
+
+[session]
+# Resume supported coding agents when restoring sessions.
+resume_agents_on_restore = true
+
+[remote]
+manage_ssh_config = true
+
+[experimental]
+# Persist recent pane output to disk; keep in mind it may include secrets.
+pane_history = true
+allow_nested = false
+kitty_graphics = true
+
+[advanced]
+# Scrollback limit is byte-based.
+scrollback_limit_bytes = 52428800

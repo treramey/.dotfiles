@@ -1,0 +1,49 @@
+#!/bin/bash
+set -e
+
+# Get the focused workspace and project directory so this works from any
+# Film Planner branch or worktree.
+PANE_INFO=$(herdr pane list | python3 -c '
+import sys, json
+panes = json.load(sys.stdin)["result"]["panes"]
+focused = [p for p in panes if p.get("focused")]
+if focused:
+    p = focused[0]
+    print(p["workspace_id"])
+    print(p.get("foreground_cwd", p.get("cwd", ".")))
+else:
+    exit(1)
+')
+
+WORKSPACE_ID=$(echo "$PANE_INFO" | sed -n '1p')
+CURRENT_DIR=$(echo "$PANE_INFO" | sed -n '2p')
+PROJECT_ROOT=$(git -C "$CURRENT_DIR" rev-parse --show-toplevel)
+API_ROOT="$PROJECT_ROOT/filmPlanner"
+UI_ROOT="$PROJECT_ROOT/film-planner-ui"
+
+if [ ! -f "$API_ROOT/FilmPlanner.API/FilmPlanner.API.csproj" ] || [ ! -f "$UI_ROOT/package.json" ]; then
+    echo "Film Planner projects not found under $PROJECT_ROOT" >&2
+    exit 1
+fi
+
+# Create a new tab in the same workspace, with the API as the root pane.
+TAB_INFO=$(herdr tab create --workspace "$WORKSPACE_ID" --cwd "$API_ROOT" --label "filmplanner-dev" --no-focus | python3 -c '
+import sys, json
+d = json.load(sys.stdin)["result"]
+print(d["tab"]["tab_id"])
+print(d["root_pane"]["pane_id"])
+')
+
+TAB_ID=$(echo "$TAB_INFO" | sed -n '1p')
+ROOT_PANE=$(echo "$TAB_INFO" | sed -n '2p')
+
+# Split the UI into a sibling pane and keep the new tab unfocused.
+UI_PANE=$(herdr pane split "$ROOT_PANE" --direction right --ratio 0.5 --cwd "$UI_ROOT" --no-focus | python3 -c '
+import sys, json
+print(json.load(sys.stdin)["result"]["pane"]["pane_id"])
+')
+
+herdr pane run "$ROOT_PANE" "cd \"$API_ROOT\" && dotnet watch --project FilmPlanner.API --launch-profile https"
+herdr pane run "$UI_PANE" "cd \"$UI_ROOT\" && pnpm dev"
+
+echo "Started Film Planner API and UI in split tab $TAB_ID"
