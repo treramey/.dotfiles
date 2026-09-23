@@ -36,6 +36,11 @@ home/dot_pi/agent/*
 home/dot_pi/todos/*
 .pi/todos/*
 .pi/semantic-grep.sqlite
+.pi/semantic-grep.sqlite-shm
+.pi/semantic-grep.sqlite-wal
+home/dot_config/github-copilot/auth.db
+home/dot_config/github-copilot/auth.db-shm
+home/dot_config/github-copilot/auth.db-wal
 
 # pi extensions node_modules
 home/dot_pi/agent/extensions/**/node_modules/
