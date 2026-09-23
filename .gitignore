@@ -41,6 +41,7 @@ home/dot_pi/todos/*
 home/dot_config/github-copilot/auth.db
 home/dot_config/github-copilot/auth.db-shm
 home/dot_config/github-copilot/auth.db-wal
+home/dot_config/github-copilot/versions.json
 
 # pi extensions node_modules
 home/dot_pi/agent/extensions/**/node_modules/
