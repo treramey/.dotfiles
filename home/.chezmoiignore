@@ -21,6 +21,11 @@
 .config/nvim/.luarc.json
 .config/opencode/node_modules
 .config/opencode/*.bak
+# Copilot credentials and runtime metadata must not be copied by chezmoi.
+.config/github-copilot/auth.db
+.config/github-copilot/auth.db-shm
+.config/github-copilot/auth.db-wal
+.config/github-copilot/versions.json
 # Live workspaces: these are symlinked into ~/.dotfiles and edited in-place.
 # Chezmoi should not copy/apply them as normal managed trees.
 .pi
