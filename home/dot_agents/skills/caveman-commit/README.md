@@ -1,10 +1,10 @@
 # caveman-commit
 
-Terse Conventional Commits by default. Repositories under `~/Code/work` use Azure DevOps ticket prefixes instead.
+Terse Conventional Commits by default. Repositories under `~/Code/work` or `~/code/work` use Azure DevOps ticket prefixes instead.
 
 ## Select the format
 
-Check the Git worktree root before writing a message. Resolve symlinks in the root and `~/Code/work`. Use AD# only when the resolved root is `~/Code/work` or a descendant on a directory boundary. Use Conventional Commits everywhere else.
+Check the Git worktree root before writing a message. Resolve symlinks in the root and each existing work-root spelling, `~/Code/work` and `~/code/work`. Use AD# when the resolved root equals either work root or is a descendant on a directory boundary. Treat both spellings as work roots on case-sensitive systems. Use Conventional Commits everywhere else.
 
 ## Conventional Commits
 
@@ -12,7 +12,7 @@ Use `<type>(<scope>): <imperative summary>`, with an optional scope. Keep the su
 
 Types include `feat`, `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `build`, `ci`, `style`, and `revert`.
 
-## Repositories under `~/Code/work`
+## Repositories under either work-root spelling
 
 Use `AD#<ticket-number> <imperative summary>`. Use the actual Azure DevOps ticket number from the user or task context. Ask when it is missing or ambiguous. Do not invent a number or add Conventional Commit markers.
 
@@ -34,7 +34,7 @@ to reduce LTE bandwidth on cold-launch screens.
 Closes #128
 ```
 
-Inside `~/Code/work`:
+Inside either `~/Code/work` or `~/code/work`:
 
 ```
 AD#12345 add GET /users/:id/profile

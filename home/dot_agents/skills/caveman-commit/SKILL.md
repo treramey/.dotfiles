@@ -2,10 +2,10 @@
 name: caveman-commit
 description: >
   Use for commit messages, staging, /commit, or /caveman-commit. Use Conventional Commits
-  except in repositories under ~/Code/work/, which require AD# tickets.
+  except in repositories under ~/Code/work/ or ~/code/work/, which require AD# tickets.
 ---
 
-Determine the Git worktree root with `git rev-parse --show-toplevel` before writing a message. Resolve symlinks in both the root path and `~/Code/work`. Use the AD# format only when the root is `~/Code/work` or a descendant on a directory boundary. Use Conventional Commits for every other repository. If there is no Git worktree root, use Conventional Commits.
+Determine the Git worktree root with `git rev-parse --show-toplevel` before writing a message. Resolve symlinks in the root and each existing work-root spelling, `~/Code/work` and `~/code/work`. Use the AD# format only when the resolved root equals a resolved work root or descends from one on a directory boundary. Treat both spellings as work roots on case-sensitive systems. Use Conventional Commits for every other repository. If there is no Git worktree root, use Conventional Commits.
 
 Write messages terse and exact. Preserve intent and reasoning. Why over what.
 
@@ -57,9 +57,9 @@ Diff: breaking API change
   before 2026-06-01. Old route returns 410 after that date.
   ```
 
-## `~/Code/work` exception
+## Work-root exception
 
-For repositories whose worktree root is inside `~/Code/work`, use this subject instead of Conventional Commits:
+For repositories whose worktree root is inside `~/Code/work` or `~/code/work`, use this subject instead of Conventional Commits:
 
 - `AD#<ticket-number> <imperative summary>`
 - Use the actual Azure DevOps ticket number supplied by the user or established in task context. Ask if it is missing or ambiguous. Never invent one.
