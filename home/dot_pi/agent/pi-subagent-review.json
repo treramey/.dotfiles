@@ -2,7 +2,7 @@
   "model": "openai-codex/gpt-5.6-sol",
   "thinking": "medium",
   "summary": {
-    "enabled": true,
+    "enabled": false,
     "model": "openai-codex/gpt-5.6-luna",
     "thinking": "low"
   }
