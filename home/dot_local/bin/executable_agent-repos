@@ -20,7 +20,11 @@ Commands:
   add <github-url> [options]
       Add a repository as a squashed git subtree under repos/<name>.
       Tracked local changes are temporarily stashed while git subtree runs.
-      Alias: clone
+      Use --clone to create a standalone clone instead.
+
+  clone <github-url> [options]
+      Create a standalone shallow clone under repos/<name>.
+      The clone is ignored by the parent repository and is not managed by update.
 
   update <name|prefix> [options]
       Pull the latest changes for one vendored subtree.
@@ -55,6 +59,12 @@ Options for add:
   -p, --prefix PATH     Subtree path (default: repos/<name>)
   -b, --branch BRANCH   Branch/ref to add (default: remote HEAD, fallback main)
       --no-squash       Do not pass --squash to git subtree
+      --clone           Make a standalone shallow clone instead of a subtree
+
+Options for clone:
+  -n, --name NAME       Clone directory name (default: repo name from URL)
+  -p, --prefix PATH     Clone path under repos/ (default: repos/<name>)
+  -b, --branch BRANCH   Branch to clone (default: remote HEAD)
 
 Options for update:
   -a, --all             Update all repos tracked in .agent-repos
@@ -74,6 +84,8 @@ Options for completions:
 Examples:
   agent-repos init
   agent-repos add https://github.com/OWNER/REPO.git
+  agent-repos add https://github.com/OWNER/REPO.git --clone
+  agent-repos clone https://github.com/OWNER/REPO.git
   agent-repos add https://github.com/OWNER/REPO.git --branch main --prefix repos/repo
   agent-repos list
   agent-repos update effect
@@ -83,8 +95,8 @@ Examples:
   agent-repos completions fish
   agent-repos completions fish --install
 
-This creates/updates a .agent-repos manifest so update/list can remember each
-subtree's URL, prefix, branch, and squash setting.
+The default add mode records subtrees in .agent-repos for update/list. Use
+--clone or the clone command to create a separate checkout outside that manifest.
 EOF
 }
 
@@ -420,6 +432,11 @@ detect_existing_repos() {
         name="${dir##*/}"
         prefix="${dir:$root_prefix_len}"
 
+        if [[ -d "$dir/.git" || -f "$dir/.git" ]]; then
+            echo "Skipping nested Git repository $prefix. It is not a git subtree."
+            continue
+        fi
+
         if manifest_get "$root" "$name" >/dev/null || manifest_get "$root" "$prefix" >/dev/null; then
             continue
         fi
@@ -511,11 +528,13 @@ cmd_init() {
     fi
 
     echo "Initialized agent-repos in ${root}"
-    echo "Next: agent-repos add https://github.com/OWNER/REPO.git"
+    echo "Next: agent-repos add https://github.com/OWNER/REPO.git (subtree)"
+    echo "  or: agent-repos clone https://github.com/OWNER/REPO.git (standalone clone)"
 }
 
 cmd_add() {
-    local root url name="" prefix="" branch="" squash="true"
+    local root url name="" prefix="" branch="" squash="true" standalone_clone="false"
+    local -a clone_args
 
     [[ $# -ge 1 ]] || die "Usage: agent-repos add <github-url> [--name NAME] [--branch BRANCH] [--prefix PATH]"
     url="$1"
@@ -542,6 +561,10 @@ cmd_add() {
                 squash="false"
                 shift
                 ;;
+            --clone)
+                standalone_clone="true"
+                shift
+                ;;
             -h|--help)
                 usage
                 exit 0
@@ -551,6 +574,16 @@ cmd_add() {
                 ;;
         esac
     done
+
+    if [[ "$standalone_clone" == "true" ]]; then
+        [[ "$squash" == "true" ]] || die "--no-squash cannot be used with --clone"
+        clone_args=("$url")
+        [[ -n "$name" ]] && clone_args+=(--name "$name")
+        [[ -n "$prefix" ]] && clone_args+=(--prefix "$prefix")
+        [[ -n "$branch" ]] && clone_args+=(--branch "$branch")
+        cmd_clone "${clone_args[@]}"
+        return 0
+    fi
 
     root=$(project_root)
     cd "$root"
@@ -576,6 +609,67 @@ cmd_add() {
 
     echo "Tracked $name at $prefix in $MANIFEST"
     echo "Run: agent-repos instructions"
+}
+
+cmd_clone() {
+    local root url name="" prefix="" branch=""
+    local -a cmd
+
+    [[ $# -ge 1 ]] || die "Usage: agent-repos clone <github-url> [--name NAME] [--branch BRANCH] [--prefix PATH]"
+    url="$1"
+    shift
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -n|--name)
+                [[ $# -ge 2 ]] || die "$1 requires a value"
+                name="$2"
+                shift 2
+                ;;
+            -p|--prefix)
+                [[ $# -ge 2 ]] || die "$1 requires a value"
+                prefix="$2"
+                shift 2
+                ;;
+            -b|--branch)
+                [[ $# -ge 2 ]] || die "$1 requires a value"
+                branch="$2"
+                shift 2
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            *)
+                die "unknown clone option: $1"
+                ;;
+        esac
+    done
+
+    root=$(project_root)
+    cd "$root"
+
+    [[ -n "$name" ]] || name=$(name_from_url "$url")
+    [[ -n "$prefix" ]] || prefix="$DEFAULT_REPOS_DIR/$name"
+    [[ "$prefix" == "$DEFAULT_REPOS_DIR/"* && "${prefix#"$DEFAULT_REPOS_DIR/"}" != */* ]] || die "clone path must be a direct child of $DEFAULT_REPOS_DIR/: $prefix"
+    [[ ! -e "$prefix" ]] || die "clone path already exists: $prefix"
+
+    mkdir -p "$(dirname "$prefix")"
+
+    cmd=(git clone --depth 1)
+    if [[ -n "$branch" ]]; then
+        cmd+=(--branch "$branch" --single-branch)
+    fi
+    cmd+=("$url" "$prefix")
+
+    printf '+ '
+    printf '%q ' "${cmd[@]}"
+    printf '\n'
+    "${cmd[@]}"
+
+    ensure_gitignore_entry "$root/.gitignore" "$DEFAULT_REPOS_DIR/"
+    echo "Cloned $name at $prefix as a standalone repository."
+    echo "Update it with: git -C $prefix pull --ff-only"
 }
 
 update_one() {
@@ -672,7 +766,7 @@ cmd_update() {
 }
 
 cmd_list() {
-    local root rows_found="false" name prefix url branch squash
+    local root rows_found="false" name prefix url branch squash dir clone_name clone_url
 
     root=$(project_root)
     cd "$root"
@@ -683,6 +777,21 @@ cmd_list() {
             rows_found="true"
             printf '%-20s %-28s %-10s %s\n' "$name" "$prefix" "$branch" "$url"
         done < <(manifest_rows "$root")
+    fi
+
+    if [[ -d "$DEFAULT_REPOS_DIR" ]]; then
+        for dir in "$DEFAULT_REPOS_DIR"/*; do
+            [[ -d "$dir/.git" || -f "$dir/.git" ]] || continue
+            clone_name="${dir##*/}"
+            prefix="$dir"
+            prefix="${prefix#"$root/"}"
+            if manifest_get "$root" "$clone_name" >/dev/null || manifest_get "$root" "$prefix" >/dev/null; then
+                continue
+            fi
+            clone_url=$(git -C "$dir" config --get remote.origin.url || true)
+            printf '%-20s %-28s %-10s %s (standalone clone)\n' "$clone_name" "$prefix" "-" "${clone_url:-URL unknown}"
+            rows_found="true"
+        done
     fi
 
     if [[ "$rows_found" == "false" ]]; then
@@ -714,7 +823,7 @@ agent_file_path() {
 append_repo_bullets() {
     local root="$1"
     local emitted="false"
-    local name prefix url branch squash
+    local name prefix url branch squash dir clone_name clone_url
 
     while IFS=$'\t' read -r name prefix url branch squash; do
         emitted="true"
@@ -723,8 +832,25 @@ append_repo_bullets() {
         printf '\n'
     done < <(manifest_rows "$root")
 
+    if [[ -d "$root/$DEFAULT_REPOS_DIR" ]]; then
+        for dir in "$root/$DEFAULT_REPOS_DIR"/*; do
+            [[ -d "$dir/.git" || -f "$dir/.git" ]] || continue
+            clone_name="${dir##*/}"
+            prefix="${dir#"$root/"}"
+            if manifest_get "$root" "$clone_name" >/dev/null || manifest_get "$root" "$prefix" >/dev/null; then
+                continue
+            fi
+            clone_url=$(git -C "$dir" config --get remote.origin.url || true)
+            printf -- '- @%s/ — standalone clone' "$prefix"
+            [[ -n "$clone_url" ]] && printf ' from %s' "$clone_url"
+            printf '\n'
+            emitted="true"
+        done
+    fi
+
     if [[ "$emitted" == "false" && -d "$root/$DEFAULT_REPOS_DIR" ]]; then
         find "$root/$DEFAULT_REPOS_DIR" -mindepth 1 -maxdepth 1 -type d -print | sort | while read -r dir; do
+            [[ -d "$dir/.git" || -f "$dir/.git" ]] && continue
             printf -- '- @%s/\n' "${dir#"$root/"}"
         done
     fi
@@ -850,7 +976,7 @@ end
 complete -c agent-repos -f
 complete -c agent-repos -n __fish_use_subcommand -a 'init' -d 'Initialize project for vendored repos'
 complete -c agent-repos -n __fish_use_subcommand -a 'add' -d 'Add a repo as a git subtree'
-complete -c agent-repos -n __fish_use_subcommand -a 'clone' -d 'Alias for add'
+complete -c agent-repos -n __fish_use_subcommand -a 'clone' -d 'Create a standalone clone'
 complete -c agent-repos -n __fish_use_subcommand -a 'update' -d 'Update a vendored subtree'
 complete -c agent-repos -n __fish_use_subcommand -a 'pull' -d 'Alias for update'
 complete -c agent-repos -n __fish_use_subcommand -a 'list' -d 'List vendored repos'
@@ -869,10 +995,15 @@ complete -c agent-repos -n '__fish_seen_subcommand_from init' -l no-gitignore -d
 complete -c agent-repos -n '__fish_seen_subcommand_from init' -l no-gitkeep -d 'Do not create repos/.gitkeep'
 complete -c agent-repos -n '__fish_seen_subcommand_from init' -l install-fish-completions -d 'Install fish completion shim'
 
-complete -c agent-repos -n '__fish_seen_subcommand_from add clone' -s n -l name -r -d 'Logical repo name'
-complete -c agent-repos -n '__fish_seen_subcommand_from add clone' -s p -l prefix -r -d 'Subtree path'
-complete -c agent-repos -n '__fish_seen_subcommand_from add clone' -s b -l branch -r -d 'Branch/ref'
-complete -c agent-repos -n '__fish_seen_subcommand_from add clone' -l no-squash -d 'Do not squash subtree history'
+complete -c agent-repos -n '__fish_seen_subcommand_from add' -s n -l name -r -d 'Logical repo name'
+complete -c agent-repos -n '__fish_seen_subcommand_from add' -s p -l prefix -r -d 'Subtree path'
+complete -c agent-repos -n '__fish_seen_subcommand_from add' -s b -l branch -r -d 'Branch/ref'
+complete -c agent-repos -n '__fish_seen_subcommand_from add' -l no-squash -d 'Do not squash subtree history'
+complete -c agent-repos -n '__fish_seen_subcommand_from add' -l clone -d 'Create a standalone clone instead of a subtree'
+
+complete -c agent-repos -n '__fish_seen_subcommand_from clone' -s n -l name -r -d 'Clone directory name'
+complete -c agent-repos -n '__fish_seen_subcommand_from clone' -s p -l prefix -r -d 'Clone path'
+complete -c agent-repos -n '__fish_seen_subcommand_from clone' -s b -l branch -r -d 'Branch to clone'
 
 complete -c agent-repos -n '__fish_seen_subcommand_from update pull' -a '(__agent_repos_names)' -d 'Vendored repo'
 complete -c agent-repos -n '__fish_seen_subcommand_from update pull' -s a -l all -d 'Update all tracked repos'
@@ -956,8 +1087,11 @@ case "$command_name" in
     init)
         cmd_init "$@"
         ;;
-    add|clone)
+    add)
         cmd_add "$@"
+        ;;
+    clone)
+        cmd_clone "$@"
         ;;
     update|pull)
         cmd_update "$@"
