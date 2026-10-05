@@ -8,6 +8,8 @@ home/.config/opencode/amp_stuff/
 homelab/caddy/.env
 */**/tmux/plugins/*
 backups/
+tests/
+home/.ssh/
 packages/failed_packages_*.txt
 tmp/
 .DS_STORE
