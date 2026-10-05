@@ -1,0 +1,17 @@
+# Whole-directory live workspaces are linked separately by dot.
+^/\.pi(/.*)?$
+^/\.agents(/.*)?$
+^/\.config/nvim(/.*)?$
+
+# Never deploy credentials, plugin output, dependency trees, or Git metadata.
+\.git
+\.gitignore
+\.gitmodules
+node_modules
+.*\.bak
+^/\.config/github-copilot(/.*)?$
+^/\.config/tmux/plugins(/.*)?$
+^/\.config/fish/fish_variables$
+^/\.config/fish/conf\.d/(secrets|vault-funcs|fzf|git)\.fish$
+^/\.config/fish/functions/(__git\..*|gbage|gbda|gdv|gignored|glp|grename|grt|gtest|gtl|gunwip|gwip|_fzf_.*|fzf_configure_bindings)\.fish$
+^/\.config/fish/completions/fzf_configure_bindings\.fish$

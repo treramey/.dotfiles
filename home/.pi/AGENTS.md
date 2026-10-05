@@ -10,7 +10,7 @@ and local skills preserved from the previous configuration.
 | Default provider, model, package sources | `agent/settings.json` |
 | Reliable print-mode `/review` fallback | `agent/extensions/review-print-subagent.ts` |
 | Codex execution behavior | `agent/pi-codex-conversion.json` |
-| Mise-managed Pi launcher | `../dot_local/bin/executable_pi` |
+| Mise-managed Pi launcher | `../.local/bin/pi` |
 | Herdr integration state | `agent/extensions/herdr-agent-state.ts` |
 | Personal skills | global `~/.agents/skills/` live workspace |
 

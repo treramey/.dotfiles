@@ -1,6 +1,6 @@
 [include]
 	# Delta feature definitions (managed), then the live light/dark selection
-	# the omarchy theme-set hook writes outside chezmoi's view.
+	# the omarchy theme-set hook writes under ~/.cache.
 	path = "~/.config/delta/system.gitconfig"
 	path = "~/.cache/delta-features.gitconfig"
 

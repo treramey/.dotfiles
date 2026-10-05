@@ -2,21 +2,19 @@ This repository owns Omarchy-only dotfiles. Do not add macOS configuration,
 Homebrew setup, or Windows provisioning. Windows and Ubuntu WSL belong in
 `https://github.com/treramey/dots-windows`.
 
-- Keep application configs plain. Do not add `.tmpl` files or
-  `.chezmoitemplates` override layers.
-- Edit source under `home/`, not deployed copies. Prefer scoped chezmoi applies
-  so unrelated pending changes are not deployed accidentally.
-- Neovim, Pi, and shared agent skills are live workspaces excluded from normal
-  chezmoi copying by `home/.chezmoiignore`. Edits there can affect running tools.
-- Preserve `home/dot_config/nvim` as the HTTPS submodule from
+- Keep application configs plain. Do not add template or override layers.
+- Edit source under `home/`. GNU Stow links it into `$HOME` without copying.
+- Neovim, Pi, and shared agent skills are whole-directory live links.
+  Edits there can affect running tools. `dot stow` preserves dirty submodules.
+- Preserve `home/.config/nvim` as the HTTPS submodule from
   `https://github.com/treramey/nvim.git`. Its shared configuration has separate
   ownership. Do not remove its platform support during dotfiles cleanup.
 - Use Fish for shell configuration and `wl-copy` and `wl-paste` for clipboard
-  integration. Keep tool pins in `home/dot_config/mise/config.toml`.
+  integration. Keep tool pins in `home/.config/mise/config.toml`.
 - Let Omarchy own the palette at `~/.local/state/omarchy/current/theme/`.
   Keep generated palettes, credentials, and runtime state out of Git, including
-  `home/dot_pi/agent/themes/omarchy-system.json`.
-- Keep Herdr settings and keybindings in `home/dot_config/herdr/config.toml`.
+  `home/.pi/agent/themes/omarchy-system.json`.
+- Keep Herdr settings and keybindings in `home/.config/herdr/config.toml`.
   Use its terminal theme directly, without merging packaged defaults or
   generating custom Sesh colors.
 - Treat `/usr/share/omarchy/` as read-only. Put durable customizations in owned

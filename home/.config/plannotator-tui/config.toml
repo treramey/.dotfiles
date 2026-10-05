@@ -1,5 +1,5 @@
 # Plannotator TUI configuration
-# Managed in ~/.dotfiles and applied by chezmoi.
+# Linked from ~/.dotfiles/home/ by GNU Stow.
 
 [herdr]
 # Full-tab overlay by default. Alternatives: "split" or "popup".

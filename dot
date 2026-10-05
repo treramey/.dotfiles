@@ -1,435 +1,202 @@
 #!/usr/bin/env bash
-
+# Omarchy dotfiles, linked from home/ using GNU Stow.
 set -euo pipefail
 
-# Colors
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[0;33m'
-readonly BLUE='\033[0;34m'
-readonly CYAN='\033[0;36m'
-readonly RESET='\033[0m'
-readonly BOLD='\033[1m'
-
-# Metadata
-readonly SCRIPT_NAME="dot"
-readonly VERSION="3.0.0"
-# Resolve this script's real location even when invoked via symlink
-# (e.g. ~/.local/bin/dot -> ~/.dotfiles/dot).
-SCRIPT_PATH="${BASH_SOURCE[0]}"
-while [[ -L "$SCRIPT_PATH" ]]; do
-    SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_PATH")" >/dev/null 2>&1 && pwd)"
-    SCRIPT_PATH="$(readlink "$SCRIPT_PATH")"
-    [[ "$SCRIPT_PATH" != /* ]] && SCRIPT_PATH="$SCRIPT_DIR/$SCRIPT_PATH"
-done
-DOTFILES_DIR="$(cd -P "$(dirname "$SCRIPT_PATH")" >/dev/null 2>&1 && pwd)"
+readonly VERSION="4.0.0"
+DOTFILES_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 readonly DOTFILES_DIR
+readonly SOURCE_DIR="${DOTFILES_DIR}/home"
+readonly LINK_PATH="${HOME}/.local/bin/dot"
+readonly -a LIVE_PATHS=(".pi" ".agents" ".config/nvim")
 
-# Platform detection
-OS="$(uname -s)"
-readonly OS
-is_arch() { [[ "$OS" == "Linux" ]] && [[ -f /etc/arch-release ]]; }
-
-# ─── Helpers ─────────────────────────────────────────────────────────────────
-
-print_header()  { echo -e "\n${BOLD}${BLUE}==>${RESET} ${BOLD}$1${RESET}"; }
-print_success() { echo -e "${GREEN}✓${RESET} $1"; }
-print_error()   { echo -e "${RED}✗${RESET} $1" >&2; }
-print_warning() { echo -e "${YELLOW}⚠${RESET} $1"; }
-print_info()    { echo -e "${CYAN}ℹ${RESET} $1"; }
-
-command_exists() { command -v "$1" >/dev/null 2>&1; }
-
-confirm() {
-    local prompt="${1:-Continue?}" default="${2:-n}"
-    if [[ "$default" == "y" ]]; then prompt="$prompt [Y/n]: "; else prompt="$prompt [y/N]: "; fi
-    read -r -p "$prompt" response
-    case "$response" in
-        [yY][eE][sS]|[yY]) return 0 ;;
-        [nN][oO]|[nN]) return 1 ;;
-        "") [[ "$default" == "y" ]] && return 0 || return 1 ;;
-        *) return 1 ;;
-    esac
-}
-
-# ─── Chezmoi ─────────────────────────────────────────────────────────────────
-
-_ensure_chezmoi() {
-    if command_exists chezmoi; then return 0; fi
-
-    print_info "Installing chezmoi..."
-    sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "${HOME}/.local/bin" || {
-        print_error "Failed to install chezmoi"
+require_stow() {
+    command -v stow >/dev/null || {
+        echo "GNU Stow is required. Install with: sudo pacman -S stow" >&2
         return 1
     }
-    export PATH="${HOME}/.local/bin:${PATH}"
-    print_success "chezmoi installed"
 }
 
-_link_live_workspace() {
-    local target="$1"
-    local source="$2"
-
-    if [[ ! -e "$source" ]]; then
-        print_error "Live workspace source missing: $source"
-        return 1
+sync_submodules() {
+    # Initialize missing checkouts only. Never reset an existing live workspace.
+    if [[ -f "${DOTFILES_DIR}/.gitmodules" && ! -e "${SOURCE_DIR}/.config/nvim/.git" ]]; then
+        git -C "$DOTFILES_DIR" submodule update --init --recursive
     fi
+}
 
-    mkdir -p "$(dirname "$target")"
+run_stow() {
+    # File links keep runtime files and generated palettes outside the source tree.
+    stow --no-folding --dir="$DOTFILES_DIR" --target="$HOME" "$@" home
+}
 
-    if [[ -L "$target" ]]; then
-        local current
-        current="$(readlink "$target")"
-        if [[ "$current" == "$source" ]]; then
-            print_success "Live workspace linked: $target -> $source"
-            return 0
+backup_target() {
+    local rel="$1"
+    mkdir -p "${BACKUP_DIR}/$(dirname "$rel")"
+    mv -- "${HOME}/${rel}" "${BACKUP_DIR}/${rel}"
+    printf 'Backed up %s to %s\n' "$rel" "$BACKUP_DIR"
+}
+
+link_live() {
+    local rel target source
+    for rel in "${LIVE_PATHS[@]}"; do
+        target="${HOME}/${rel}"
+        source="${SOURCE_DIR}/${rel}"
+        [[ -d "$source" ]] || { echo "Missing workspace: $source" >&2; return 1; }
+        if [[ -L "$target" && "$(readlink -f "$target")" == "$source" ]]; then
+            continue
+        fi
+        if [[ -e "$target" || -L "$target" ]]; then
+            [[ -n "${BACKUP_DIR:-}" ]] || {
+                echo "Conflict: $target. Move it aside or use 'dot stow --backup'." >&2
+                return 1
+            }
+            backup_target "$rel"
+        fi
+        mkdir -p "$(dirname "$target")"
+        ln -s -- "$source" "$target"
+    done
+}
+
+cmd_stow() {
+    local backup=false simulate=false
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --backup) backup=true ;;
+            -n|--simulate) simulate=true ;;
+            *) echo "Usage: dot stow [--backup] [--simulate]" >&2; return 1 ;;
+        esac
+        shift
+    done
+    require_stow
+    if $simulate; then
+        run_stow --simulate --restow --verbose
+        local rel
+        for rel in "${LIVE_PATHS[@]}"; do
+            printf 'Live link: %s -> %s\n' "${HOME}/${rel}" "${SOURCE_DIR}/${rel}"
+            if [[ -e "${HOME}/${rel}" || -L "${HOME}/${rel}" ]]; then
+                [[ -L "${HOME}/${rel}" && "$(readlink -f "${HOME}/${rel}")" == "${SOURCE_DIR}/${rel}" ]] || return 1
+            fi
+        done
+        return
+    fi
+    sync_submodules
+    BACKUP_DIR=""
+    if $backup; then
+        BACKUP_DIR="$(mktemp -d "${HOME}/.dotfiles-backup-XXXXXXXX")"
+        # Stow owns ignore matching and conflict discovery. Never use --adopt,
+        # which overwrites repository files with the deployed copies.
+        local output rel
+        if ! output="$(run_stow --simulate --restow 2>&1)"; then
+            printf '%s\n' "$output" >&2
+            local -a conflicts=()
+            mapfile -t conflicts < <(printf '%s\n' "$output" | sed -n \
+                -e 's/^  \* cannot stow .* over existing target \(.*\) since neither a link nor a directory and --adopt not specified$/\1/p' \
+                -e 's/^  \* existing target is not owned by stow: \(.*\)$/\1/p')
+            [[ ${#conflicts[@]} -gt 0 ]] || return 1
+            for rel in "${conflicts[@]}"; do
+                [[ "$rel" != /* && "$rel" != ".." && "$rel" != ../* && "$rel" != */../* ]] || return 1
+                backup_target "$rel"
+            done
         fi
     fi
+    # Stow fails without modifying files if any unresolved conflicts remain.
+    run_stow --restow --verbose
+    link_live
+    [[ -z "$BACKUP_DIR" ]] || echo "Migration backups: $BACKUP_DIR"
+    echo "Dotfiles linked."
+}
 
-    if [[ -e "$target" || -L "$target" ]]; then
-        local backup="${target}.bak-$(date +%Y%m%d-%H%M%S)"
-        print_warning "Backing up existing $target to $backup"
-        mv "$target" "$backup"
-    fi
+cmd_unstow() {
+    [[ $# -eq 0 ]] || { echo "Usage: dot unstow" >&2; return 1; }
+    require_stow
+    run_stow --delete --verbose
+    local rel target
+    for rel in "${LIVE_PATHS[@]}"; do
+        target="${HOME}/${rel}"
+        if [[ -L "$target" && "$(readlink -f "$target")" == "${SOURCE_DIR}/${rel}" ]]; then
+            rm -- "$target"
+        fi
+    done
+}
 
-    ln -s "$source" "$target"
-
-    if [[ ! -L "$target" ]] || [[ "$(readlink "$target")" != "$source" ]]; then
-        print_error "Failed to link live workspace: $target -> $source"
+cmd_link() {
+    mkdir -p "$(dirname "$LINK_PATH")"
+    if [[ -e "$LINK_PATH" || -L "$LINK_PATH" ]]; then
+        [[ -L "$LINK_PATH" && "$(readlink -f "$LINK_PATH")" == "${DOTFILES_DIR}/dot" ]] && return 0
+        echo "Refusing to replace $LINK_PATH" >&2
         return 1
     fi
-
-    print_success "Live workspace linked: $target -> $source"
+    ln -s -- "${DOTFILES_DIR}/dot" "$LINK_PATH"
 }
 
-_setup_live_workspaces() {
-    print_header "Checking live workspace links"
-    _link_live_workspace "${HOME}/.pi" "${DOTFILES_DIR}/home/dot_pi" || return 1
-    _link_live_workspace "${HOME}/.agents" "${DOTFILES_DIR}/home/dot_agents" || return 1
-    _link_live_workspace "${HOME}/.config/nvim" "${DOTFILES_DIR}/home/dot_config/nvim" || return 1
-}
-
-_build_bat_cache() {
-    if ! command_exists bat; then
-        print_warning "bat not installed, skipping cache build"
-        return 0
+cmd_unlink() {
+    if [[ -L "$LINK_PATH" && "$(readlink -f "$LINK_PATH")" == "${DOTFILES_DIR}/dot" ]]; then
+        rm -- "$LINK_PATH"
     fi
-    print_info "Building bat theme cache..."
-    bat cache --build
-    print_success "Bat cache built"
 }
-
-# ─── Commands ────────────────────────────────────────────────────────────────
 
 cmd_init() {
-    print_header "Initializing dotfiles"
-
-    # Install chezmoi
-    _ensure_chezmoi || return 1
-
-    # Arch: install watchman if missing
-    if is_arch && ! command_exists watchman; then
-        print_info "Installing watchman..."
-        if command_exists yay; then
-            yay -S --noconfirm watchman-bin && print_success "watchman installed" || print_warning "Failed to install watchman (continuing)"
-        else
-            print_warning "yay not found, skipping watchman install"
-        fi
-    fi
-
-    # Apply dotfiles
-    print_header "Applying dotfiles"
-    print_info "Initializing chezmoi config..."
-    if chezmoi init --source "${DOTFILES_DIR}" --apply=false; then
-        print_success "chezmoi config initialized"
-    else
-        print_error "Failed to initialize chezmoi config"
-        return 1
-    fi
-    print_info "Applying dotfiles with chezmoi..."
-    if chezmoi apply --source "${DOTFILES_DIR}"; then
-        print_success "Dotfiles applied successfully"
-    else
-        print_error "Failed to apply dotfiles"
-        return 1
-    fi
-
-    _setup_live_workspaces || return 1
-
-    _build_bat_cache
-
-    print_header "Done!"
-    print_info "Restart your shell or run: exec fish"
-}
-
-cmd_apply() {
-    print_header "Applying dotfiles"
-
-    _ensure_chezmoi || return 1
-
-    # Ensure chezmoi uses this repository as its source
-    chezmoi init --source "${DOTFILES_DIR}" --apply=false || return 1
-
-    # Clear cached state so chezmoi re-evaluates all files,
-    # ensuring externally modified targets (e.g. fisher) get overwritten
-    chezmoi state delete-bucket --bucket=entryState 2>/dev/null || true
-
-    print_info "Applying dotfiles with chezmoi..."
-    if chezmoi apply --force --source "${DOTFILES_DIR}" "$@"; then
-        print_success "Dotfiles applied successfully"
-    else
-        print_error "Failed to apply dotfiles"
-        return 1
-    fi
-
-    _setup_live_workspaces || return 1
+    cmd_stow "$@"
+    cmd_link
+    if command -v bat >/dev/null; then bat cache --build; fi
 }
 
 cmd_update() {
-    print_header "Updating dotfiles"
-
-    # Pull latest
-    print_info "Pulling latest changes..."
-    if [[ -d "${DOTFILES_DIR}/.jj" ]] && command_exists jj; then
-        if jj git fetch -R "$DOTFILES_DIR" && jj -R "$DOTFILES_DIR" rebase -d 'trunk()'; then
-            print_success "Updated via jj"
-        else
-            print_error "Failed to update via jj"
-            return 1
-        fi
-    elif git -C "$DOTFILES_DIR" pull; then
-        print_success "Repository updated"
-    else
-        print_error "Failed to pull"
-        return 1
-    fi
-
-    # Re-apply
-    if confirm "Re-apply dotfiles?" "y"; then
-        cmd_apply
-    fi
-}
-
-cmd_diff() {
-    _ensure_chezmoi || return 1
-    chezmoi diff --source "${DOTFILES_DIR}" "$@"
-}
-
-cmd_add() {
-    _ensure_chezmoi || return 1
-    chezmoi add --source "${DOTFILES_DIR}" "$@"
-}
-
-cmd_cd() {
-    _ensure_chezmoi || return 1
-    chezmoi cd --source "${DOTFILES_DIR}"
-}
-
-cmd_managed() {
-    _ensure_chezmoi || return 1
-    chezmoi managed --source "${DOTFILES_DIR}" "$@"
-}
-
-cmd_link_live() {
-    _setup_live_workspaces
-}
-
-cmd_status() {
-    _ensure_chezmoi || return 1
-    chezmoi status --source "${DOTFILES_DIR}" "$@"
+    git -C "$DOTFILES_DIR" pull --ff-only
+    cmd_stow "$@"
 }
 
 cmd_doctor() {
-    print_header "Running diagnostics"
-    local issues=0
-
-    # chezmoi
-    if command_exists chezmoi; then
-        print_success "chezmoi installed ($(chezmoi --version 2>/dev/null | head -1))"
-    else
-        print_error "chezmoi not installed"
-        ((++issues))
-    fi
-
-    # Platform-specific
-    if is_arch; then
-        if command_exists pacman; then print_success "pacman available"; else print_error "pacman not found"; ((++issues)); fi
-        if command_exists yay; then print_success "yay available"; else print_warning "yay not installed"; fi
-    fi
-
-    # Shell
-    local fish_path
-    fish_path=$(command -v fish 2>/dev/null || true)
-    if [[ -n "$fish_path" ]]; then
-        print_success "Fish installed"
-        if [[ "${SHELL:-}" == "$fish_path" ]]; then
-            print_success "Fish is default shell"
-        else
-            print_warning "Fish is not default shell (current: ${SHELL:-unset})"
+    require_stow
+    local issues=0 rel
+    run_stow --simulate --restow || issues=1
+    for rel in ".config/fish/config.fish" ".config/mise/config.toml" "${LIVE_PATHS[@]}"; do
+        if [[ "$(readlink -f "${HOME}/${rel}")" != "${SOURCE_DIR}/${rel}" || ! -e "${HOME}/${rel}" ]]; then
+            echo "Missing or foreign link: ${HOME}/${rel}" >&2
+            issues=1
         fi
-    else
-        print_error "Fish not installed"
-        ((++issues))
-    fi
-
-    # Dev tools
-    local tools=("git" "nvim" "tmux" "node")
-    local missing=()
-    for tool in "${tools[@]}"; do
-        if command_exists "$tool"; then print_success "$tool available"; else missing+=("$tool"); fi
     done
-    if [[ ${#missing[@]} -gt 0 ]]; then
-        print_warning "Missing tools: ${missing[*]}"
-    fi
-
-    # jj
-    if command_exists jj; then
-        print_success "jj (Jujutsu) installed"
-    else
-        print_warning "jj not installed"
-    fi
-
-    # chezmoi doctor
-    if command_exists chezmoi; then
-        print_header "chezmoi doctor"
-        chezmoi doctor || true
-    fi
-
-    if [[ $issues -eq 0 ]]; then
-        print_header "All critical checks passed!"
-    else
-        print_header "Found $issues critical issues"
-    fi
-}
-
-cmd_edit() {
-    if [[ $# -gt 0 ]]; then
-        _ensure_chezmoi || return 1
-        chezmoi edit --source "${DOTFILES_DIR}" "$@"
-    else
-        local editor="${EDITOR:-nvim}"
-        if command_exists "$editor"; then
-            exec "$editor" "$DOTFILES_DIR"
-        else
-            print_error "Editor '$editor' not found"
-            return 1
-        fi
-    fi
-}
-
-cmd_watch() {
-    _ensure_chezmoi || return 1
-
-    if ! command_exists watchman; then
-        print_error "watchman is not installed"
-        if is_arch; then
-            print_info "Install with: yay -S watchman-bin"
-        fi
-        return 1
-    fi
-
-    local source_path
-    source_path="$(chezmoi source-path --source "${DOTFILES_DIR}")"
-
-    case "${1:-start}" in
-        start)
-            print_header "Starting file watcher"
-            watchman watch "${source_path}"
-            watchman trigger-del "${source_path}" chezmoi-apply 2>/dev/null || true
-            watchman -j <<EOT
-["trigger", "${source_path}", {
-  "name": "chezmoi-apply",
-  "command": ["chezmoi", "apply", "--force", "--source", "${DOTFILES_DIR}"]
-}]
-EOT
-            print_success "Watching ${source_path} for changes"
-            print_info "Changes will auto-apply. Run 'dot watch stop' to disable."
-            ;;
-        stop)
-            print_header "Stopping file watcher"
-            watchman watch-del "${source_path}" 2>/dev/null || true
-            print_success "Watcher stopped"
-            ;;
-        status)
-            if watchman watch-list 2>/dev/null | grep -q "${source_path}"; then
-                print_success "Watcher is active on ${source_path}"
-            else
-                print_warning "Watcher is not running"
-            fi
-            ;;
-        *)
-            print_error "Unknown watch subcommand: $1"
-            echo "Usage: dot watch [start|stop|status]"
-            return 1
-            ;;
-    esac
+    git -C "$DOTFILES_DIR" submodule status
+    return "$issues"
 }
 
 cmd_help() {
-    echo -e "${BOLD}${SCRIPT_NAME}${RESET} - Dotfiles management tool (v${VERSION})"
-    echo ""
-    echo -e "${BOLD}USAGE:${RESET}"
-    echo "    ${SCRIPT_NAME} [OPTIONS] COMMAND [ARGS]"
-    echo ""
-    echo -e "${BOLD}COMMANDS:${RESET}"
-    echo "    init            Initialize and install everything"
-    echo "    apply [path]    Apply dotfiles with chezmoi"
-    echo "    update          Pull changes and re-apply"
-    echo "    diff            Preview pending changes"
-    echo "    status          Show what's out of sync"
-    echo "    add <file>      Add a file to the source state"
-    echo "    edit [target]   Edit a target file, or open dotfiles dir"
-    echo "    managed         List all managed files"
-    echo "    link-live       Link live workspaces (.pi, .agents, nvim)"
-    echo "    cd              Open a shell in the source directory"
-    echo "    watch [cmd]     Auto-apply on changes (start|stop|status)"
-    echo "    doctor          Run diagnostics"
-    echo "    help            Show this help"
-    echo ""
-    echo -e "${BOLD}OPTIONS:${RESET}"
-    echo "    --version       Show version"
-    echo "    -h, --help      Show help"
-    echo ""
-    echo -e "${BOLD}CONFIGURATION:${RESET}"
-    echo "    Dotfiles: ${DOTFILES_DIR}"
-    echo "    Platform: Omarchy"
-    echo ""
-}
+    cat <<EOF
+dot v${VERSION}, Omarchy dotfiles managed with GNU Stow
 
-# ─── Main ────────────────────────────────────────────────────────────────────
+Usage: dot COMMAND [OPTIONS]
+  stow [--backup] [-n]   Refresh symlinks, default command
+  restow                Alias for stow
+  unstow                Remove owned symlinks, leave other files alone
+  init [--backup]        Stow, link dot on PATH, build bat cache
+  update                Pull with --ff-only and restow
+  status                Preview link changes and conflicts without writing
+  doctor                Check links and submodule state
+  link / unlink         Install or remove dot at ~/.local/bin/dot
+  edit                  Open the repository in \$EDITOR, default nvim
+  help / --version      Show help or version
+
+Existing files are never adopted or overwritten.
+Use --backup to move conflicts into ~/.dotfiles-backup-* before linking.
+Edit home/ directly. Linked file edits are live, no watcher is needed.
+EOF
+}
 
 main() {
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --version) echo "${SCRIPT_NAME} v${VERSION}"; exit 0 ;;
-            -h|--help) cmd_help; exit 0 ;;
-            *) break ;;
-        esac
-    done
-
-    local cmd="${1:-help}"
-    shift || true
-
+    local cmd="${1:-stow}"
+    [[ $# -eq 0 ]] || shift
     case "$cmd" in
-        init)    cmd_init "$@" ;;
-        apply)   cmd_apply "$@" ;;
-        update)  cmd_update "$@" ;;
-        diff)    cmd_diff "$@" ;;
-        status)  cmd_status "$@" ;;
-        add)     cmd_add "$@" ;;
-        edit)    cmd_edit "$@" ;;
-        managed) cmd_managed "$@" ;;
-        link-live) cmd_link_live "$@" ;;
-        cd)      cmd_cd "$@" ;;
-        watch)   cmd_watch "$@" ;;
-        doctor)  cmd_doctor "$@" ;;
-        help)    cmd_help ;;
-        *)
-            print_error "Unknown command: $cmd"
-            echo "Run '${SCRIPT_NAME} help' for usage"
-            exit 1
-            ;;
+        stow|restow) cmd_stow "$@" ;;
+        unstow) cmd_unstow "$@" ;;
+        init) cmd_init "$@" ;;
+        update) cmd_update "$@" ;;
+        status) cmd_stow --simulate "$@" ;;
+        doctor) cmd_doctor ;;
+        link) cmd_link ;;
+        unlink) cmd_unlink ;;
+        edit) exec "${EDITOR:-nvim}" "$DOTFILES_DIR" ;;
+        help|-h|--help) cmd_help ;;
+        --version) echo "dot v${VERSION}" ;;
+        *) echo "Unknown command: $cmd. Run 'dot help'." >&2; return 1 ;;
     esac
 }
-
 main "$@"

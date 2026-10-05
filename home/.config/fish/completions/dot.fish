@@ -1,0 +1,15 @@
+# Fish completions for the GNU Stow dotfiles manager.
+complete -c dot -f
+complete -c dot -n "__fish_use_subcommand" -a "stow restow" -d "Refresh dotfile symlinks"
+complete -c dot -n "__fish_use_subcommand" -a "unstow" -d "Remove owned dotfile symlinks"
+complete -c dot -n "__fish_use_subcommand" -a "init" -d "Link dotfiles and initialize caches"
+complete -c dot -n "__fish_use_subcommand" -a "update" -d "Pull and restow dotfiles"
+complete -c dot -n "__fish_use_subcommand" -a "status" -d "Preview symlink changes"
+complete -c dot -n "__fish_use_subcommand" -a "doctor" -d "Check symlink health"
+complete -c dot -n "__fish_use_subcommand" -a "link unlink" -d "Manage dot on PATH"
+complete -c dot -n "__fish_use_subcommand" -a "edit" -d "Open the dotfiles repository"
+complete -c dot -n "__fish_use_subcommand" -a "help" -d "Show help"
+complete -c dot -n "__fish_use_subcommand" -l version -d "Show version"
+complete -c dot -n "__fish_use_subcommand" -s h -l help -d "Show help"
+complete -c dot -n "__fish_seen_subcommand_from stow restow init update" -l backup -d "Back up conflicting targets before linking"
+complete -c dot -n "__fish_seen_subcommand_from stow restow init update" -s n -l simulate -d "Preview without changing files"
